@@ -4,3 +4,11 @@
 
 This is the book for writing a RISC-V emulator from scratch in Rust.
 
+| Day | Content |
+| :--- | :--- |
+| Day1 | Setup environment and implement one instruction |
+| Day2 | hogefuga |
+|  |  |
+
+
+
