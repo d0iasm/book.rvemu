@@ -1,6 +1,6 @@
 # Setup and implement two instructions
 
-This is Day 1 of Writing a RISC-V Emulator from Scratch in 10 Days, which tried to run [xv6](https://github.com/mit-pdos/xv6-riscv) in your emulator. Xv6 is a simple Unix-like OS for education.
+This is Day 1 of [Writing a RISC-V Emulator from Scratch in 10 Days](./), which tried to run [xv6](https://github.com/mit-pdos/xv6-riscv) in your emulator.
 
 In this page, we're going to set up environment for Rust and implement basic CPU to execute two instructions. In the end of this page, you can execute `add` and `addi` instructions and execute this simple binary file in your emulator.
 

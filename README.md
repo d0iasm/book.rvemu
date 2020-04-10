@@ -1,8 +1,19 @@
+---
+description: >-
+  The book for writing a RISC-V emulator from scratch in Rust. It shows us how
+  to implement an emulator step by step in 10 days. You can run xv6, a simple
+  Unix-like OS, in your emulator in the final day
+---
+
 # Writing a RISC-V Emulator from Scratch in 10 Days
 
 ## Introduction
 
-This is the book for writing a RISC-V emulator from scratch in Rust. It shows us to implement an emulator step by step in 10 days. In the final day, you can run xv6, a simple Unix-like OS, on your emulator.
+This is the book for writing a RISC-V emulator from scratch in Rust. It shows us how to implement an emulator step by step in 10 days. You can run [xv6](https://github.com/mit-pdos/xv6-riscv), a simple Unix-like OS, in your emulator in the final day.
+
+
+
+Author is [@d0iasm](https://twitter.com/d0iasm) and please feel free to ask and request anything to me via [Twitter](https://twitter.com/d0iasm) or [GitHub issues](https://github.com/d0iasm/rvemu-simple/issues)!
 
 | Day | Content |
 | :--- | :--- |
