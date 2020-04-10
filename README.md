@@ -6,7 +6,7 @@ This is the book for writing a RISC-V emulator from scratch in Rust. It shows us
 
 | Day | Content |
 | :--- | :--- |
-| Day1 | Setup environment and implement one instruction |
+| Day1 | Setup and implement one instruction |
 | Day2 | RV64I instructions |
 | Day3 | Supervisor ISAs |
 | Day4 |  A part of CSRs |
