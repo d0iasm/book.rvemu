@@ -2,20 +2,20 @@
 
 ## Introduction
 
-This is the book for writing a RISC-V emulator from scratch in Rust. This book shows us to implement an emulator step by step in 10 days. In the final day, you can execute the RISC-V binary to calculate fibonacci numbers in your emulator.
+This is the book for writing a RISC-V emulator from scratch in Rust. It shows us to implement an emulator step by step in 10 days. In the final day, you can run xv6, a simple Unix-like OS, on your emulator.
 
 | Day | Content |
 | :--- | :--- |
 | Day1 | Setup environment and implement one instruction |
-| Day2 | hogefuga |
-| Day3 |  |
-| Day4 |  |
-| Day5 |  |
-| Day6 |  |
-| Day7 |  |
-| Day8 |  |
-| Day9 |  |
-| Day10 |  |
+| Day2 | RV64I instructions |
+| Day3 | Supervisor ISAs and a part of CSRs |
+| Day4 | Exceptions |
+| Day5 | UART \(a universal asynchronous receiver-transmitter\) |
+| Day6 | PLIC \(a platform-level interrupt controller\) |
+| Day7 | Interrupts |
+| Day8 | CLINT \(a core-local interruptor\) |
+| Day9 | Virtio |
+| Day10 | Finish! |
 
 
 
