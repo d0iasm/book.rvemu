@@ -8,14 +8,15 @@ This is the book for writing a RISC-V emulator from scratch in Rust. It shows us
 | :--- | :--- |
 | Day1 | Setup environment and implement one instruction |
 | Day2 | RV64I instructions |
-| Day3 | Supervisor ISAs and a part of CSRs |
-| Day4 | Exceptions |
-| Day5 | UART \(a universal asynchronous receiver-transmitter\) |
-| Day6 | PLIC \(a platform-level interrupt controller\) |
-| Day7 | Interrupts |
-| Day8 | CLINT \(a core-local interruptor\) |
-| Day9 | Virtio |
-| Day10 | Finish! |
+| Day3 | Supervisor ISAs |
+| Day4 |  A part of CSRs |
+| Day5 | Exceptions |
+| Day6 | UART \(a universal asynchronous receiver-transmitter\) |
+| Day7 | PLIC \(a platform-level interrupt controller\) |
+| Day8 | Interrupts |
+| Day9 | CLINT \(a core-local interruptor\) |
+| Day10 | Virtio |
+|  | Finish! |
 
 
 
