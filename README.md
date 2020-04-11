@@ -13,8 +13,6 @@ You'll learn the basic computer architecture from making an emulator in Rust:
 * Interrupts
 * Peripheral devices
 
-Author is [@d0iasm](https://twitter.com/d0iasm) and please feel free to ask and request anything to me via [Twitter](https://twitter.com/d0iasm) or [GitHub issues](https://github.com/d0iasm/rvemu-simple/issues)!
-
 | Day | Content |
 | :--- | :--- |
 | Day1 | [Setup and implement two instructions](setup-and-implement-one-instruction.md) |
@@ -29,5 +27,5 @@ Author is [@d0iasm](https://twitter.com/d0iasm) and please feel free to ask and 
 | Day10 | Virtio |
 |  | Finish! |
 
-
+Author is [@d0iasm](https://twitter.com/d0iasm) and please feel free to ask and request anything to me via [Twitter](https://twitter.com/d0iasm) or [GitHub issues](https://github.com/d0iasm/rvemu-simple/issues)!
 
