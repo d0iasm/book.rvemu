@@ -1,8 +1,24 @@
 # Setup and implement two instructions
 
-This is Day 1 of [Writing a RISC-V Emulator from Scratch in 10 Days](./), which tried to run [xv6](https://github.com/mit-pdos/xv6-riscv) in your emulator.
+This is Day 1 of [Writing a RISC-V Emulator from Scratch in 10 Days](./), which tries to run [xv6](https://github.com/mit-pdos/xv6-riscv) in your emulator in the final day.
 
-In this page, we're going to set up environment for Rust and implement basic CPU to execute two instructions. In the end of this page, you can execute `add` and `addi` instructions and execute this simple binary file in your emulator.
+## Goal
+
+In the end of this page, we can execute [the sample file](https://github.com/d0iasm/rvemu-simple/blob/master/day1/add-addi.s) containing `add` and `addi` instructions. The `add` instruction adds two 64-bit registers and the `addi` instruction adds a 64-bit register and 12-bit immediate value. 
+
+```text
+// add-addi.s
+main:
+  addi x29, x0, 5
+  addi x30, x0, 37
+  add x31, x30, x29
+```
+
+```text
+$ cargo run add-addi.text
+...omitted...
+x28=               0x0 x29=               0x5 x30=              0x25 x31=              0x2a
+```
 
 ## Background
 

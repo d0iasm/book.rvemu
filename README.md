@@ -13,6 +13,8 @@ You'll learn the basic computer architecture from making an emulator in Rust:
 * Interrupts
 * Peripheral devices
 
+Source code is available at [d0iasm/rvemu-simple](https://github.com/d0iasm/rvemu-simple).
+
 | Day | Content |
 | :--- | :--- |
 | Day1 | [Setup and implement two instructions](setup-and-implement-one-instruction.md) |
@@ -25,7 +27,7 @@ You'll learn the basic computer architecture from making an emulator in Rust:
 | Day8 | Interrupts |
 | Day9 | CLINT \(a core-local interruptor\) |
 | Day10 | Virtio |
-|  | Finish! |
+|  | Congratulations🎉 Now you can run xv6 in your emulator. |
 
 Author is [@d0iasm](https://twitter.com/d0iasm) and please feel free to ask and request anything to me via [Twitter](https://twitter.com/d0iasm) or [GitHub issues](https://github.com/d0iasm/rvemu-simple/issues)!
 
