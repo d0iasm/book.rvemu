@@ -2,32 +2,20 @@
 
 ## Introduction
 
-This is the book for writing a RISC-V emulator from scratch in Rust. It shows us how to implement an emulator step by step in 10 days. You can run [xv6](https://github.com/mit-pdos/xv6-riscv), a simple Unix-like OS, in your emulator in the final day.
-
-You'll learn the basic computer architecture from making an emulator in Rust:
-
-* Basic RISC-V architecture
-* How to write code in Rust language
-* Privilege levels
-* Exceptions
-* Interrupts
-* Peripheral devices
-
-The source code is available at [d0iasm/rvemu-simple](https://github.com/d0iasm/rvemu-simple).
+This is the book for writing a RISC-V emulator from scratch in Rust. It shows us to implement an emulator step by step in 10 days. In the final day, you can run xv6, a simple Unix-like OS, on your emulator.
 
 | Day | Content |
 | :--- | :--- |
-| Day1 | [Setup and implement two instructions](setup-and-implement-one-instruction.md) |
-| Day2 | RV64I ISAs |
-| Day3 | Supervisor ISAs |
-| Day4 | A part of CSRs |
-| Day5 | Exceptions |
-| Day6 | UART \(a universal asynchronous receiver-transmitter\) |
-| Day7 | PLIC \(a platform-level interrupt controller\) |
-| Day8 | Interrupts |
-| Day9 | CLINT \(a core-local interruptor\) |
-| Day10 | Virtio |
-|  | Congratulations🎉 Now you can run xv6 in your emulator. |
+| Day1 | Setup environment and implement one instruction |
+| Day2 | RV64I instructions |
+| Day3 | Supervisor ISAs and a part of CSRs |
+| Day4 | Exceptions |
+| Day5 | UART \(a universal asynchronous receiver-transmitter\) |
+| Day6 | PLIC \(a platform-level interrupt controller\) |
+| Day7 | Interrupts |
+| Day8 | CLINT \(a core-local interruptor\) |
+| Day9 | Virtio |
+| Day10 | Finish! |
 
-Author is [@d0iasm](https://twitter.com/d0iasm) and please feel free to ask and request anything to me via [Twitter](https://twitter.com/d0iasm) or [GitHub issues](https://github.com/d0iasm/rvemu-simple/issues)!
+
 

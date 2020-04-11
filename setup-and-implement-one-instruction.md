@@ -38,7 +38,7 @@ $ make linux
 
 ## Create a new project
 
-We'll use Cargo, the Rust package manager. See [the installation page](https://doc.rust-lang.org/cargo/getting-started/installation.html) in Cargo book to install it. I'll call our project `rvemu-simple` because I originally implemented [rvemu](https://github.com/d0iasm/rvemu) and I made [a simple version of it](https://github.com/d0iasm/rvemu-simple) for this book.
+We'll use Cargo, the Rust package manager. See [the installation page](https://doc.rust-lang.org/cargo/getting-started/installation.html) in Cargo book to install it. I'll call our project `rvemu-simple` because I originally implemented [rvemu](https://github.com/d0iasm/rvemu) and I made [a simple version of it](https://github.com/d0iasm/rvemu-simple) for this book. We can see "Hello, world!" when we execute an initialized project.
 
 ```bash
 $ cargo new rvemu-simple
@@ -66,6 +66,18 @@ fn main() -> io::Result<()> {
 {% endcode %}
 
 ## Create a basic CPU
+
+{% code title="src/main.rs" %}
+```rust
+struct Cpu {
+    xregs: [u64; 32],
+    pc: u64,
+    memory: Vec<u8>,
+}
+```
+{% endcode %}
+
+
 
 
 
