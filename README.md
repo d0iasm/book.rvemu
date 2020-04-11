@@ -13,12 +13,12 @@ You'll learn the basic computer architecture from making an emulator in Rust:
 * Interrupts
 * Peripheral devices
 
-Source code is available at [d0iasm/rvemu-simple](https://github.com/d0iasm/rvemu-simple).
+The source code is available at [d0iasm/rvemu-simple](https://github.com/d0iasm/rvemu-simple).
 
 | Day | Content |
 | :--- | :--- |
 | Day1 | [Setup and implement two instructions](setup-and-implement-one-instruction.md) |
-| Day2 | RV64I instructions |
+| Day2 | RV64I ISAs |
 | Day3 | Supervisor ISAs |
 | Day4 | A part of CSRs |
 | Day5 | Exceptions |
