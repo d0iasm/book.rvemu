@@ -1,19 +1,19 @@
 # Setup and implement two instructions
 
-This is Day 1 of [Writing a RISC-V Emulator from Scratch in 10 Days](./), which tries to run [xv6](https://github.com/mit-pdos/xv6-riscv) in your emulator in the final day.
+This is the step 1 of [Writing a RISC-V Emulator from Scratch in 10 Steps](./), which tries to run [xv6](https://github.com/mit-pdos/xv6-riscv) in your emulator in the final day.
 
-The source code is available at [d0iasm/rvemu-simple/day1/](https://github.com/d0iasm/rvemu-simple/tree/master/day1).
+The source code is available at [d0iasm/rvemu-for-book/day1/](https://github.com/d0iasm/rvemu-for-book/tree/master/day1).
 
-## Goal
+## Goal of This Page
 
-In the end of this page, we can execute [the sample file](https://github.com/d0iasm/rvemu-simple/blob/master/day1/add-addi.s) containing `add` and `addi` instructions. The `add` instruction adds two 64-bit registers, and the `addi` instruction adds a 64-bit register and 12-bit immediate value.
+In the end of this page, we can execute [the sample file](https://github.com/d0iasm/rvemu-for-book/blob/master/day1/add-addi.s) containing `add` and `addi` instructions. The `add` instruction adds two 64-bit registers, and the `addi` instruction adds a 64-bit register and 12-bit immediate value.
 
-Sample binary files are also available at [d0iasm/rvemu-simple/day1/](https://github.com/d0iasm/rvemu-simple/tree/master/day1).
+Sample binary files are also available at [d0iasm/rvemu-for-book/day1/](https://github.com/d0iasm/rvemu-for-book/tree/master/day1).
 
 ```bash
 $ cargo run add-addi.text
 ...omitted...
-x28=               0x0 x29=               0x5 x30=              0x25 x31=              0x2a
+x28= 0x0  x29= 0x5  x30= 0x25  x31= 0x2a
 ```
 
 ## Background
@@ -48,10 +48,12 @@ Hello, world!
 
 ## Read a file name from a command line
 
-First, you need to read a binary file from a command line.
+First, we need to read the name of a binary file from a command line. We can get command line arguments via the standard `env` module. Let a file name place at the first argument.
 
 {% code title="src/main.rs" %}
 ```rust
+use std::env;
+
 fn main() -> io::Result<()> {
     let args: Vec<String> = env::args().collect();
 
@@ -66,6 +68,8 @@ fn main() -> io::Result<()> {
 {% endcode %}
 
 ## Create a basic CPU
+
+A computer composed of 
 
 {% code title="src/main.rs" %}
 ```rust
