@@ -1,6 +1,6 @@
 # Setup and implement two instructions
 
-This is the step 1 of [Writing a RISC-V Emulator from Scratch in 10 Steps](./), which tries to run [xv6](https://github.com/mit-pdos/xv6-riscv) in your emulator in the final day.
+This is the step 1 of the book [_Writing a RISC-V Emulator from Scratch in 10 Steps_](./), which tries to run [xv6](https://github.com/mit-pdos/xv6-riscv) in your emulator in the final day.
 
 The source code is available at [d0iasm/rvemu-for-book/day1/](https://github.com/d0iasm/rvemu-for-book/tree/master/day1).
 
@@ -18,9 +18,11 @@ x28= 0x0  x29= 0x5  x30= 0x25  x31= 0x2a
 
 ## Background
 
-[RISC-V](https://riscv.org/) is a new instruction-set architecture \(ISA\) that was originally designed to support computer architecture research and education at the University of California, Berkeley, but now it gradually becomes a standard free and open architecture for industry implementations. RISC-V is also excellent **for students to study computer architecture** since it's simple enough. We can see [the RISC-V specifications](https://riscv.org/specifications/) for free and we'll implement a part of features in _Unprivileged Specification_ and _Privileged ISA Specification_. This book tries to understand the basic RISC-V architecture by making a RISC-V emulator.
+[RISC-V](https://riscv.org/) is a new instruction-set architecture \(ISA\) that was originally designed to support computer architecture research and education at the University of California, Berkeley, but now it gradually becomes a standard free and open architecture for industry implementations. RISC-V is also excellent **for students to learn computer architecture** since it's simple enough. We can see [the RISC-V specifications](https://riscv.org/specifications/) for free and we'll implement a part of features in _Unprivileged Specification_ and _Privileged ISA Specification_. The _Unprivileged Specification_ defines CPU instructions, 
 
 [Rust](https://www.rust-lang.org/) is an open-source systems programming language that focuses on performance and safety. It is popular especially in systems programming. We're going to implement our emulator in Rust.
+
+We'll implement a RISC-V emulator in Rust in this book. In simple words, we're going to write **an infinite loop to execute binaries of RISC-V step by step**. An instruction is executed at an one step in the loop. This book tries to understand the basic RISC-V architecture by making a RISC-V emulator.
 
 ## Build RISC-V toolchain
 
