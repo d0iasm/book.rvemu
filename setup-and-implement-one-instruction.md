@@ -33,9 +33,8 @@ Download code from the [riscv/riscv-gnu-toolchain](https://github.com/riscv/risc
 ```bash
 $ git clone --recursive https://github.com/riscv/riscv-gnu-toolchain
 $ cd riscv-gnu-toolchain
-$ ./configure --prefix=<path-to-riscv-toolchain> --with-arch=rv64i
-$ make
-$ make linux
+$ ./configure --prefix=<path-to-riscv-toolchain> --with-arch=rv64g
+$ make && make linux
 ```
 
 ## Create a New Project
