@@ -1,4 +1,4 @@
-# Setup and implement two instructions
+# Setup and Implement Two Instructions
 
 This is the step 1 of the book [_Writing a RISC-V Emulator from Scratch in 10 Steps_](./), which tries to run [xv6](https://github.com/mit-pdos/xv6-riscv) in your emulator in the final day.
 
@@ -73,7 +73,7 @@ fn main() -> io::Result<()> {
 
 CPU is the most important part of a computer to execute instructions. It has registers, a small amount of fast storage CPU can access. It also has a program counter to hold the address of the current instruction.
 
-The following struct contains 32 64-bit registers, a program counter, and memory.
+The following struct contains 32 64-bit registers, a program counter, and memory. An actual hardware doesn't have a memory inside CPU, but our emulator has it for simplicity.
 
 {% code title="src/main.rs" %}
 ```rust
