@@ -1,21 +1,34 @@
-# Writing a RISC-V Emulator from Scratch in 10 Days
+# Writing a RISC-V Emulator from Scratch in 10 Steps
 
 ## Introduction
 
-This is the book for writing a RISC-V emulator from scratch in Rust. It shows us to implement an emulator step by step in 10 days. In the final day, you can run xv6, a simple Unix-like OS, on your emulator.
+This is the book for writing a 64-bit RISC-V emulator from scratch in Rust. It shows us how to implement an emulator step by step in 10 steps. You can run [xv6](https://github.com/mit-pdos/xv6-riscv), a simple Unix-like OS, in your emulator in the final step.
 
-| Day | Content |
+You'll learn the following basic computer architecture from making an emulator in Rust:
+
+* Basic RISC-V architecture
+* How to write code in Rust language
+* Privilege levels
+* Exceptions
+* Interrupts
+* Peripheral devices
+
+The source code is available at [d0iasm/rvemu-for-book](https://github.com/d0iasm/rvemu-for-book).
+
+| Step | Content |
 | :--- | :--- |
-| Day1 | Setup environment and implement one instruction |
-| Day2 | RV64I instructions |
-| Day3 | Supervisor ISAs and a part of CSRs |
-| Day4 | Exceptions |
-| Day5 | UART \(a universal asynchronous receiver-transmitter\) |
-| Day6 | PLIC \(a platform-level interrupt controller\) |
-| Day7 | Interrupts |
-| Day8 | CLINT \(a core-local interruptor\) |
-| Day9 | Virtio |
-| Day10 | Finish! |
+| Step 1 | [Setup and Implement Two Instructions](setup-and-implement-one-instruction.md) |
+| Step 2 | [RV64I ISAs](rv64i-isas.md) |
+| Step 3 | Supervisor ISAs |
+| Step 4 | A part of CSRs |
+| Step 5 | Exceptions |
+| Step 6 | UART \(a universal asynchronous receiver-transmitter\) |
+| Step 7 | PLIC \(a platform-level interrupt controller\) |
+| Step 8 | Interrupts |
+| Step 9 | CLINT \(a core-local interruptor\) |
+| Step 10 | Virtio |
 
+Congratulations🎉 Now you can run xv6 in your emulator!
 
+Author is [@d0iasm](https://twitter.com/d0iasm) and please feel free to ask and request anything to me via [Twitter](https://twitter.com/d0iasm) or [GitHub issues](https://github.com/d0iasm/rvemu-simple/issues)!
 
