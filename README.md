@@ -17,7 +17,7 @@ The source code is available at [d0iasm/rvemu-for-book](https://github.com/d0ias
 
 | Step | Content |
 | :--- | :--- |
-| Step 1 | [Setup and Implement Two Instructions](setup-and-implement-one-instruction.md) |
+| Step 1 | [Setup and Implement Two Instructions](setup-and-implement-two-instructions.md) |
 | Step 2 | [RV64I ISAs](rv64i-isas.md) |
 | Step 3 | Supervisor ISAs |
 | Step 4 | A part of CSRs |
