@@ -80,7 +80,7 @@ The main job of the CPU is composed of three main stages: the fetch stage, the d
 2. Decode: Splits an instruction sequence into a form that makes sense to the CPU.
 3. Execute: Performs the action required by the instruction.
 
-We'll make `fetch` and `execute` methods in CPU. The decode stage is performed in the execute method for the sake of simplicity. In a read hardware, arithmetic operations such as addition and subtraction are performed by [ALU ](https://en.wikipedia.org/wiki/Arithmetic_logic_unit)\(Arithmetic logic unit\), but in the emulator I decided to implement it in CPU.
+We'll make `fetch` and `execute` methods in CPU. The decode stage is performed in the execute method for the sake of simplicity. In a real hardware, arithmetic operations such as addition and subtraction are performed by [ALU ](https://en.wikipedia.org/wiki/Arithmetic_logic_unit)\(Arithmetic logic unit\), but in the emulator I decided to implement it in CPU.
 
 ```rust
 impl Cpu {
@@ -137,6 +137,12 @@ impl Cpu {
 ### Fetch Stage
 
 Now, we are ready to fetch an instruction from the memory. 
+
+What we should be careful to fetch an instruction is endianness, which is the term refers to how binary data is stored. There are 2 types of endianness: little-endian and big-endian.
+
+![](.gitbook/assets/risc-v_-endianness.png)
+
+RISC-V has either little-endian or big-endian memory systems, but our emulator will implement a little-endian system. 
 
 ### Decode State
 
