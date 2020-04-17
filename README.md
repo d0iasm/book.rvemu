@@ -19,7 +19,7 @@ The source code is available at [d0iasm/rvemu-for-book](https://github.com/d0ias
 | :--- | :--- |
 | Step 1 | [Setup and Implement Two Instructions](setup-and-implement-two-instructions.md) |
 | Step 2 | [RV64I ISAs](rv64i-isas.md) |
-| Step 3 | Supervisor ISAs |
+| Step 3 | [Supervisor ISAs](supervisor-isas.md) |
 | Step 4 | A part of CSRs |
 | Step 5 | Exceptions |
 | Step 6 | UART \(a universal asynchronous receiver-transmitter\) |
