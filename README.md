@@ -2,7 +2,7 @@
 
 ## Introduction
 
-This is the book for writing a 64-bit RISC-V emulator from scratch in Rust. It shows us how to implement an emulator step by step in 10 steps. You can run [xv6](https://github.com/mit-pdos/xv6-riscv), a simple Unix-like OS, in your emulator in the final step.
+This is the book for writing a 64-bit RISC-V emulator from scratch in Rust. It shows us how to implement an emulator in 10 steps. You can run [xv6](https://github.com/mit-pdos/xv6-riscv), a simple Unix-like OS, in your emulator in the final step.
 
 You'll learn the following basic computer architecture from making an emulator in Rust:
 
