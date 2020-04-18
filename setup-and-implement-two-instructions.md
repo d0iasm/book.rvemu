@@ -2,13 +2,13 @@
 
 This is the step 1 of the book [_Writing a RISC-V Emulator from Scratch in 10 Steps_](./), which goal is running [xv6](https://github.com/mit-pdos/xv6-riscv), a small Unix-like OS, in your emulator in the final step.
 
-The source code is available at [d0iasm/rvemu-for-book/day1/](https://github.com/d0iasm/rvemu-for-book/tree/master/day1).
+The source code is available at d[0iasm/rvemu-for-book/step1/](https://github.com/d0iasm/rvemu-for-book/tree/master/step1).
 
 ## Goal of This Page
 
 In the end of this page, we can execute [the sample file](https://github.com/d0iasm/rvemu-for-book/blob/master/day1/add-addi.s) containing `add` and `addi` instructions in our emulator. The `add` instruction adds two 64-bit registers, and the `addi` instruction adds a 64-bit register and 12-bit immediate value.
 
-Sample binary files are also available at [d0iasm/rvemu-for-book/day1/](https://github.com/d0iasm/rvemu-for-book/tree/master/day1). We successfully see the result of addition in the `x31` register when we execute the sample binary file `add-addi.text`.
+Sample binary files are also available at [d0iasm/rvemu-for-book/step1/](https://github.com/d0iasm/rvemu-for-book/tree/master/step1). We successfully see the result of addition in the `x31` register when we execute the sample binary file `add-addi.text`.
 
 ```bash
 // add-addi.text is binary to execute these instructions:
@@ -82,6 +82,8 @@ The main job of the CPU is composed of three main stages: the fetch stage, the d
 
 We'll make `fetch` and `execute` methods in CPU. The decode stage is performed in the execute method for the sake of simplicity. In a real hardware, arithmetic operations such as addition and subtraction are performed by [ALU ](https://en.wikipedia.org/wiki/Arithmetic_logic_unit)\(Arithmetic logic unit\), but in the emulator I decided to implement it in CPU.
 
+Also, don't forget to add 4 to a program counter in each cycle.
+
 ```rust
 impl Cpu {
     fn fetch(&self) -> u32 {
@@ -140,7 +142,7 @@ Now, we are ready to fetch an instruction from the memory.
 
 What we should be careful to fetch an instruction is endianness, which is the term refers to how binary data is stored. There are 2 types of endianness: little-endian and big-endian. A little-endian ordering places the least significant byte \(LSB\) at the lowest address and the most significant byte \(MSB\) places at the highest address in a 32-bit word. While a bit-endian ordering does the opposite.
 
-![Fig 1. Little-endian and big-endian 2 instructions.](.gitbook/assets/risc-v_-endianness-2.png)
+![Fig 1.1 Little-endian and big-endian 2 instructions.](.gitbook/assets/risc-v_-endianness-2.png)
 
 RISC-V has either little-endian or big-endian memory systems, but our emulator will implement a little-endian system since little-endian systems are currently dominant commercially like x86 systems.
 
@@ -166,7 +168,7 @@ impl Cpu {
 
 RISC-V base instructions only has 4 instruction formats and a few variants as we can see Figure 2. There formats keep all register specifiers at the same position in all formats since it makes easier to decode.
 
-![Fig 2. RISC-V base instruction formats. \(Cited in Figure 2.2 in Volume I: Unprivileged ISA\) ](.gitbook/assets/rvemubook-base-instruction-formats.png)
+![Fig 1.2 RISC-V base instruction formats. \(Cited in Figure 2.2 in Volume I: Unprivileged ISA\) ](.gitbook/assets/rvemubook-base-instruction-formats.png)
 
 Decoding for common parts in all formats is performed by bitwise operations, a bitwise AND and bit shifts.
 
@@ -185,11 +187,11 @@ impl Cpu {
 
 ### Execute State
 
-As a first step, we're going to implement 2 instructions `add` \(R-type\) and `addi` \(I-type\). The `add` instruction adds two 64-bit registers, and the `addi` instruction adds a 64-bit register and 12-bit immediate value. We can dispatch an execution depending on the `opcode` field according to the Figure 3 and Figure 4. In the `addi` instruction, we need to decode 12-bit immediate and be careful it's  sign extended.
+As a first step, we're going to implement 2 instructions `add` \(R-type\) and `addi` \(I-type\). The `add` instruction adds two 64-bit registers, and the `addi` instruction adds a 64-bit register and 12-bit immediate value. We can dispatch an execution depending on the `opcode` field according to the Figure 1.3 and Figure 1.4. In the `addi` instruction, we need to decode 12-bit immediate and be careful it's  sign extended.
 
-![Fig 3. Add instruction \(Cited in RV32I Base Instruction Set table in Volume I: Unprivileged ISA\)](.gitbook/assets/rvemubook-add.png)
+![Fig 1.3 Add instruction \(Cited in RV32I Base Instruction Set table in Volume I: Unprivileged ISA\)](.gitbook/assets/rvemubook-add.png)
 
-![Fig 4. Addi instruction \(Cited in RV32I Base Instruction Set table in Volume I: Unprivileged ISA\)](.gitbook/assets/rvemubook-addi.png)
+![Fig 1.4. Addi instruction \(Cited in RV32I Base Instruction Set table in Volume I: Unprivileged ISA\)](.gitbook/assets/rvemubook-addi.png)
 
 {% code title="src/main.rs" %}
 ```rust
@@ -216,7 +218,7 @@ impl Cpu {
 
 ## Testing
 
-We're going to test 2 instructions by executing a sample file and check if the registers are expected values. I prepared a sample binary file available at [d0iasm/rvemu-for-book/day1/](https://github.com/d0iasm/rvemu-for-book/tree/master/day1). Download the [add-addi.text](https://github.com/d0iasm/rvemu-for-book/blob/master/day1/add-addi.text) file and execute it in your emulator. We successfully see the result of addition in the `x31` register when we execute the sample binary file.
+We're going to test 2 instructions by executing a sample file and check if the registers are expected values. I prepared a sample binary file available at [d0iasm/rvemu-for-book/step1/](https://github.com/d0iasm/rvemu-for-book/tree/master/step1). Download the [add-addi.text](https://github.com/d0iasm/rvemu-for-book/blob/master/day1/add-addi.text) file and execute it in your emulator. We successfully see the result of addition in the `x31` register when we execute the sample binary file.
 
 ```bash
 // add-addi.text is binary to execute these instructions:
