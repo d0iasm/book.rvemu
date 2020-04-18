@@ -58,7 +58,7 @@ Hello, world!
 
 ## Create a Basic CPU
 
-CPU is the most important part of a computer to execute instructions. It has registers, a small amount of fast storage CPU can access. The width of registers is 64 bits in 64-bit RISC-V architecture. It also has a program counter to hold the address of the current instruction.
+CPU is the most important part of a computer to execute instructions. It has registers, a small amount of fast storage CPU can access. The width of registers is 64 bits in the 64-bit RISC-V architecture. It also has a program counter to hold the address of the current instruction.
 
 The following struct contains 32 registers, a program counter, and memory. An actual hardware doesn't have a memory inside CPU and a memory connects to CPU via a system bus, but I decided to implement that CPU has a memory in our emulator for the sake of simplicity.
 
@@ -80,7 +80,7 @@ The main job of the CPU is composed of three main stages: the fetch stage, the d
 2. Decode: Splits an instruction sequence into a form that makes sense to the CPU.
 3. Execute: Performs the action required by the instruction.
 
-We'll make `fetch` and `execute` methods in CPU. The decode stage is performed in the execute method for the sake of simplicity. In a real hardware, arithmetic operations such as addition and subtraction are performed by [ALU ](https://en.wikipedia.org/wiki/Arithmetic_logic_unit)\(Arithmetic logic unit\), but in the emulator I decided to implement it in CPU.
+We'll make `fetch` and `execute` methods in CPU. The decode stage is performed in the execute method for the sake of simplicity.
 
 Also, don't forget to add 4 to a program counter in each cycle.
 
