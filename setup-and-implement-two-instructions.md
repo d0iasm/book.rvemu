@@ -13,12 +13,12 @@ Sample binary files are also available at [d0iasm/rvemu-for-book/day1/](https://
 ```bash
 // add-addi.text is binary to execute these instructions:
 // main:
-// .  addi x29, x29, 5
-// .  addi x30, x30, 37
-// .  add x31, x30, x29 // x31 should contain 42 (0x2a)
+// .  addi x29, x0, 5   // Add 5 and 0, and store the value to x29.
+// .  addi x30, x0, 37  // Add 37 and 0, and store the value to x30.
+// .  add x31, x30, x29 // x31 should contain 42 (0x2a).tain 42 (0x2a).
 
 $ cargo run add-addi.text
-...omitted...
+...
 x28=0x0 x29=0x5 x30=0x25 x31=0x2a
 ```
 
@@ -215,6 +215,29 @@ impl Cpu {
 {% endcode %}
 
 ## Testing
+
+We're going to test 2 instructions by executing a sample file and check if the registers are expected values. I prepared a sample binary file available at [d0iasm/rvemu-for-book/day1/](https://github.com/d0iasm/rvemu-for-book/tree/master/day1). Download the [add-addi.text](https://github.com/d0iasm/rvemu-for-book/blob/master/day1/add-addi.text) file and execute it in your emulator. We successfully see the result of addition in the `x31` register when we execute the sample binary file.
+
+```bash
+// add-addi.text is binary to execute these instructions:
+// main:
+// .  addi x29, x0, 5   // Add 5 and 0, and store the value to x29.
+// .  addi x30, x0, 37  // Add 37 and 0, and store the value to x30.
+// .  add x31, x30, x29 // x31 should contain 42 (0x2a).
+
+$ cargo run add-addi.text
+...
+x28=0x0 x29=0x5 x30=0x25 x31=0x2a
+```
+
+### How to Build Test Binary
+
+If you want to execute a bare-metal C program you write, you need to make an ELF binary without any headers because our emulator just starts to execute at the address `0x0` . The [Makefile](https://github.com/d0iasm/rvemu-for-book/blob/master/day1/Makefile) helps you build test binaries.
+
+```bash
+$ riscv64-unknown-elf-gcc -nostdlib -o foo foo.c
+$ riscv64-unknown-elf-objcopy -O binary foo foo.text
+```
 
 
 
