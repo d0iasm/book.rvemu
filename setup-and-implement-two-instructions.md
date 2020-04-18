@@ -144,9 +144,9 @@ What we should be careful to fetch an instruction is endianness, which is the te
 
 ![Fig 1.1 Little-endian and big-endian 2 instructions.](.gitbook/assets/risc-v_-endianness-2.png)
 
-RISC-V has either little-endian or big-endian memory systems, but our emulator will implement a little-endian system since little-endian systems are currently dominant commercially like x86 systems.
+RISC-V has either little-endian or big-endian byte order, but our emulator will implement a little-endian system since little-endian systems are currently dominant commercially like x86 systems.
 
-Our memory is the vector of `u8` , so read 4 elements from the memory and shift them in the little-endian order.
+Our memory is the vector of `u8` , so read 4 elements from the memory and shift them in the little-endian ordering.
 
 {% code title="src/main.rs" %}
 ```rust
