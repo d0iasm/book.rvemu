@@ -24,7 +24,7 @@ x28=0x0 x29=0x5 x30=0x25 x31=0x2a
 
 ## Background
 
-[RISC-V](https://riscv.org/) is a new instruction-set architecture \(ISA\) that was originally designed to support computer architecture research and education at the University of California, Berkeley, but now it gradually becomes a standard free and open architecture for industry implementations. RISC-V is also excellent **for students to learn computer architecture** since it's simple enough. We can read [the RISC-V specifications](https://riscv.org/specifications/) for free and we'll implement a part of features in _Unprivileged Specification_ and _Privileged ISA Specification_. The _Unprivileged Specification_ defines instructions, the binaries that the computer processor \(CPU\) can understand.
+[RISC-V](https://riscv.org/) is a new instruction-set architecture \(ISA\) that was originally designed to support computer architecture research and education at the University of California, Berkeley, but now it gradually becomes a standard free and open architecture for industry implementations. RISC-V is also excellent **for students to learn computer architecture** since it's simple enough. We can read [the RISC-V specifications](https://riscv.org/specifications/) for free and we'll implement a part of features in _Volume I: Unprivileged ISA_ and _Volume II: Privileged Architecture_. The _Unprivileged ISA_ defines instructions, the binaries that the computer processor \(CPU\) can understand.
 
 RISC-V defines 32-bit and 64-bit architecture. The width of registers and the available memory size are different depending on the architecture. The 128-bit architecture also exists but it is currently in a draft state. RISC-V instructions consists of base integer instructions and optional extensions. The base integer instructions must be present in any implementation.
 
@@ -140,7 +140,7 @@ Now, we are ready to fetch an instruction from the memory.
 
 What we should be careful to fetch an instruction is endianness, which is the term refers to how binary data is stored. There are 2 types of endianness: little-endian and big-endian. A little-endian ordering places the least significant byte \(LSB\) at the lowest address and the most significant byte \(MSB\) places at the highest address in a 32-bit word. While a bit-endian ordering does the opposite.
 
-![Fig 1. Little-endian and big-endian 2 instructions](.gitbook/assets/risc-v_-endianness-2.png)
+![Fig 1. Little-endian and big-endian 2 instructions.](.gitbook/assets/risc-v_-endianness-2.png)
 
 RISC-V has either little-endian or big-endian memory systems, but our emulator will implement a little-endian system since little-endian systems are currently dominant commercially like x86 systems.
 
@@ -164,11 +164,55 @@ impl Cpu {
 
 ### Decode State
 
-The way to interpret the instruction is defined in _Volume I: Unprivileged ISA at riscv.org/specifications_.
+RISC-V base instructions only has 4 instruction formats and a few variants as we can see Figure 2. There formats keep all register specifiers at the same position in all formats since it makes easier to decode.
+
+![Fig 2. RISC-V base instruction formats. \(Cited in Figure 2.2 in Volume I: Unprivileged ISA\) ](.gitbook/assets/rvemubook-base-instruction-formats.png)
+
+Decoding for common parts in all formats is performed by bitwise operations, a bitwise AND and bit shifts.
+
+{% code title="src/main.rs" %}
+```rust
+impl Cpu {
+    ... 
+    fn execute(&mut self, inst: u32) {
+        let opcode = inst & 0x0000007f;
+        let rd = ((inst & 0x00000f80) >> 7) as usize;
+        let rs1 = ((inst & 0x000f8000) >> 15) as usize;
+        let rs2 = ((inst & 0x01f00000) >> 20) as usize;
+        ...
+```
+{% endcode %}
 
 ### Execute State
 
-In this page, we'll only implement 2 instructions `add` and `addi`.
+As a first step, we're going to implement 2 instructions `add` \(R-type\) and `addi` \(I-type\). The `add` instruction adds two 64-bit registers, and the `addi` instruction adds a 64-bit register and 12-bit immediate value. We can dispatch an execution depending on the `opcode` field according to the Figure 3 and Figure 4. In the `addi` instruction, we need to decode 12-bit immediate and be careful it's  sign extended.
+
+![Fig 3. Add instruction \(Cited in RV32I Base Instruction Set table in Volume I: Unprivileged ISA\)](.gitbook/assets/rvemubook-add.png)
+
+![Fig 4. Addi instruction \(Cited in RV32I Base Instruction Set table in Volume I: Unprivileged ISA\)](.gitbook/assets/rvemubook-addi.png)
+
+{% code title="src/main.rs" %}
+```rust
+impl Cpu {
+    ...
+    match opcode {
+            0x13 => {
+                // addi
+                let imm = ((inst & 0xfff00000) as i32 as i64 >> 20) as u64;
+                self.regs[rd] = self.regs[rs1] + imm;
+            }
+            0x33 => {
+                // add
+                self.regs[rd] = self.regs[rs1] + self.regs[rs2];
+            }
+            _ => {
+                dbg!("not implemented yet");
+            }
+        }
+    }
+}
+```
+{% endcode %}
 
 ## Testing
 
