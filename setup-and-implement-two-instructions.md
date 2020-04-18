@@ -30,7 +30,7 @@ RISC-V defines 32-bit and 64-bit architecture. The width of registers and the av
 
 [Rust](https://www.rust-lang.org/) is an open-source systems programming language that focuses on performance and safety. It is popular especially in systems programming like an operating system. We're going to implement our emulator in Rust.
 
-We'll only support 64-bit base integer instructions, which is called `RV64I`, and optional extensions xv6 uses in this book. In simple words, we're going to write **an infinite loop to execute RISC-V binaries one by one**. An instruction is executed at a step in the loop. This book tries to understand the basic RISC-V architecture by making a RISC-V emulator.
+We'll only support 64-bit base integer instructions, which is called `RV64I`, and optional extensions xv6 uses in this book. In simple words, we're going to write **an infinite loop to execute RISC-V binaries one by one**. An instruction is executed at a step in the loop. In this book, we try to understand the basic RISC-V architecture by making a RISC-V emulator.
 
 ## Build RISC-V Toolchain
 
