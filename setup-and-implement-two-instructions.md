@@ -138,11 +138,29 @@ impl Cpu {
 
 Now, we are ready to fetch an instruction from the memory. 
 
-What we should be careful to fetch an instruction is endianness, which is the term refers to how binary data is stored. There are 2 types of endianness: little-endian and big-endian.
+What we should be careful to fetch an instruction is endianness, which is the term refers to how binary data is stored. There are 2 types of endianness: little-endian and big-endian. A little-endian ordering places the least significant byte \(LSB\) at the lowest address and the most significant byte \(MSB\) places at the highest address in a 32-bit word. While a bit-endian ordering does the opposite.
 
-![](.gitbook/assets/risc-v_-endianness.png)
+![Fig 1. Little-endian and big-endian 2 instructions](.gitbook/assets/risc-v_-endianness-2.png)
 
-RISC-V has either little-endian or big-endian memory systems, but our emulator will implement a little-endian system. 
+RISC-V has either little-endian or big-endian memory systems, but our emulator will implement a little-endian system since little-endian systems are currently dominant commercially like x86 systems.
+
+Our memory is the vector of `u8` , so read 4 elements from the memory and shift them in the little-endian order.
+
+{% code title="src/main.rs" %}
+```rust
+impl Cpu {
+    ...  
+    fn fetch(&self) -> u32 {
+        let index = self.pc as usize;
+        return (self.memory[index] as u32)
+            | ((self.memory[index + 1] as u32) << 8)
+            | ((self.memory[index + 2] as u32) << 16)
+            | ((self.memory[index + 3] as u32) << 24);
+    }
+    ...
+}
+```
+{% endcode %}
 
 ### Decode State
 
