@@ -6,7 +6,7 @@ The source code is available at d[0iasm/rvemu-for-book/step1/](https://github.co
 
 ## Goal of This Page
 
-In the end of this page, we can execute [the sample file](https://github.com/d0iasm/rvemu-for-book/blob/master/day1/add-addi.s) containing `add` and `addi` instructions in our emulator. The `add` instruction adds two 64-bit registers, and the `addi` instruction adds a 64-bit register and 12-bit immediate value.
+In the end of this page, we can execute [the sample file](https://github.com/d0iasm/rvemu-for-book/blob/master/day1/add-addi.s) containing `add` and `addi` instructions in our emulator. The `add` instruction adds 64-bit values in two registers, and the `addi` instruction adds a 64-bit value in a register and a 12-bit immediate value.
 
 Sample binary files are also available at [d0iasm/rvemu-for-book/step1/](https://github.com/d0iasm/rvemu-for-book/tree/master/step1). We successfully see the result of addition in the `x31` register when we execute the sample binary file `add-addi.text`.
 
@@ -187,7 +187,7 @@ impl Cpu {
 
 ### Execute State
 
-As a first step, we're going to implement 2 instructions `add` \(R-type\) and `addi` \(I-type\). The `add` instruction adds two 64-bit registers, and the `addi` instruction adds a 64-bit register and 12-bit immediate value. We can dispatch an execution depending on the `opcode` field according to the Figure 1.3 and Figure 1.4. In the `addi` instruction, we need to decode 12-bit immediate and be careful it's  sign extended.
+As a first step, we're going to implement 2 instructions `add` \(R-type\) and `addi` \(I-type\). The `add` instruction adds 64-bit values in two registers, and the `addi` instruction adds a 64-bit value in a register and a 12-bit immediate value. We can dispatch an execution depending on the `opcode` field according to the Figure 1.3 and Figure 1.4. In the `addi` instruction, we need to decode 12-bit immediate and be careful it's  sign extended.
 
 ![Fig 1.3 Add instruction \(Cited in RV32I Base Instruction Set table in Volume I: Unprivileged ISA\)](.gitbook/assets/rvemubook-add.png)
 
