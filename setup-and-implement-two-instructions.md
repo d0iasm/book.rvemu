@@ -11,11 +11,11 @@ In the end of this page, we can execute [the sample file](https://github.com/d0i
 Sample binary files are also available at [d0iasm/rvemu-for-book/step1/](https://github.com/d0iasm/rvemu-for-book/tree/master/step1). We successfully see the result of addition in the `x31` register when we execute the sample binary file `add-addi.text`.
 
 ```bash
-// add-addi.text is binary to execute these instructions:
+// add-addi.text contains the following instructions:
 // main:
 // .  addi x29, x0, 5   // Add 5 and 0, and store the value to x29.
 // .  addi x30, x0, 37  // Add 37 and 0, and store the value to x30.
-// .  add x31, x30, x29 // x31 should contain 42 (0x2a).tain 42 (0x2a).
+// .  add x31, x30, x29 // x31 should contain 42 (0x2a).
 
 $ cargo run add-addi.text
 ...
@@ -168,7 +168,7 @@ impl Cpu {
 
 RISC-V base instructions only has 4 instruction formats and a few variants as we can see Figure 2. There formats keep all register specifiers at the same position in all formats since it makes easier to decode.
 
-![Fig 1.2 RISC-V base instruction formats. \(Cited in Figure 2.2 in Volume I: Unprivileged ISA\) ](.gitbook/assets/rvemubook-base-instruction-formats.png)
+![Fig 1.2 RISC-V base instruction formats. \(Source: Figure 2.2 in Volume I: Unprivileged ISA\) ](.gitbook/assets/rvemubook-base-instruction-formats.png)
 
 Decoding for common parts in all formats is performed by bitwise operations, a bitwise AND and bit shifts.
 
@@ -189,9 +189,9 @@ impl Cpu {
 
 As a first step, we're going to implement 2 instructions `add` \(R-type\) and `addi` \(I-type\). The `add` instruction adds 64-bit values in two registers, and the `addi` instruction adds a 64-bit value in a register and a 12-bit immediate value. We can dispatch an execution depending on the `opcode` field according to the Figure 1.3 and Figure 1.4. In the `addi` instruction, we need to decode 12-bit immediate and be careful it's  sign extended.
 
-![Fig 1.3 Add instruction \(Cited in RV32I Base Instruction Set table in Volume I: Unprivileged ISA\)](.gitbook/assets/rvemubook-add.png)
+![Fig 1.3 Add instruction \(Source: RV32I Base Instruction Set table in Volume I: Unprivileged ISA\)](.gitbook/assets/rvemubook-add.png)
 
-![Fig 1.4. Addi instruction \(Cited in RV32I Base Instruction Set table in Volume I: Unprivileged ISA\)](.gitbook/assets/rvemubook-addi.png)
+![Fig 1.4 Addi instruction \(Source: RV32I Base Instruction Set table in Volume I: Unprivileged ISA\)](.gitbook/assets/rvemubook-addi.png)
 
 {% code title="src/main.rs" %}
 ```rust
