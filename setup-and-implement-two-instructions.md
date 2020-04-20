@@ -2,7 +2,7 @@
 
 This is the step 1 of the book [_Writing a RISC-V Emulator from Scratch in 10 Steps_](./), whose goal is running [xv6](https://github.com/mit-pdos/xv6-riscv), a small Unix-like OS, in your emulator in the final step.
 
-The source code is available at d[0iasm/rvemu-for-book/step1/](https://github.com/d0iasm/rvemu-for-book/tree/master/step1).
+The source code is available at [d0iasm/rvemu-for-book/step1/](https://github.com/d0iasm/rvemu-for-book/tree/master/step1).
 
 ## Goal of This Page
 
@@ -30,11 +30,21 @@ RISC-V defines 32-bit and 64-bit architecture. The width of registers and the av
 
 [Rust](https://www.rust-lang.org/) is an open-source systems programming language that focuses on performance and safety. It is popular especially in systems programming like an operating system. We're going to implement our emulator in Rust.
 
-We'll only support 64-bit base integer instructions, which is called `RV64I`, and optional extensions xv6 uses in this book. In simple words, we're going to write **an infinite loop to execute RISC-V binaries one by one**. An instruction is executed at a step in the loop. In this book, we try to understand the basic RISC-V architecture by making a RISC-V emulator.
+We'll only support 64-bit base integer instructions, which is called `RV64I`, and optional extensions that xv6 uses in this book. In simple words, we're going to write **an infinite loop to execute RISC-V binaries one by one**. An instruction is executed at a step in the loop. In this book, we try to understand the basic RISC-V architecture by making a RISC-V emulator.
 
 ## Build RISC-V Toolchain
 
-First, we have to build a RISC-V toolchain for `RV64G`. The default toolchain will use `RV64GC` which contains general-purpose ISAs and compressed ISAs. General-purpose ISAs are the alias of selected standard extensions \(`RV64IMAFD`, `Zicsr`, `Zifencei`\), which includes base integer instructions \(`RV64I`\), integer multiplication and division instructions \(`RV64M`\), atomic instructions \(`RV64A`\), single-precision floating-point instructions \(`RV64F`\), double-precision floating-point instructions \(`RV64D`\), control and status register instructions \(`RVZicsr`\), and instruction-fetch fence instructions \(`RVZifencei`\). This book will explain only instructions that xv6 uses.
+First, we have to build a RISC-V toolchain for `RV64G`. The default toolchain will use `RV64GC` which contains a general-purpose ISA and a compressed ISA. A general-purpose ISA is the alias of selected standard extensions, which includes:
+
+* RV64I: base integer instructions
+* RV64M: integer multiplication and division instructions
+* RV64A: atomic instructions
+* RV64F: single-precision floating-point instructions
+* RV64D: double-precision floating-point instructions
+* RVZicsr: control and status register instructions
+* RVZifencei: instruction-fetch fence instructions
+
+However, this book will explain only instructions that xv6 uses.
 
 Download code from the [riscv/riscv-gnu-toolchain](https://github.com/riscv/riscv-gnu-toolchain) repository and configure it with `rv64g` architecture. After the following commands, we can use `riscv64-unknown-elf-*` commands.
 
@@ -47,7 +57,7 @@ $ make && make linux
 
 ## Create a New Project
 
-We'll use Cargo, the Rust package manager. See [the installation page](https://doc.rust-lang.org/cargo/getting-started/installation.html) in Cargo book to install it. I'll call our project `rvemu-for-book` because I originally implemented [rvemu](https://github.com/d0iasm/rvemu) and I made [the reference code](https://github.com/d0iasm/rvemu-for-book) for this book. We can see "Hello, world!" when we execute an initialized project by the `cargo run` command.
+We'll use Cargo, the Rust package manager. See [the installation page](https://doc.rust-lang.org/cargo/getting-started/installation.html) in Cargo book to install it. I'll call our project `rvemu-for-book` because I originally implemented [rvemu](https://github.com/d0iasm/rvemu) and I wrote [the reference code](https://github.com/d0iasm/rvemu-for-book) for this book. We can see "Hello, world!" when we execute an initialized project by the `cargo run` command.
 
 ```bash
 $ cargo new rvemu-for-book
@@ -58,7 +68,7 @@ Hello, world!
 
 ## Create a Basic CPU
 
-CPU is the most important part of a computer to execute instructions. It has registers, a small amount of fast storage CPU can access. The width of registers is 64 bits in the 64-bit RISC-V architecture. It also has a program counter to hold the address of the current instruction.
+CPU is the most important part of a computer to execute instructions. It has registers, a small amount of fast storage that CPU can access. The width of registers is 64 bits in the 64-bit RISC-V architecture. It also has a program counter to hold the address of the current instruction.
 
 The following struct contains 32 registers, a program counter, and memory. An actual hardware doesn't have a memory inside CPU and a memory connects to CPU via a system bus, but I decided to implement that CPU has a memory in our emulator for the sake of simplicity.
 
@@ -74,9 +84,9 @@ struct Cpu {
 
 ### Fetch-decode-execute Cycle
 
-The main job of the CPU is composed of three main stages: the fetch stage, the decode stage, and the execute stage. The fetch-decode-execute cycle is also known as the instruction cycle. CPU follows the cycle from the computer boots up until it shuts down.
+The main job of the CPU is composed of three main stages: fetch stage, decode stage, and execute stage. The fetch-decode-execute cycle is also known as the instruction cycle. CPU follows the cycle from the computer boots up until it shuts down.
 
-1. Fetch: Fetches the next instruction to be executed from the memory where the program is stored.
+1. Fetch: Reads the next instruction to be executed from the memory where the program is stored.
 2. Decode: Splits an instruction sequence into a form that makes sense to the CPU.
 3. Execute: Performs the action required by the instruction.
 
@@ -98,7 +108,7 @@ impl Cpu {
 
 ### Set Binaries to the Memory
 
-In order to implement the `fetch` method, we need to read a binary file from a command line. We can get command line arguments via the standard `env` module. Let a file name place at the first argument.
+In order to implement the `fetch` method, we need to read a binary file from a command line and store the content to the memory. We can get command line arguments via the standard `env` module. Let a file name place at the first argument.
 
 The binary is set up to the memory when a new CPU instance is created.
 
@@ -140,11 +150,11 @@ impl Cpu {
 
 Now, we are ready to fetch an instruction from the memory. 
 
-What we should be careful to fetch an instruction is endianness, which is the term refers to how binary data is stored. There are 2 types of endianness: little-endian and big-endian. A little-endian ordering places the least significant byte \(LSB\) at the lowest address and the most significant byte \(MSB\) places at the highest address in a 32-bit word. While a bit-endian ordering does the opposite.
+What we should be careful to fetch an instruction is endianness, which is the term refers to how binary data is stored. There are 2 types of endianness: little-endian and big-endian. A little-endian ordering places the least significant byte \(LSB\) at the lowest address and the most significant byte \(MSB\) places at the highest address in a 32-bit word. While a big-endian ordering does the opposite.
 
 ![Fig 1.1 Little-endian and big-endian 2 instructions.](.gitbook/assets/risc-v_-endianness-2.png)
 
-RISC-V has either little-endian or big-endian byte order, but our emulator will implement a little-endian system since little-endian systems are currently dominant commercially like x86 systems.
+RISC-V has either little-endian or big-endian byte order, but our emulator will implement a little-endian system since it is currently dominant commercially like x86 systems.
 
 Our memory is the vector of `u8` , so read 4 elements from the memory and shift them in the little-endian ordering.
 
@@ -166,7 +176,7 @@ impl Cpu {
 
 ### Decode State
 
-RISC-V base instructions only has 4 instruction formats and a few variants as we can see Figure 2. There formats keep all register specifiers at the same position in all formats since it makes easier to decode.
+RISC-V base instructions only has 4 instruction formats and a few variants as we can see in Figure 2. These formats keep all register specifiers at the same position in all formats since it makes it easier to decode.
 
 ![Fig 1.2 RISC-V base instruction formats. \(Source: Figure 2.2 in Volume I: Unprivileged ISA\) ](.gitbook/assets/rvemubook-base-instruction-formats.png)
 
@@ -187,7 +197,7 @@ impl Cpu {
 
 ### Execute State
 
-As a first step, we're going to implement 2 instructions `add` \(R-type\) and `addi` \(I-type\). The `add` instruction adds 64-bit values in two registers, and the `addi` instruction adds a 64-bit value in a register and a 12-bit immediate value. We can dispatch an execution depending on the `opcode` field according to the Figure 1.3 and Figure 1.4. In the `addi` instruction, we need to decode 12-bit immediate and be careful it's  sign extended.
+As a first step, we're going to implement 2 instructions `add` \(R-type\) and `addi` \(I-type\). The `add` instruction adds 64-bit values in two registers, and the `addi` instruction adds a 64-bit value in a register and a 12-bit immediate value. We can dispatch an execution depending on the `opcode` field according to Figure 1.3 and Figure 1.4. In the `addi` instruction, we need to decode 12-bit immediate which is sign extended.
 
 ![Fig 1.3 Add instruction \(Source: RV32I Base Instruction Set table in Volume I: Unprivileged ISA\)](.gitbook/assets/rvemubook-add.png)
 
@@ -218,7 +228,9 @@ impl Cpu {
 
 ## Testing
 
-We're going to test 2 instructions by executing a sample file and check if the registers are expected values. I prepared a sample binary file available at [d0iasm/rvemu-for-book/step1/](https://github.com/d0iasm/rvemu-for-book/tree/master/step1). Download the [add-addi.text](https://github.com/d0iasm/rvemu-for-book/blob/master/day1/add-addi.text) file and execute it in your emulator. We successfully see the result of addition in the `x31` register when we execute the sample binary file.
+We're going to test 2 instructions by executing a sample file and check if the registers are expected values. I prepared a sample binary file available at [d0iasm/rvemu-for-book/step1/](https://github.com/d0iasm/rvemu-for-book/tree/master/step1). Download the [add-addi.text](https://github.com/d0iasm/rvemu-for-book/blob/master/day1/add-addi.text) file and execute it in your emulator. 
+
+To see the registers after an execution is done, I added the [`dump_registers`](https://github.com/d0iasm/rvemu-for-book/blob/master/step1/src/main.rs#L21-L41) function. Now, we successfully see the result of addition in the `x31` register when we execute the sample binary file.
 
 ```bash
 // add-addi.text is binary to execute these instructions:
