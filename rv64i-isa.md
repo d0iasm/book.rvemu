@@ -38,12 +38,58 @@ All we have to do is quite simple: fetch, decode, and execute as I described in 
 
 | Instruction | Pseudocode | Description |
 | :--- | :--- | :--- |
-| `lui rd, immediate` | x\[rd\] = sext\(immediate\[31:12\] &lt;&lt; 12\) | Load upper immediate value. |
-| `auipc rd, immediate` | x\[rd\] = pc+sext\(immediate\[31:12\] &lt;&lt; 12\) | Add upper immediate value to PC. |
-| `jal rd, offset` | x\[rd\] = pc+4; pc += sext\(offset\) | Jump and link. |
-| `jalr rd, offset(rs1)` | t = pc+4; pc = \(x\[rs1\]+sext\(offset\)&~1\); x\[rd\] = t | Jump and link register. |
-
-
+| **`lui`** `rd, imm` | x\[rd\] = sext\(immediate\[31:12\] &lt;&lt; 12\) | Load upper immediate value. |
+| **`auipc`** `rd, imm` | x\[rd\] = pc + sext\(immediate\[31:12\] &lt;&lt; 12\) | Add upper immediate value to PC. |
+| **`jal`** `rd, offset` | x\[rd\] = pc + 4; pc += sext\(offset\) | Jump and link. |
+| **`jalr`** `rd, offset(rs1)` | t = pc+4; pc = \(x\[rs1\] + sext\(offset\)&~1\); x\[rd\] = t | Jump and link register. |
+| **`beq`** `rs1, rs2, offset` | if \(rs1 == rs2\) pc += sext\(offset\) | Branch if equal. |
+| **`bne`** `rs1, rs2, offset` | if \(rs1 != rs2\) pc += sext\(offset\) | Branch if not equal. |
+| **`blt`** `rs1, rs2, offset` | if \(rs1 &lt; rs2\) pc += sext\(offset\) | Branch if less than. |
+| **`bge`** `rs1, rs2, offset` | if \(rs1 &gt;= rs2\) pc += sext\(offset\) | Branch if greater than or equal. |
+| **`bltu`** `rs1, rs2, offset` | if \(rs1 &lt; rs2\) pc += sext\(offset\) | Branch if less than, unsigned. |
+| **`bgeu`** `rs1, rs2, offset` | if \(rs1 &gt;= rs2\) pc += sext\(offset\) | Branch if greater than or equal, unsigned. |
+| **`lb`** `rd, offset(rs1)` | x\[rd\] = sext\(M\[x\[rs1\] + sext\(offset\)\]\[7:0\]\) | Load byte \(8 bits\). |
+| **`lh`** `rd, offset(rs1)` | x\[rd\] = sext\(M\[x\[rs1\] + sext\(offset\)\]\[15:0\]\) | Load halfword \(16 bits\). |
+| `lw rd, offset(rs1)` | x\[rd\] = sext\(M\[x\[rs1\] + sext\(offset\)\]\[31:0\]\) | Load word \(32 bits\). |
+| `lbu rd, offset(rs1)` | x\[rd\] = M\[x\[rs1\] + sext\(offset\)\]\[7:0\] | Load byte, unsigned. |
+| `lhu rd, offset(rs1)` | x\[rd\] = M\[x\[rs1\] + sext\(offset\)\]\[15:0\] | Load halfword, unsigned. |
+| `sb rs2, offset(rs1)` | M\[x\[rs1\] + sext\(offset\)\] = x\[rs2\]\[7:0\] | Store byte. |
+| `sh rs2, offset(rs1)` | M\[x\[rs1\] + sext\(offset\)\] = x\[rs2\]\[15:0\] | Store halfword. |
+| `sw rs2, offset(rs1)` | M\[x\[rs1\] + sext\(offset\)\] = x\[rs2\]\[31:0\] | Store word. |
+| `addi rd, rs1, imm` | x\[rd\] = x\[rs1\] + sext\(immediate\) | Add immediate. |
+| `slti rd, rs1, imm` | x\[rd\] = x\[rs1\] &lt; x\[rs2\] | Set if less than. |
+| `sltiu rd, rs1, imm` | x\[rd\] = x\[rs1\] &lt; x\[rs2\] | Set if less than, unsigned. |
+| `xori rd, rs1, imm` | x\[rd\] = x\[rs1\] ^ sext\(immediate\) | Exclusive OR immediate. |
+| `ori rd, rs1, imm` | x\[rd\] = x\[rs1\] \| sext\(immediate\) | OR immediate. |
+| `andi rd, rs1, imm` | x\[rd\] = x\[rs1\] & sext\(immediate\) | AND immediate. |
+| `slli rd, rs1, shamt` | x\[rd\] = x\[rs1\] &lt;&lt; shamt | Shift left logical immediate. |
+| `srli rd, rs1, shamt` | x\[rd\] = x\[rs1\] &gt;&gt; shamt | Shift right logical immediate. |
+| `srai rd, rs1, shamt` | x\[rd\] = x\[rs1\] &gt;&gt; shamt | Shift right arithmetic immediate. |
+| `add rd, rs1, rs2` | x\[rd\] = x\[rs1\] + x\[rs2\] | Add. |
+| `sub rd, rs1, rs2` | x\[rd\] = x\[rs1\] - x\[rs2\] | Subtract. |
+| `sll rs, rs1, rs2` | x\[rd\] = x\[rs1\] &lt;&lt; x\[rs2\] | Shift left logical. |
+| `slt rd, rs1, rs2` | x\[rd\] = x\[rs1\] &lt; x\[rs2\] | Set if less than. |
+| `sltu rd, rs1, rs2` | x\[rd\] = x\[rs1\] &lt; x\[rs2\] | Set if less than, unsigned. |
+| `xor rd, rs1, rs2` | x\[rd\] = x\[rs1\] ^ x\[rs2\] | Exclusive OR. |
+| `srl rd, rs1, rs2` | x\[rd\] = x\[rs1\] &gt;&gt; x\[rs2\] | Shift right logical. |
+| `sra rd, rs1, rs2` | x\[rd\] = x\[rs1\] &gt;&gt; x\[rs2\] | Shift right arithmetic. |
+| `or rd, rs1, rs2` | x\[rd\] = x\[rs1\] \| x\[rs2\] | OR. |
+| `and rd, rs1, rs2` | x\[rd\] = x\[rs1\] & x\[rs2\] | AND. |
+| `lwu` |  |  |
+| ld |  |  |
+| sd |  |  |
+| slli |  |  |
+| srli |  |  |
+| srai |  |  |
+| addiw |  |  |
+| slliw |  |  |
+| srliw |  |  |
+| sraiw |  |  |
+| addw |  |  |
+| subw |  |  |
+| sllw |  |  |
+| srlw |  |  |
+| sraw |  |  |
 
 
 
