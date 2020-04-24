@@ -30,7 +30,7 @@ x12=0x0 x13=0x0 x14=0x1 x15=0x37 // x15 should contain 55 (= 10th fibonacci numb
 
 ## RV64I Base Integer Instruction Set
 
-RV64I is a base integer instruction set for the 64-bit architecture, which builds upon the RV32I variant. In this step, we're going to implement 54 instructions \(39 instructions in RV32I and 15 instructions in RV64I\). We've already implemented `add` and `addi` so we'll skip them. Also, we'll skip to implement `fence`, `ecall`, and `ebreak` for now.
+RV64I is a base integer instruction set for the 64-bit architecture, which builds upon the RV32I variant. In this step, we're going to implement 47 instructions \(35 instructions from RV32I and 12 instructions from RV64I\). We've already implemented `add` and `addi` so we'll skip them. Also, we'll skip to implement `fence`, `ecall`, and `ebreak` for now.
 
 Figure 2.1 and 2.2 are the list to tell us how to decode each instruction for RV32I and RV64I, respectively. The following table is the brief explanations for each instruction. I don't describe the details of each instruction, so please see [the implementation](https://github.com/d0iasm/rvemu-for-book/blob/master/step2/src/cpu.rs) if you don't understand them well.
 
@@ -38,58 +38,55 @@ All we have to do is quite simple: fetch, decode, and execute as I described in 
 
 | Instruction | Pseudocode | Description |
 | :--- | :--- | :--- |
-| **`lui`** `rd, imm` | x\[rd\] = sext\(immediate\[31:12\] &lt;&lt; 12\) | Load upper immediate value. |
-| **`auipc`** `rd, imm` | x\[rd\] = pc + sext\(immediate\[31:12\] &lt;&lt; 12\) | Add upper immediate value to PC. |
-| **`jal`** `rd, offset` | x\[rd\] = pc + 4; pc += sext\(offset\) | Jump and link. |
-| **`jalr`** `rd, offset(rs1)` | t = pc+4; pc = \(x\[rs1\] + sext\(offset\)&~1\); x\[rd\] = t | Jump and link register. |
-| **`beq`** `rs1, rs2, offset` | if \(rs1 == rs2\) pc += sext\(offset\) | Branch if equal. |
-| **`bne`** `rs1, rs2, offset` | if \(rs1 != rs2\) pc += sext\(offset\) | Branch if not equal. |
-| **`blt`** `rs1, rs2, offset` | if \(rs1 &lt; rs2\) pc += sext\(offset\) | Branch if less than. |
-| **`bge`** `rs1, rs2, offset` | if \(rs1 &gt;= rs2\) pc += sext\(offset\) | Branch if greater than or equal. |
-| **`bltu`** `rs1, rs2, offset` | if \(rs1 &lt; rs2\) pc += sext\(offset\) | Branch if less than, unsigned. |
-| **`bgeu`** `rs1, rs2, offset` | if \(rs1 &gt;= rs2\) pc += sext\(offset\) | Branch if greater than or equal, unsigned. |
-| **`lb`** `rd, offset(rs1)` | x\[rd\] = sext\(M\[x\[rs1\] + sext\(offset\)\]\[7:0\]\) | Load byte \(8 bits\). |
-| **`lh`** `rd, offset(rs1)` | x\[rd\] = sext\(M\[x\[rs1\] + sext\(offset\)\]\[15:0\]\) | Load halfword \(16 bits\). |
-| `lw rd, offset(rs1)` | x\[rd\] = sext\(M\[x\[rs1\] + sext\(offset\)\]\[31:0\]\) | Load word \(32 bits\). |
-| `lbu rd, offset(rs1)` | x\[rd\] = M\[x\[rs1\] + sext\(offset\)\]\[7:0\] | Load byte, unsigned. |
-| `lhu rd, offset(rs1)` | x\[rd\] = M\[x\[rs1\] + sext\(offset\)\]\[15:0\] | Load halfword, unsigned. |
-| `sb rs2, offset(rs1)` | M\[x\[rs1\] + sext\(offset\)\] = x\[rs2\]\[7:0\] | Store byte. |
-| `sh rs2, offset(rs1)` | M\[x\[rs1\] + sext\(offset\)\] = x\[rs2\]\[15:0\] | Store halfword. |
-| `sw rs2, offset(rs1)` | M\[x\[rs1\] + sext\(offset\)\] = x\[rs2\]\[31:0\] | Store word. |
-| `addi rd, rs1, imm` | x\[rd\] = x\[rs1\] + sext\(immediate\) | Add immediate. |
-| `slti rd, rs1, imm` | x\[rd\] = x\[rs1\] &lt; x\[rs2\] | Set if less than. |
-| `sltiu rd, rs1, imm` | x\[rd\] = x\[rs1\] &lt; x\[rs2\] | Set if less than, unsigned. |
-| `xori rd, rs1, imm` | x\[rd\] = x\[rs1\] ^ sext\(immediate\) | Exclusive OR immediate. |
-| `ori rd, rs1, imm` | x\[rd\] = x\[rs1\] \| sext\(immediate\) | OR immediate. |
-| `andi rd, rs1, imm` | x\[rd\] = x\[rs1\] & sext\(immediate\) | AND immediate. |
-| `slli rd, rs1, shamt` | x\[rd\] = x\[rs1\] &lt;&lt; shamt | Shift left logical immediate. |
-| `srli rd, rs1, shamt` | x\[rd\] = x\[rs1\] &gt;&gt; shamt | Shift right logical immediate. |
-| `srai rd, rs1, shamt` | x\[rd\] = x\[rs1\] &gt;&gt; shamt | Shift right arithmetic immediate. |
-| `add rd, rs1, rs2` | x\[rd\] = x\[rs1\] + x\[rs2\] | Add. |
-| `sub rd, rs1, rs2` | x\[rd\] = x\[rs1\] - x\[rs2\] | Subtract. |
-| `sll rs, rs1, rs2` | x\[rd\] = x\[rs1\] &lt;&lt; x\[rs2\] | Shift left logical. |
-| `slt rd, rs1, rs2` | x\[rd\] = x\[rs1\] &lt; x\[rs2\] | Set if less than. |
-| `sltu rd, rs1, rs2` | x\[rd\] = x\[rs1\] &lt; x\[rs2\] | Set if less than, unsigned. |
-| `xor rd, rs1, rs2` | x\[rd\] = x\[rs1\] ^ x\[rs2\] | Exclusive OR. |
-| `srl rd, rs1, rs2` | x\[rd\] = x\[rs1\] &gt;&gt; x\[rs2\] | Shift right logical. |
-| `sra rd, rs1, rs2` | x\[rd\] = x\[rs1\] &gt;&gt; x\[rs2\] | Shift right arithmetic. |
-| `or rd, rs1, rs2` | x\[rd\] = x\[rs1\] \| x\[rs2\] | OR. |
-| `and rd, rs1, rs2` | x\[rd\] = x\[rs1\] & x\[rs2\] | AND. |
-| `lwu` |  |  |
-| ld |  |  |
-| sd |  |  |
-| slli |  |  |
-| srli |  |  |
-| srai |  |  |
-| addiw |  |  |
-| slliw |  |  |
-| srliw |  |  |
-| sraiw |  |  |
-| addw |  |  |
-| subw |  |  |
-| sllw |  |  |
-| srlw |  |  |
-| sraw |  |  |
+| **lui** rd, imm | x\[rd\] = sext\(imm\[31:12\] &lt;&lt; 12\) | Load upper immediate value. |
+| **auipc** rd, imm | x\[rd\] = pc + sext\(imm\[31:12\] &lt;&lt; 12\) | Add upper immediate value to PC. |
+| **jal** rd, offset | x\[rd\] = pc + 4; pc += sext\(offset\) | Jump and link. |
+| **jalr** rd, offset\(rs1\) | t = pc+4; pc = \(x\[rs1\] + sext\(offset\)&~1\); x\[rd\] = t | Jump and link register. |
+| **beq** rs1, rs2, offset | if \(rs1 == rs2\) pc += sext\(offset\) | Branch if equal. |
+| **bne** rs1, rs2, offset | if \(rs1 != rs2\) pc += sext\(offset\) | Branch if not equal. |
+| **blt** rs1, rs2, offset | if \(rs1 &lt; rs2\) pc += sext\(offset\) | Branch if less than. |
+| **bge** rs1, rs2, offset | if \(rs1 &gt;= rs2\) pc += sext\(offset\) | Branch if greater than or equal. |
+| **bltu** rs1, rs2, offset | if \(rs1 &lt; rs2\) pc += sext\(offset\) | Branch if less than, unsigned. |
+| **bgeu** rs1, rs2, offset | if \(rs1 &gt;= rs2\) pc += sext\(offset\) | Branch if greater than or equal, unsigned. |
+| **lb** rd, offset\(rs1\) | x\[rd\] = sext\(M\[x\[rs1\] + sext\(offset\)\]\[7:0\]\) | Load byte \(8 bits\). |
+| **lh** rd, offset\(rs1\) | x\[rd\] = sext\(M\[x\[rs1\] + sext\(offset\)\]\[15:0\]\) | Load halfword \(16 bits\). |
+| **lw** rd, offset\(rs1\) | x\[rd\] = sext\(M\[x\[rs1\] + sext\(offset\)\]\[31:0\]\) | Load word \(32 bits\). |
+| **lbu** rd, offset\(rs1\) | x\[rd\] = M\[x\[rs1\] + sext\(offset\)\]\[7:0\] | Load byte, unsigned. |
+| **lhu** rd, offset\(rs1\) | x\[rd\] = M\[x\[rs1\] + sext\(offset\)\]\[15:0\] | Load halfword, unsigned. |
+| **sb** rs2, offset\(rs1\) | M\[x\[rs1\] + sext\(offset\)\] = x\[rs2\]\[7:0\] | Store byte. |
+| **sh** rs2, offset\(rs1\) | M\[x\[rs1\] + sext\(offset\)\] = x\[rs2\]\[15:0\] | Store halfword. |
+| **sw** rs2, offset\(rs1\) | M\[x\[rs1\] + sext\(offset\)\] = x\[rs2\]\[31:0\] | Store word. |
+| **addi** rd, rs1, imm | x\[rd\] = x\[rs1\] + sext\(imm\) | Add immediate. |
+| **slti** rd, rs1, imm | x\[rd\] = x\[rs1\] &lt; x\[rs2\] | Set if less than. |
+| **sltiu** rd, rs1, imm | x\[rd\] = x\[rs1\] &lt; x\[rs2\] | Set if less than, unsigned. |
+| **xori** rd, rs1, imm | x\[rd\] = x\[rs1\] ^ sext\(imm\) | Exclusive OR immediate. |
+| **ori** rd, rs1, imm | x\[rd\] = x\[rs1\] \| sext\(imm\) | OR immediate. |
+| **andi** rd, rs1, imm | x\[rd\] = x\[rs1\] & sext\(imm\) | AND immediate. |
+| **slli** rd, rs1, shamt | x\[rd\] = x\[rs1\] &lt;&lt; shamt | Shift left logical immediate. |
+| **srli** rd, rs1, shamt | x\[rd\] = x\[rs1\] &gt;&gt; shamt | Shift right logical immediate. |
+| **srai** rd, rs1, shamt | x\[rd\] = x\[rs1\] &gt;&gt; shamt | Shift right arithmetic immediate. |
+| **add** rd, rs1, rs2 | x\[rd\] = x\[rs1\] + x\[rs2\] | Add. |
+| **sub** rd, rs1, rs2 | x\[rd\] = x\[rs1\] - x\[rs2\] | Subtract. |
+| **sll** rs, rs1, rs2 | x\[rd\] = x\[rs1\] &lt;&lt; x\[rs2\] | Shift left logical. |
+| **slt** rd, rs1, rs2 | x\[rd\] = x\[rs1\] &lt; x\[rs2\] | Set if less than. |
+| **sltu** rd, rs1, rs2 | x\[rd\] = x\[rs1\] &lt; x\[rs2\] | Set if less than, unsigned. |
+| **xor** rd, rs1, rs2 | x\[rd\] = x\[rs1\] ^ x\[rs2\] | Exclusive OR. |
+| **srl** rd, rs1, rs2 | x\[rd\] = x\[rs1\] &gt;&gt; x\[rs2\] | Shift right logical. |
+| **sra** rd, rs1, rs2 | x\[rd\] = x\[rs1\] &gt;&gt; x\[rs2\] | Shift right arithmetic. |
+| **or** rd, rs1, rs2 | x\[rd\] = x\[rs1\] \| x\[rs2\] | OR. |
+| **and** rd, rs1, rs2 | x\[rd\] = x\[rs1\] & x\[rs2\] | AND. |
+| **lwu** rd, offset\(rs1\) | x\[rd\] = M\[x\[rs1\] + sext\(offset\)\]\[31:0\] | Load word, unsigned. |
+| **ld** rd, offset\(rs1\) | x\[rd\] = M\[x\[rs1\] + sext\(offset\)\]\[63:0\] | Load doubleword \(64 bits\), unsigned. |
+| **sd** rs2, offset\(rs1\) | M\[x\[rs1\] + sext\(offset\)\] = x\[rs2\]\[63:0\] | Store doubleword. |
+| **addiw** rd, rs1, imm | x\[rd\] = sext\(\(x\[rs1\] + sext\(imm\)\)\[31:0\]\) | Add word immediate. |
+| **slliw** rd, rs1, shamt | x\[rd\] = sext\(\(x\[rs1\] &lt;&lt; shamt\)\[31:0\]\) | Shift left logical word immediate. |
+| **srliw** rd, rs1, shamt | x\[rd\] = sext\(\(x\[rs1\] &gt;&gt; shamt\)\[31:0\]\) | Shift right logical word immediate. |
+| **sraiw** rd, rs1, shamt | x\[rd\] = sext\(\(x\[rs1\] &gt;&gt; shamt\)\[31:0\]\) | Shift right arithmetic word immediate. |
+| **addw** rd, rs1, rs2 | x\[rd\] = sext\(\(x\[rs1\] + x\[rs2\]\)\[31:0\]\) | Add word. |
+| **subw** rd, rs1, rs2 | x\[rd\] = sext\(\(x\[rs1\] - x\[rs2\]\)\[31:0\]\) | Subtract word. |
+| **sllw** rd, rs1, rs2 | x\[rd\] = sext\(\(x\[rs1\] &lt;&lt; x\[rs2\]\[4:0\]\)\[31:0\]\) | Shift left logical word. |
+| **srlw** rd, rs1, rs2 | x\[rd\] = sext\(x\[rs1\]\[31:0\] &lt;&lt; x\[rs2\]\[4:0\]\) | Shift right logical word. |
+| **sraw** rd, rs1, rs2 | x\[rd\] = sext\(x\[rs1\]\[31:0\] &lt;&lt; x\[rs2\]\[4:0\]\) | Shift right arithmetic word. |
 
 
 
