@@ -98,7 +98,7 @@ All we have to do is quite simple: fetch, decode, and execute as I described in 
 
 First, we're going to divide the implementation of CPU from the `main.rs` file. Rust provides a module system to split code in logical units and organize visibility. We're going to move the implementation of CPU to a new file `cpu.rs`.
 
-In order define a cpu module we need to `mod` keyword at the beginning of the main file.
+In order define a cpu module we need to `mod` keyword at the beginning of the main file. Also `use` keyword allows to use public items in the cpu module.
 
 {% code title="src/main.rs" %}
 ```rust
