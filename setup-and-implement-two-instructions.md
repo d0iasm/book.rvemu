@@ -174,7 +174,7 @@ impl Cpu {
 ```
 {% endcode %}
 
-### Decode State
+### Decode Stage
 
 RISC-V base instructions only has 4 instruction formats and a few variants as we can see in Figure 2. These formats keep all register specifiers at the same position in all formats since it makes it easier to decode.
 
@@ -195,7 +195,7 @@ impl Cpu {
 ```
 {% endcode %}
 
-### Execute State
+### Execute Stage
 
 As a first step, we're going to implement 2 instructions `add` \(R-type\) and `addi` \(I-type\). The `add` instruction adds 64-bit values in two registers, and the `addi` instruction adds a 64-bit value in a register and a 12-bit immediate value. We can dispatch an execution depending on the `opcode` field according to Figure 1.3 and Figure 1.4. In the `addi` instruction, we need to decode 12-bit immediate which is sign extended.
 

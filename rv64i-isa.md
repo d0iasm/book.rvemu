@@ -30,7 +30,9 @@ x12=0x0 x13=0x0 x14=0x1 x15=0x37 // x15 should contain 55 (= 10th fibonacci numb
 
 ## RV64I Base Integer Instruction Set
 
-RV64I is a base integer instruction set for the 64-bit architecture, which builds upon the RV32I variant. In this step, we're going to implement 47 instructions \(35 instructions from RV32I and 12 instructions from RV64I\). We've already implemented `add` and `addi` so we'll skip them. Also, we'll skip to implement `fence`, `ecall`, and `ebreak` for now.
+RV64I is a base integer instruction set for the 64-bit architecture, which builds upon the RV32I variant. RV64I shares most of instructions with RV32I but the width of registers is different and there are a few additional instructions only in RV64I.
+
+In this step, we're going to implement 47 instructions \(35 instructions from RV32I and 12 instructions from RV64I\). We've already implemented `add` and `addi` so we'll skip them. Also, we'll skip to implement `fence`, `ecall`, and `ebreak` for now. I'll cover `ecall` and `ebreak` in the following step and won't explain `fence` since it's not used in a single core system.
 
 Figure 2.1 and 2.2 are the list to tell us how to decode each instruction for RV32I and RV64I, respectively. The following table is the brief explanations for each instruction. I don't describe the details of each instruction, so please see [the implementation](https://github.com/d0iasm/rvemu-for-book/blob/master/step2/src/cpu.rs) if you don't understand them well.
 
@@ -88,9 +90,81 @@ All we have to do is quite simple: fetch, decode, and execute as I described in 
 | **srlw** rd, rs1, rs2 | x\[rd\] = sext\(x\[rs1\]\[31:0\] &lt;&lt; x\[rs2\]\[4:0\]\) | Shift right logical word. |
 | **sraw** rd, rs1, rs2 | x\[rd\] = sext\(x\[rs1\]\[31:0\] &lt;&lt; x\[rs2\]\[4:0\]\) | Shift right arithmetic word. |
 
-
-
 ![Fig 2.1 RV32I Base Instruction Set \(Source: RV32I Base Instruction Set table in Volume I: Unprivileged ISA\)](.gitbook/assets/rvemubook-rv32i.png)
 
 ![Fig 2.2 RV64I Base Instruction Set \(Source: RV64I Base Instruction Set table in Volume I: Unprivileged ISA\)](.gitbook/assets/screen-shot-2020-04-19-at-20.20.35.png)
+
+## CPU Module
+
+First, we're going to divide the implementation of CPU from the `main.rs` file. Rust provides a module system to split code in logical units and organize visibility. We're going to move the implementation of CPU to a new file `cpu.rs`.
+
+In order define a cpu module we need to `mod` keyword at the beginning of the main file.
+
+{% code title="src/main.rs" %}
+```rust
+// This declaration will look for a file named `cpu.rs` or `cpu/mod.rs` and will
+// insert its contents inside a module named `cpu` under this scope.
+mod cpu;
+
+// Use all public structures, methods, and functions defined in the cpu module.
+use crate::cpu::*;
+```
+{% endcode %}
+
+{% code title="src/cpu.rs" %}
+```rust
+// `pub` keyword allows other modules use the `Cpu` structure and methods
+// relating to it. 
+pub struct Cpu {
+    ...
+}
+
+impl Cpu {
+    ...
+}
+```
+{% endcode %}
+
+### Fetch-decode-execute Cycle
+
+The step 1 already mentioned the fetch-decode-execute cycle and we're going to implement it in the `main.rs`. An emulator is ideally an infinite loop and execute program infinitely unless something wrong happens or a user stops an emulator explicitly. However, we're going to stop an emulator implicitly when the program counter is 0 or over the length of memory, and an error happens during the execution.
+
+{% code title="src/main.rs" %}
+```rust
+fn main() -> io::Result<()> {
+    ...
+    while cpu.pc < cpu.memory.len() as u64 {
+        // 1. Fetch
+        let inst = cpu.fetch();
+        
+        // 2. Add 4 to the program counter.
+        cpu.pc += 4;
+
+        // 3. Decode.
+        // 4. Execute.
+        match cpu.execute(inst) {
+            // True if an error happens.
+            true => break,
+            false => {}
+        };
+
+        // This is a workaround for avoiding an infinite loop.
+        if cpu.pc == 0 {
+            break;
+        }
+    }
+    ...
+}
+```
+{% endcode %}
+
+### Fetch Stage
+
+### Decode Stage
+
+### Execute Stage
+
+## Testing
+
+
 
