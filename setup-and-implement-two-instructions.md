@@ -44,7 +44,7 @@ First, we have to build a RISC-V toolchain for `RV64G`. The default toolchain wi
 * RVZicsr: control and status register instructions
 * RVZifencei: instruction-fetch fence instructions
 
-However, we need a part of instructions to run xv6 and this book will explain only instructions RV64I and a few instructions that xv6 uses. The compressed instructions that the default setting for RISC-V toolchain has causes an error for our emulator so we need to build the toolchain without the compressed instructions.
+However, this book will explain only instructions that xv6 uses.
 
 Download code from the [riscv/riscv-gnu-toolchain](https://github.com/riscv/riscv-gnu-toolchain) repository and configure it with `rv64g` architecture. After the following commands, we can use `riscv64-unknown-elf-*` commands.
 
@@ -174,7 +174,7 @@ impl Cpu {
 ```
 {% endcode %}
 
-### Decode Stage
+### Decode State
 
 RISC-V base instructions only has 4 instruction formats and a few variants as we can see in Figure 2. These formats keep all register specifiers at the same position in all formats since it makes it easier to decode.
 
@@ -195,7 +195,7 @@ impl Cpu {
 ```
 {% endcode %}
 
-### Execute Stage
+### Execute State
 
 As a first step, we're going to implement 2 instructions `add` \(R-type\) and `addi` \(I-type\). The `add` instruction adds 64-bit values in two registers, and the `addi` instruction adds a 64-bit value in a register and a 12-bit immediate value. We can dispatch an execution depending on the `opcode` field according to Figure 1.3 and Figure 1.4. In the `addi` instruction, we need to decode 12-bit immediate which is sign extended.
 
@@ -246,11 +246,11 @@ x28=0x0 x29=0x5 x30=0x25 x31=0x2a
 
 ### How to Build Test Binary
 
-The test binary is compiled from an assembly language by using the RISC-V toolchain we built in[ the previous section](setup-and-implement-two-instructions.md#build-risc-v-toolchain). When we compile an assembly file by the gcc compiler, we need options to specify not to use the standard library by `-nostdlib` and to tell a linker to start at the address `0x0` by `-Wl, -Ttext=0x0`. Also, we need to remove headers from the ELF binary by the objcopy tool since our emulator just starts to execute at the address `0x0`.
+If you want to execute a bare-metal C program you write, you need to make an ELF binary without any headers because our emulator just starts to execute at the address `0x0` . The [Makefile](https://github.com/d0iasm/rvemu-for-book/blob/master/day1/Makefile) helps you build test binaries.
 
 ```bash
-$ riscv64-unknown-elf-gcc -Wl,-Ttext=0x0 -nostdlib -o add-addi add-addi.s
-$ riscv64-unknown-elf-objcopy -O binary add-addi add-addi.text
+$ riscv64-unknown-elf-gcc -nostdlib -o foo foo.c
+$ riscv64-unknown-elf-objcopy -O binary foo foo.text
 ```
 
 
