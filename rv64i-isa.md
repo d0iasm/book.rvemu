@@ -30,9 +30,7 @@ x12=0x0 x13=0x0 x14=0x1 x15=0x37 // x15 should contain 55 (= 10th fibonacci numb
 
 ## RV64I Base Integer Instruction Set
 
-RV64I is a base integer instruction set for the 64-bit architecture, which builds upon the RV32I variant. RV64I shares most of instructions with RV32I but the width of registers is different and there are a few additional instructions only in RV64I.
-
-In this step, we're going to implement 47 instructions \(35 instructions from RV32I and 12 instructions from RV64I\). We've already implemented `add` and `addi` so we'll skip them. Also, we'll skip to implement `fence`, `ecall`, and `ebreak` for now. I'll cover `ecall` and `ebreak` in the following step and won't explain `fence` since it's not used in a single core system.
+RV64I is a base integer instruction set for the 64-bit architecture, which builds upon the RV32I variant. In this step, we're going to implement 54 instructions \(39 instructions in RV32I and 15 instructions in RV64I\). We've already implemented `add` and `addi` so we'll skip them. Also, we'll skip to implement `fence`, `ecall`, and `ebreak` for now.
 
 Figure 2.1 and 2.2 are the list to tell us how to decode each instruction for RV32I and RV64I, respectively. The following table is the brief explanations for each instruction. I don't describe the details of each instruction, so please see [the implementation](https://github.com/d0iasm/rvemu-for-book/blob/master/step2/src/cpu.rs) if you don't understand them well.
 
@@ -40,163 +38,16 @@ All we have to do is quite simple: fetch, decode, and execute as I described in 
 
 | Instruction | Pseudocode | Description |
 | :--- | :--- | :--- |
-| **lui** rd, imm | x\[rd\] = sext\(imm\[31:12\] &lt;&lt; 12\) | Load upper immediate value. |
-| **auipc** rd, imm | x\[rd\] = pc + sext\(imm\[31:12\] &lt;&lt; 12\) | Add upper immediate value to PC. |
-| **jal** rd, offset | x\[rd\] = pc + 4; pc += sext\(offset\) | Jump and link. |
-| **jalr** rd, offset\(rs1\) | t = pc+4; pc = \(x\[rs1\] + sext\(offset\)&~1\); x\[rd\] = t | Jump and link register. |
-| **beq** rs1, rs2, offset | if \(rs1 == rs2\) pc += sext\(offset\) | Branch if equal. |
-| **bne** rs1, rs2, offset | if \(rs1 != rs2\) pc += sext\(offset\) | Branch if not equal. |
-| **blt** rs1, rs2, offset | if \(rs1 &lt; rs2\) pc += sext\(offset\) | Branch if less than. |
-| **bge** rs1, rs2, offset | if \(rs1 &gt;= rs2\) pc += sext\(offset\) | Branch if greater than or equal. |
-| **bltu** rs1, rs2, offset | if \(rs1 &lt; rs2\) pc += sext\(offset\) | Branch if less than, unsigned. |
-| **bgeu** rs1, rs2, offset | if \(rs1 &gt;= rs2\) pc += sext\(offset\) | Branch if greater than or equal, unsigned. |
-| **lb** rd, offset\(rs1\) | x\[rd\] = sext\(M\[x\[rs1\] + sext\(offset\)\]\[7:0\]\) | Load byte \(8 bits\). |
-| **lh** rd, offset\(rs1\) | x\[rd\] = sext\(M\[x\[rs1\] + sext\(offset\)\]\[15:0\]\) | Load halfword \(16 bits\). |
-| **lw** rd, offset\(rs1\) | x\[rd\] = sext\(M\[x\[rs1\] + sext\(offset\)\]\[31:0\]\) | Load word \(32 bits\). |
-| **lbu** rd, offset\(rs1\) | x\[rd\] = M\[x\[rs1\] + sext\(offset\)\]\[7:0\] | Load byte, unsigned. |
-| **lhu** rd, offset\(rs1\) | x\[rd\] = M\[x\[rs1\] + sext\(offset\)\]\[15:0\] | Load halfword, unsigned. |
-| **sb** rs2, offset\(rs1\) | M\[x\[rs1\] + sext\(offset\)\] = x\[rs2\]\[7:0\] | Store byte. |
-| **sh** rs2, offset\(rs1\) | M\[x\[rs1\] + sext\(offset\)\] = x\[rs2\]\[15:0\] | Store halfword. |
-| **sw** rs2, offset\(rs1\) | M\[x\[rs1\] + sext\(offset\)\] = x\[rs2\]\[31:0\] | Store word. |
-| **addi** rd, rs1, imm | x\[rd\] = x\[rs1\] + sext\(imm\) | Add immediate. |
-| **slti** rd, rs1, imm | x\[rd\] = x\[rs1\] &lt; x\[rs2\] | Set if less than. |
-| **sltiu** rd, rs1, imm | x\[rd\] = x\[rs1\] &lt; x\[rs2\] | Set if less than, unsigned. |
-| **xori** rd, rs1, imm | x\[rd\] = x\[rs1\] ^ sext\(imm\) | Exclusive OR immediate. |
-| **ori** rd, rs1, imm | x\[rd\] = x\[rs1\] \| sext\(imm\) | OR immediate. |
-| **andi** rd, rs1, imm | x\[rd\] = x\[rs1\] & sext\(imm\) | AND immediate. |
-| **slli** rd, rs1, shamt | x\[rd\] = x\[rs1\] &lt;&lt; shamt | Shift left logical immediate. |
-| **srli** rd, rs1, shamt | x\[rd\] = x\[rs1\] &gt;&gt; shamt | Shift right logical immediate. |
-| **srai** rd, rs1, shamt | x\[rd\] = x\[rs1\] &gt;&gt; shamt | Shift right arithmetic immediate. |
-| **add** rd, rs1, rs2 | x\[rd\] = x\[rs1\] + x\[rs2\] | Add. |
-| **sub** rd, rs1, rs2 | x\[rd\] = x\[rs1\] - x\[rs2\] | Subtract. |
-| **sll** rs, rs1, rs2 | x\[rd\] = x\[rs1\] &lt;&lt; x\[rs2\] | Shift left logical. |
-| **slt** rd, rs1, rs2 | x\[rd\] = x\[rs1\] &lt; x\[rs2\] | Set if less than. |
-| **sltu** rd, rs1, rs2 | x\[rd\] = x\[rs1\] &lt; x\[rs2\] | Set if less than, unsigned. |
-| **xor** rd, rs1, rs2 | x\[rd\] = x\[rs1\] ^ x\[rs2\] | Exclusive OR. |
-| **srl** rd, rs1, rs2 | x\[rd\] = x\[rs1\] &gt;&gt; x\[rs2\] | Shift right logical. |
-| **sra** rd, rs1, rs2 | x\[rd\] = x\[rs1\] &gt;&gt; x\[rs2\] | Shift right arithmetic. |
-| **or** rd, rs1, rs2 | x\[rd\] = x\[rs1\] \| x\[rs2\] | OR. |
-| **and** rd, rs1, rs2 | x\[rd\] = x\[rs1\] & x\[rs2\] | AND. |
-| **lwu** rd, offset\(rs1\) | x\[rd\] = M\[x\[rs1\] + sext\(offset\)\]\[31:0\] | Load word, unsigned. |
-| **ld** rd, offset\(rs1\) | x\[rd\] = M\[x\[rs1\] + sext\(offset\)\]\[63:0\] | Load doubleword \(64 bits\), unsigned. |
-| **sd** rs2, offset\(rs1\) | M\[x\[rs1\] + sext\(offset\)\] = x\[rs2\]\[63:0\] | Store doubleword. |
-| **addiw** rd, rs1, imm | x\[rd\] = sext\(\(x\[rs1\] + sext\(imm\)\)\[31:0\]\) | Add word immediate. |
-| **slliw** rd, rs1, shamt | x\[rd\] = sext\(\(x\[rs1\] &lt;&lt; shamt\)\[31:0\]\) | Shift left logical word immediate. |
-| **srliw** rd, rs1, shamt | x\[rd\] = sext\(\(x\[rs1\] &gt;&gt; shamt\)\[31:0\]\) | Shift right logical word immediate. |
-| **sraiw** rd, rs1, shamt | x\[rd\] = sext\(\(x\[rs1\] &gt;&gt; shamt\)\[31:0\]\) | Shift right arithmetic word immediate. |
-| **addw** rd, rs1, rs2 | x\[rd\] = sext\(\(x\[rs1\] + x\[rs2\]\)\[31:0\]\) | Add word. |
-| **subw** rd, rs1, rs2 | x\[rd\] = sext\(\(x\[rs1\] - x\[rs2\]\)\[31:0\]\) | Subtract word. |
-| **sllw** rd, rs1, rs2 | x\[rd\] = sext\(\(x\[rs1\] &lt;&lt; x\[rs2\]\[4:0\]\)\[31:0\]\) | Shift left logical word. |
-| **srlw** rd, rs1, rs2 | x\[rd\] = sext\(x\[rs1\]\[31:0\] &lt;&lt; x\[rs2\]\[4:0\]\) | Shift right logical word. |
-| **sraw** rd, rs1, rs2 | x\[rd\] = sext\(x\[rs1\]\[31:0\] &lt;&lt; x\[rs2\]\[4:0\]\) | Shift right arithmetic word. |
+| `lui rd, immediate` | x\[rd\] = sext\(immediate\[31:12\] &lt;&lt; 12\) | Load upper immediate value. |
+| `auipc rd, immediate` | x\[rd\] = pc+sext\(immediate\[31:12\] &lt;&lt; 12\) | Add upper immediate value to PC. |
+| `jal rd, offset` | x\[rd\] = pc+4; pc += sext\(offset\) | Jump and link. |
+| `jalr rd, offset(rs1)` | t = pc+4; pc = \(x\[rs1\]+sext\(offset\)&~1\); x\[rd\] = t | Jump and link register. |
+
+
+
+
 
 ![Fig 2.1 RV32I Base Instruction Set \(Source: RV32I Base Instruction Set table in Volume I: Unprivileged ISA\)](.gitbook/assets/rvemubook-rv32i.png)
 
 ![Fig 2.2 RV64I Base Instruction Set \(Source: RV64I Base Instruction Set table in Volume I: Unprivileged ISA\)](.gitbook/assets/screen-shot-2020-04-19-at-20.20.35.png)
-
-## CPU Module
-
-First, we're going to divide the implementation of CPU from the `main.rs` file. Rust provides a module system to split code in logical units and organize visibility. We're going to move the implementation of CPU to a new file `cpu.rs`.
-
-In order define a cpu module we need to `mod` keyword at the beginning of the main file. Also `use` keyword allows to use public items in the cpu module.
-
-{% code title="src/main.rs" %}
-```rust
-// This declaration will look for a file named `cpu.rs` or `cpu/mod.rs` and will
-// insert its contents inside a module named `cpu` under this scope.
-mod cpu;
-
-// Use all public structures, methods, and functions defined in the cpu module.
-use crate::cpu::*;
-```
-{% endcode %}
-
-{% code title="src/cpu.rs" %}
-```rust
-// `pub` keyword allows other modules use the `Cpu` structure and methods
-// relating to it. 
-pub struct Cpu {
-    ...
-}
-
-impl Cpu {
-    ...
-}
-```
-{% endcode %}
-
-### Fetch-decode-execute Cycle
-
-The step 1 already mentioned the fetch-decode-execute cycle and we're going to implement it in the `main.rs`. An emulator is ideally an infinite loop and execute program infinitely unless something wrong happens or a user stops an emulator explicitly. However, we're going to stop an emulator implicitly when the program counter is 0 or over the length of memory, and an error happens during the execution.
-
-{% code title="src/main.rs" %}
-```rust
-fn main() -> io::Result<()> {
-    ...
-    while cpu.pc < cpu.memory.len() as u64 {
-        // 1. Fetch
-        let inst = cpu.fetch();
-        
-        // 2. Add 4 to the program counter.
-        cpu.pc += 4;
-
-        // 3. Decode.
-        // 4. Execute.
-        match cpu.execute(inst) {
-            // True if an error happens.
-            true => break,
-            false => {}
-        };
-
-        // This is a workaround for avoiding an infinite loop.
-        if cpu.pc == 0 {
-            break;
-        }
-    }
-    ...
-}
-```
-{% endcode %}
-
-### Fetch Stage
-
-### Decode Stage
-
-### Execute Stage
-
-## Testing
-
-We're going to test instructions we implemented in this step by calculating [a fibonacci number](https://en.wikipedia.org/wiki/Fibonacci_number) and check if the registers are expected values. I prepared a sample binary file available at [d0iasm/rvemu-for-book/step2/](https://github.com/d0iasm/rvemu-for-book/tree/master/step2). Download the [fib.text](https://github.com/d0iasm/rvemu-for-book/blob/master/step2/fib.text) file and execute it in your emulator.
-
-Calculating a fibonacci number is actually not enough to test all RV64I instructions, so it perhaps be better to use [riscv/riscv-tests](https://github.com/riscv/riscv-tests) to make sure if your implementation is correct. However, it's not obvious how to use riscv-tests so I'll skip to use the test in this book for the sake of simplicity. If you interested in using riscv-tests, [the test file in rvemu](https://github.com/d0iasm/rvemu/blob/master/tests/rv64_user.rs) may be helpful.
-
-```text
-// fib.c contains the following C code and fib.text is the build result of it:
-// int fib(int n);
-// int main() {
-//   return fib(10);
-// }
-// int fib(int n) {
-//   if (n == 0 || n == 1)
-//     return n;
-//   else
-//     return (fib(n-1) + fib(n-2));
-// }
-
-$ cargo run fib.text
-...           
-x12=0x0 x13=0x0 x14=0x1 x15=0x37 // x15 should contain 55 (= 10th fibonacci number).
-```
-
-### How to Build Test Binary
-
-If you want to execute a bare-metal C program you write, you need to make an ELF binary without any headers because our emulator just starts to execute at the address `0x0` . The [Makefile](https://github.com/d0iasm/rvemu-for-book/blob/master/step2/Makefile) helps you build a test binary.
-
-```bash
-$ riscv64-unknown-elf-gcc -S fib.c
-$ riscv64-unknown-elf-gcc -Wl,-Ttext=0x0 -nostdlib -o fib fib.s
-$ riscv64-unknown-elf-objcopy -O binary fib fib.text
-```
-
-
 

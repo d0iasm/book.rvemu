@@ -44,7 +44,7 @@ First, we have to build a RISC-V toolchain for `RV64G`. The default toolchain wi
 * RVZicsr: control and status register instructions
 * RVZifencei: instruction-fetch fence instructions
 
-However, this book will explain only instructions that xv6 uses.
+However, we need a part of instructions to run xv6 and this book will explain only instructions RV64I and a few instructions that xv6 uses. The compressed instructions that the default setting for RISC-V toolchain has causes an error for our emulator so we need to build the toolchain without the compressed instructions.
 
 Download code from the [riscv/riscv-gnu-toolchain](https://github.com/riscv/riscv-gnu-toolchain) repository and configure it with `rv64g` architecture. After the following commands, we can use `riscv64-unknown-elf-*` commands.
 
