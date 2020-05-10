@@ -166,5 +166,37 @@ fn main() -> io::Result<()> {
 
 ## Testing
 
+We're going to test instructions we implemented in this step by calculating [a fibonacci number](https://en.wikipedia.org/wiki/Fibonacci_number) and check if the registers are expected values. I prepared a sample binary file available at [d0iasm/rvemu-for-book/step2/](https://github.com/d0iasm/rvemu-for-book/tree/master/step2). Download the [fib.text](https://github.com/d0iasm/rvemu-for-book/blob/master/step2/fib.text) file and execute it in your emulator.
+
+Calculating a fibonacci number is actually not enough to test all RV64I instructions, so it perhaps be better to use [riscv/riscv-tests](https://github.com/riscv/riscv-tests) to make sure if your implementation is correct. However, it's not obvious how to use riscv-tests so I'll skip to use the test in this book for the sake of simplicity. If you interested in using riscv-tests, [the test file in rvemu](https://github.com/d0iasm/rvemu/blob/master/tests/rv64_user.rs) may be helpful.
+
+```text
+// fib.c contains the following C code and fib.text is the build result of it:
+// int fib(int n);
+// int main() {
+//   return fib(10);
+// }
+// int fib(int n) {
+//   if (n == 0 || n == 1)
+//     return n;
+//   else
+//     return (fib(n-1) + fib(n-2));
+// }
+
+$ cargo run fib.text
+...           
+x12=0x0 x13=0x0 x14=0x1 x15=0x37 // x15 should contain 55 (= 10th fibonacci number).
+```
+
+### How to Build Test Binary
+
+If you want to execute a bare-metal C program you write, you need to make an ELF binary without any headers because our emulator just starts to execute at the address `0x0` . The [Makefile](https://github.com/d0iasm/rvemu-for-book/blob/master/step2/Makefile) helps you build a test binary.
+
+```bash
+$ riscv64-unknown-elf-gcc -S fib.c
+$ riscv64-unknown-elf-gcc -Wl,-Ttext=0x0 -nostdlib -o fib fib.s
+$ riscv64-unknown-elf-objcopy -O binary fib fib.text
+```
+
 
 

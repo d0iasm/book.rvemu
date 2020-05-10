@@ -174,7 +174,7 @@ impl Cpu {
 ```
 {% endcode %}
 
-### Decode State
+### Decode Stage
 
 RISC-V base instructions only has 4 instruction formats and a few variants as we can see in Figure 2. These formats keep all register specifiers at the same position in all formats since it makes it easier to decode.
 
@@ -195,7 +195,7 @@ impl Cpu {
 ```
 {% endcode %}
 
-### Execute State
+### Execute Stage
 
 As a first step, we're going to implement 2 instructions `add` \(R-type\) and `addi` \(I-type\). The `add` instruction adds 64-bit values in two registers, and the `addi` instruction adds a 64-bit value in a register and a 12-bit immediate value. We can dispatch an execution depending on the `opcode` field according to Figure 1.3 and Figure 1.4. In the `addi` instruction, we need to decode 12-bit immediate which is sign extended.
 
@@ -246,11 +246,11 @@ x28=0x0 x29=0x5 x30=0x25 x31=0x2a
 
 ### How to Build Test Binary
 
-If you want to execute a bare-metal C program you write, you need to make an ELF binary without any headers because our emulator just starts to execute at the address `0x0` . The [Makefile](https://github.com/d0iasm/rvemu-for-book/blob/master/day1/Makefile) helps you build test binaries.
+The test binary is compiled from an assembly language by using the RISC-V toolchain we built in[ the previous section](setup-and-implement-two-instructions.md#build-risc-v-toolchain). When we compile an assembly file by the gcc compiler, we need options to specify not to use the standard library by `-nostdlib` and to tell a linker to start at the address `0x0` by `-Wl, -Ttext=0x0`. Also, we need to remove headers from the ELF binary by the objcopy tool since our emulator just starts to execute at the address `0x0`.
 
 ```bash
-$ riscv64-unknown-elf-gcc -nostdlib -o foo foo.c
-$ riscv64-unknown-elf-objcopy -O binary foo foo.text
+$ riscv64-unknown-elf-gcc -Wl,-Ttext=0x0 -nostdlib -o add-addi add-addi.s
+$ riscv64-unknown-elf-objcopy -O binary add-addi add-addi.text
 ```
 
 
