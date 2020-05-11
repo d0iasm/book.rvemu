@@ -2,13 +2,13 @@
 
 This is the step 1 of the book [_Writing a RISC-V Emulator from Scratch in 10 Steps_](./), which tries to run [xv6](https://github.com/mit-pdos/xv6-riscv) in your emulator in the final day.
 
-The source code is available at [d0iasm/rvemu-for-book/day1/](https://github.com/d0iasm/rvemu-for-book/tree/master/day1).
+The source code is available at [d0iasm/rvemu-for-book/step1/](https://github.com/d0iasm/rvemu-for-book/tree/master/step1).
 
 ## Goal of This Page
 
-In the end of this page, we can execute [the sample file](https://github.com/d0iasm/rvemu-for-book/blob/master/day1/add-addi.s) containing `add` and `addi` instructions. The `add` instruction adds two 64-bit registers, and the `addi` instruction adds a 64-bit register and 12-bit immediate value.
+In the end of this page, we can execute [the sample file](https://github.com/d0iasm/rvemu-for-book/blob/master/step1/add-addi.s) containing `add` and `addi` instructions. The `add` instruction adds two 64-bit registers, and the `addi` instruction adds a 64-bit register and 12-bit immediate value.
 
-Sample binary files are also available at [d0iasm/rvemu-for-book/day1/](https://github.com/d0iasm/rvemu-for-book/tree/master/day1). We successfully see the result of addition in the `x31` register when we execute the sample binary file `add-addi.text`.
+Sample binary files are also available at [d0iasm/rvemu-for-book/step1/](https://github.com/d0iasm/rvemu-for-book/tree/master/step1). We successfully see the result of addition in the `x31` register when we execute the sample binary file `add-addi.text`.
 
 ```bash
 // add-addi.text is binary to execute these instructions:
