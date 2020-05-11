@@ -90,44 +90,21 @@ The main job of the CPU is composed of three main stages: fetch stage, decode st
 2. Decode: Splits an instruction sequence into a form that makes sense to the CPU.
 3. Execute: Performs the action required by the instruction.
 
-Also, we need to add 4 to the program counter in each cycle.
-
-{% code title="src/main.rs" %}
-```rust
-fn main() -> io::Result<()> {
-    ...
-    while cpu.pc < cpu.memory.len() as u64 {
-        // 1. Fetch.
-        let inst = cpu.fetch();
-
-        // 2. Add 4 to the program counter.
-        cpu.pc = cpu.pc + 4;
-
-        // 3. Decode.
-        // 4. Execute.
-        cpu.execute(inst);
-    }
-    ...
-```
-{% endcode %}
-
 We'll make `fetch` and `execute` methods in CPU. The decode stage is performed in the execute method for the sake of simplicity.
 
-{% code title="src.main.rs" %}
+Also, don't forget to add 4 to a program counter in each cycle.
+
 ```rust
 impl Cpu {
     fn fetch(&self) -> u32 {
         // Read 32-bit instruction from a memory.
     }
-
+    
     fn execute(&mut self, inst: u32) {
         // Decode an instruction and execute it.
     }
 }
 ```
-{% endcode %}
-
-
 
 ### Set Binaries to the Memory
 
@@ -148,9 +125,9 @@ fn main() -> io::Result<()> {
     let mut file = File::open(&args[1])?;
     let mut binary = Vec::new();
     file.read_to_end(&mut binary)?;
-
+    
     let cpu = Cpu::new(binary);
-
+    
     ...
 }
 
@@ -162,7 +139,7 @@ impl Cpu {
             memory: binary,
         }
     }
-
+    
     fn fetch(&self) -> u32 { ... }
     fn execute(&mut self, inst: u32) { ... }
 }
@@ -171,7 +148,7 @@ impl Cpu {
 
 ### Fetch Stage
 
-Now, we are ready to fetch an instruction from the memory.
+Now, we are ready to fetch an instruction from the memory. 
 
 What we should be careful to fetch an instruction is endianness, which is the term refers to how binary data is stored. There are 2 types of endianness: little-endian and big-endian. A little-endian ordering places the least significant byte \(LSB\) at the lowest address and the most significant byte \(MSB\) places at the highest address in a 32-bit word. While a big-endian ordering does the opposite.
 
@@ -199,11 +176,11 @@ impl Cpu {
 
 ### Decode State
 
-RISC-V base instructions only has 4 instruction formats and a few variants as we can see in Fig 1.2. These formats keep all register specifiers at the same position in all formats since it makes it easier to decode.
+RISC-V base instructions only has 4 instruction formats and a few variants as we can see in Figure 2. These formats keep all register specifiers at the same position in all formats since it makes it easier to decode.
 
 ![Fig 1.2 RISC-V base instruction formats. \(Source: Figure 2.2 in Volume I: Unprivileged ISA\) ](.gitbook/assets/rvemubook-base-instruction-formats.png)
 
-Decoding for common parts in all formats is performed by bitwise operations, bitwise ANDs and bit shifts.
+Decoding for common parts in all formats is performed by bitwise operations, a bitwise AND and bit shifts.
 
 {% code title="src/main.rs" %}
 ```rust
@@ -220,7 +197,7 @@ impl Cpu {
 
 ### Execute State
 
-As a first step, we're going to implement 2 instructions `add` \(R-type\) and `addi` \(I-type\). The `add` instruction adds 64-bit values in two registers, and the `addi` instruction adds a 64-bit value in a register and a 12-bit immediate value. We can dispatch an execution depending on the `opcode` field according to Fig 1.3 and Fig 1.4. In the `addi` instruction, we need to decode 12-bit immediate which is sign extended.
+As a first step, we're going to implement 2 instructions `add` \(R-type\) and `addi` \(I-type\). The `add` instruction adds 64-bit values in two registers, and the `addi` instruction adds a 64-bit value in a register and a 12-bit immediate value. We can dispatch an execution depending on the `opcode` field according to Figure 1.3 and Figure 1.4. In the `addi` instruction, we need to decode 12-bit immediate which is sign extended.
 
 ![Fig 1.3 Add instruction \(Source: RV32I Base Instruction Set table in Volume I: Unprivileged ISA\)](.gitbook/assets/rvemubook-add.png)
 
@@ -234,11 +211,11 @@ impl Cpu {
             0x13 => {
                 // addi
                 let imm = ((inst & 0xfff00000) as i32 as i64 >> 20) as u64;
-                self.regs[rd] = self.regs[rs1].wrapping_add(imm);
+                self.regs[rd] = self.regs[rs1] + imm;
             }
             0x33 => {
                 // add
-                self.regs[rd] = self.regs[rs1].wrapping_add(self.regs[rs2]);
+                self.regs[rd] = self.regs[rs1] + self.regs[rs2];
             }
             _ => {
                 dbg!("not implemented yet");
@@ -248,8 +225,6 @@ impl Cpu {
 }
 ```
 {% endcode %}
-
-The reason using `wrapping_add` instead of plus \(+\) operation is to avoid to cause an arithmetic overflow when the result is beyond the boundary of the type of registers which is a 64-bit unsigned integer.
 
 ## Testing
 
@@ -277,4 +252,10 @@ If you want to execute a bare-metal C program you write, you need to make an ELF
 $ riscv64-unknown-elf-gcc -nostdlib -o foo foo.c
 $ riscv64-unknown-elf-objcopy -O binary foo foo.text
 ```
+
+
+
+
+
+
 

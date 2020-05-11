@@ -198,7 +198,7 @@ impl Cpu {
 ```
 {% endcode %}
 
-In RISC-V, there are many common parts like registers and funct3 in all formats, but decoding an immediate value is quite different depending on instructions, so we'll decode an immediate value in each operation.
+In RISC-V, there are many common positions in all formats, but decoding an immediate value is quite different depending on instructions, so we'll decode an immediate value in each operation.
 
 For example, the immediate value in branch instructions is located in the place of `rd` and `funct7`. A branch instruction is a `if` statement in C to change the sequence of instruction execution depending on a condition, which includes `beq`, `bne`, `blt`, `bge`, `bltu`, and `bgeu`.
 
