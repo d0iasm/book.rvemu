@@ -6,7 +6,7 @@ The source code is available at [d0iasm/rvemu-for-book/step1/](https://github.co
 
 ## Goal of This Page
 
-In the end of this page, we can execute [the sample file](https://github.com/d0iasm/rvemu-for-book/blob/master/day1/add-addi.s) containing `add` and `addi` instructions in our emulator. The `add` instruction adds 64-bit values in two registers, and the `addi` instruction adds a 64-bit value in a register and a 12-bit immediate value.
+In the end of this page, we can execute [the sample file](https://github.com/d0iasm/rvemu-for-book/blob/master/step1/add-addi.s) containing `add` and `addi` instructions in our emulator. The `add` instruction adds 64-bit values in two registers, and the `addi` instruction adds a 64-bit value in a register and a 12-bit immediate value.
 
 Sample binary files are also available at [d0iasm/rvemu-for-book/step1/](https://github.com/d0iasm/rvemu-for-book/tree/master/step1). We successfully see the result of addition in the `x31` register when we execute the sample binary file `add-addi.text`.
 
@@ -228,7 +228,7 @@ impl Cpu {
 
 ## Testing
 
-We're going to test 2 instructions by executing a sample file and check if the registers are expected values. I prepared a sample binary file available at [d0iasm/rvemu-for-book/step1/](https://github.com/d0iasm/rvemu-for-book/tree/master/step1). Download the [add-addi.text](https://github.com/d0iasm/rvemu-for-book/blob/master/day1/add-addi.text) file and execute it in your emulator. 
+We're going to test 2 instructions by executing a sample file and check if the registers are expected values. I prepared a sample binary file available at [d0iasm/rvemu-for-book/step1/](https://github.com/d0iasm/rvemu-for-book/tree/master/step1). Download the [add-addi.text](https://github.com/d0iasm/rvemu-for-book/blob/master/step1/add-addi.text) file and execute it in your emulator.
 
 To see the registers after an execution is done, I added the [`dump_registers`](https://github.com/d0iasm/rvemu-for-book/blob/master/step1/src/main.rs#L21-L41) function. Now, we successfully see the result of addition in the `x31` register when we execute the sample binary file.
 
