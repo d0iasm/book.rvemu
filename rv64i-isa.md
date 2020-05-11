@@ -34,7 +34,7 @@ RV64I is a base integer instruction set for the 64-bit architecture, which build
 
 In this step, we're going to implement 47 instructions \(35 instructions from RV32I and 12 instructions from RV64I\). We've already implemented `add` and `addi` so we'll skip them. Also, we'll skip to implement `fence`, `ecall`, and `ebreak` for now. I'll cover `ecall` and `ebreak` in the following step and won't explain `fence` since it's not used in a single core system.
 
-Figure 2.1 and 2.2 are the list to tell us how to decode each instruction for RV32I and RV64I, respectively. The following table is the brief explanations for each instruction. I don't describe the details of each instruction, so please see [the implementation](https://github.com/d0iasm/rvemu-for-book/blob/master/step2/src/cpu.rs) if you don't understand them well.
+Fig 2.1 and 2.2 are the list to tell us how to decode each instruction for RV32I and RV64I, respectively. The following table is the brief explanations for each instruction. I don't describe the details of each instruction, so please see [the implementation](https://github.com/d0iasm/rvemu-for-book/blob/master/step2/src/cpu.rs) if you don't understand them well.
 
 All we have to do is quite simple: fetch, decode, and execute as I described in the [step1](setup-and-implement-two-instructions.md#fetch-decode-execute-cycle). However, we have much more instructions than before, so we'll write a ton of code in this step.
 
@@ -184,7 +184,7 @@ impl Cpu {
 
 ### Decode Stage
 
-The decode stage is almost same with the previous step too and we'll add 2 new fields `funct3` and `funct7`. Funct3 is located from 12 to 14 bits and funct7 is located from 25 to 31 bits. These fields and opcode select the type of operation.
+The decode stage is almost same with the previous step too and we'll add 2 new fields `funct3` and `funct7`. Funct3 is located from 12 to 14 bits and funct7 is located from 25 to 31 bits as we can see in the Fig 2.1 and 2.2. These fields and opcode select the type of operation.
 
 {% code title="src/cpu.rs" %}
 ```rust
