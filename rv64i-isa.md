@@ -200,7 +200,9 @@ impl Cpu {
 
 In RISC-V, there are many common parts like registers and funct3 in all formats, but decoding an immediate value is quite different depending on instructions, so we'll decode an immediate value in each operation.
 
-For example, the immediate value in branch instructions is located in the place of `rd` and `funct`. A branch instruction is a `if` statement in C to change the sequence of instruction execution depending on a condition, which includes `beq`, `bne`, `blt`, `bge`, `bltu`, and `bgeu`.
+For example, the immediate value in branch instructions is located in the place of `rd` and `funct7`. A branch instruction is a `if` statement in C to change the sequence of instruction execution depending on a condition, which includes `beq`, `bne`, `blt`, `bge`, `bltu`, and `bgeu`.
+
+Decoding is performed by bitwise ANDs and bit shifts. The point to be noted is that an immediate value should be sign-extended. It means we need to fill in the upper bits with 1 when the significant bit is 1. In this implementation, filling in bits with 1 is performed casting from a signed integer to an unsigned integer.
 
 {% code title="src/cpu.rs" %}
 ```rust
@@ -212,18 +214,20 @@ impl Cpu {
             0x63 => {
                 // imm[12|10:5|4:1|11] = inst[31|30:25|11:8|7]
                 let imm = (((inst & 0x80000000) as i32 as i64 >> 19) as u64)
-                    | ((inst & 0x80) << 4) // imm[11]
+                    | ((inst & 0x80) << 4)   // imm[11]
                     | ((inst >> 20) & 0x7e0) // imm[10:5]
-                    | ((inst >> 7) & 0x1e); // imm[4:1]
+                    | ((inst >> 7) & 0x1e);  // imm[4:1]
                     
                 match funct3 {
                     ...
 ```
 {% endcode %}
 
-
-
 ### Execute Stage
+
+
+
+The book won't describe the details for all instructions and you can see the implementation in [d0iasm/rvemu-for-book/step2/src/cpu.rs](https://github.com/d0iasm/rvemu-for-book/blob/master/step2/src/cpu.rs).
 
 ## Testing
 
