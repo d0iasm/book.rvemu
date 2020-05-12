@@ -98,7 +98,7 @@ All we have to do is quite simple: fetch, decode, and execute as I described in 
 
 First, we're going to divide the implementation of CPU from the `main.rs` file. Rust provides a module system to split code in logical units and organize visibility. We're going to move the implementation of CPU to a new file `cpu.rs`.
 
-In order define a cpu module we need to `mod` keyword at the beginning of the main file. Also `use` keyword allows to use public items in the cpu module.
+In order to define a cpu module we need to `mod` keyword at the beginning of the main file. Also `use` keyword allows to use public items in the cpu module.
 
 {% code title="src/main.rs" %}
 ```rust
@@ -202,7 +202,7 @@ In RISC-V, there are many common positions in all formats, but decoding an immed
 
 For example, the immediate value in branch instructions is located in the place of `rd` and `funct7`. A branch instruction is a `if` statement in C to change the sequence of instruction execution depending on a condition, which includes `beq`, `bne`, `blt`, `bge`, `bltu`, and `bgeu`.
 
-Decoding is performed by bitwise ANDs and bit shifts. The point to be noted is that an immediate value should be sign-extended. It means we need to fill in the upper bits with 1 when the significant bit is 1. In this implementation, filling in bits with 1 is performed casting from a signed integer to an unsigned integer.
+Decoding is performed by bitwise ANDs and bit shifts. The point to be noted is that an immediate value should be sign-extended. It means we need to fill in the upper bits with 1 when the significant bit is 1. In this implementation, filling in bits with 1 is performed by casting from a signed integer to an unsigned integer.
 
 {% code title="src/cpu.rs" %}
 ```rust
@@ -225,9 +225,11 @@ impl Cpu {
 
 ### Execute Stage
 
+Each operation is performed in each `match` arm.
 
+### Points to Be Noted
 
-The book won't describe the details for all instructions and you can see the implementation in [d0iasm/rvemu-for-book/step2/src/cpu.rs](https://github.com/d0iasm/rvemu-for-book/blob/master/step2/src/cpu.rs).
+The book won't describe the details for all instructions but will indicate points to be noted when you implement RV64I. In addition, you can see the implementation in [d0iasm/rvemu-for-book/step2/src/cpu.rs](https://github.com/d0iasm/rvemu-for-book/blob/master/step2/src/cpu.rs) and description in _Chapter 2 RV32I Base Integer Instruction Set_ and _Chapter 5 RV64I Base Integer Instruction Set_ in [the unprivileged specification](https://riscv.org/specifications/isa-spec-pdf/).
 
 ## Testing
 
