@@ -252,6 +252,10 @@ impl Cpu {
 
 The book won't describe the details for all instructions but will indicate points to be noted when you implement RV64I. In addition, you can see the implementation in [d0iasm/rvemu-for-book/step2/src/cpu.rs](https://github.com/d0iasm/rvemu-for-book/blob/master/step2/src/cpu.rs) and description in _Chapter 2 RV32I Base Integer Instruction Set_ and _Chapter 5 RV64I Base Integer Instruction Set_ in [the unprivileged specification](https://riscv.org/specifications/isa-spec-pdf/).
 
+* Arithmetic operations are done by wrapping\_\* functions to avoid an overflow.
+* Sign-extended is done by casting from a smaller signed integer to a larger signed integer.
+* The amount for 64-bit shift operations is encoded in the lower 6 bits in an immediate, and the amount for 32-bit shift operations is encoded in the lower 5 bits.
+
 ## Testing
 
 We're going to test instructions we implemented in this step by calculating [a fibonacci number](https://en.wikipedia.org/wiki/Fibonacci_number) and check if the registers are expected values. I prepared a sample binary file available at [d0iasm/rvemu-for-book/step2/](https://github.com/d0iasm/rvemu-for-book/tree/master/step2). Download the [fib.text](https://github.com/d0iasm/rvemu-for-book/blob/master/step2/fib.text) file and execute it in your emulator.
