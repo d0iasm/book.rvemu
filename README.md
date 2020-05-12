@@ -19,9 +19,9 @@ The source code is available at [d0iasm/rvemu-for-book](https://github.com/d0ias
 | :--- | :--- |
 | Step 1 | [Setup and Implement Two Instructions](setup-and-implement-two-instructions.md) |
 | Step 2 | [RV64I ISA](rv64i-isa.md) |
-| Step 3 | Exceptions |
+| Step 3 | Supervisor ISA |
 | Step 4 | A part of CSRs |
-| Step 5 | Supervisor ISA |
+| Step 5 | Exceptions |
 | Step 6 | UART \(a universal asynchronous receiver-transmitter\) |
 | Step 7 | PLIC \(a platform-level interrupt controller\) |
 | Step 8 | Interrupts |

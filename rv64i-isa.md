@@ -184,7 +184,7 @@ impl Cpu {
 
 ### Decode Stage
 
-The decode stage is almost same with the previous step too and we'll add 2 new fields `funct3` and `funct7`. Funct3 is located from 12 to 14 bits and funct7 is located from 25 to 31 bits as we can see in the Fig 2.1 and 2.2. These fields and opcode select the type of operation.
+The decode stage is almost same with the previous step too and we'll add 2 new fields `funct3` and `funct7`. `funct3` is located from 12 to 14 bits and `funct7` is located from 25 to 31 bits as we can see in the Fig 2.1 and 2.2. These fields and opcode select the type of operation.
 
 {% code title="src/cpu.rs" %}
 ```rust
@@ -225,7 +225,28 @@ impl Cpu {
 
 ### Execute Stage
 
-Each operation is performed in each `match` arm.
+Each operation is performed in each `match` arm. For example, a branch instruction `beq`, which is one of the branch instructions, is executed when `opcode` is 0x63 and `funct3` is 0x0. `beq` sets the `pc` to the current `pc` plus the signed-extended offset if a value in `rs1` equals a value in `rs2`. The current `pc` means the position when CPU fetched an instruction from memory so we need to subtract 4 from `pc` because we added 4 after fetch.
+
+{% code title="src/cpu.rs" %}
+```rust
+impl Cpu {
+    ... 
+    fn execute(&mut self, inst: u32) {
+        ...
+        match opcode {
+            0x63 => {
+                let imm = ...;
+
+                match funct3 {
+                    0x0 => {
+                        // beq
+                        if self.regs[rs1] == self.regs[rs2] {
+                            self.pc = self.pc.wrapping_add(imm).wrapping_sub(4);
+                        }
+                    }
+                ...
+```
+{% endcode %}
 
 ### Points to Be Noted
 
