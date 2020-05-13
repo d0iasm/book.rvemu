@@ -34,7 +34,7 @@ RV64I is a base integer instruction set for the 64-bit architecture, which build
 
 In this step, we're going to implement 47 instructions \(35 instructions from RV32I and 12 instructions from RV64I\). We've already implemented `add` and `addi` so we'll skip them. Also, we'll skip to implement `fence`, `ecall`, and `ebreak` for now. I'll cover `ecall` and `ebreak` in the following step and won't explain `fence` since it's not used in a single core system.
 
-Fig 2.1 and 2.2 are the list to tell us how to decode each instruction for RV32I and RV64I, respectively. The following table is the brief explanations for each instruction. I don't describe the details of each instruction, so please see [the implementation](https://github.com/d0iasm/rvemu-for-book/blob/master/step2/src/cpu.rs) if you don't understand them well.
+Figure 2.1 and 2.2 are the list to tell us how to decode each instruction for RV32I and RV64I, respectively. The following table is the brief explanations for each instruction. I don't describe the details of each instruction, so please see [the implementation](https://github.com/d0iasm/rvemu-for-book/blob/master/step2/src/cpu.rs) if you don't understand them well.
 
 All we have to do is quite simple: fetch, decode, and execute as I described in the [step1](setup-and-implement-two-instructions.md#fetch-decode-execute-cycle). However, we have much more instructions than before, so we'll write a ton of code in this step.
 
@@ -98,7 +98,7 @@ All we have to do is quite simple: fetch, decode, and execute as I described in 
 
 First, we're going to divide the implementation of CPU from the `main.rs` file. Rust provides a module system to split code in logical units and organize visibility. We're going to move the implementation of CPU to a new file `cpu.rs`.
 
-In order to define a cpu module we need to `mod` keyword at the beginning of the main file. Also `use` keyword allows to use public items in the cpu module.
+In order define a cpu module we need to `mod` keyword at the beginning of the main file. Also `use` keyword allows to use public items in the cpu module.
 
 {% code title="src/main.rs" %}
 ```rust
@@ -184,7 +184,7 @@ impl Cpu {
 
 ### Decode Stage
 
-The decode stage is almost same with the previous step too and we'll add 2 new fields `funct3` and `funct7`. `funct3` is located from 12 to 14 bits and `funct7` is located from 25 to 31 bits as we can see in the Fig 2.1 and 2.2. These fields and opcode select the type of operation.
+The decode stage is almost same with the previous step too and we'll add 2 new fields `funct3` and `funct7`. Funct3 is located from 12 to 14 bits and funct7 is located from 25 to 31 bits. These fields and opcode select the type of operation.
 
 {% code title="src/cpu.rs" %}
 ```rust
@@ -198,11 +198,9 @@ impl Cpu {
 ```
 {% endcode %}
 
-In RISC-V, there are many common positions in all formats, but decoding an immediate value is quite different depending on instructions, so we'll decode an immediate value in each operation.
+In RISC-V, there are many common parts like registers and funct3 in all formats, but decoding an immediate value is quite different depending on instructions, so we'll decode an immediate value in each operation.
 
-For example, the immediate value in branch instructions is located in the place of `rd` and `funct7`. A branch instruction is a `if` statement in C to change the sequence of instruction execution depending on a condition, which includes `beq`, `bne`, `blt`, `bge`, `bltu`, and `bgeu`.
-
-Decoding is performed by bitwise ANDs and bit shifts. The point to be noted is that an immediate value should be sign-extended. It means we need to fill in the upper bits with 1 when the significant bit is 1. In this implementation, filling in bits with 1 is performed by casting from a signed integer to an unsigned integer.
+For example, the immediate value in branch instructions is located in the place of `rd` and `funct`. A branch instruction is a `if` statement in C to change the sequence of instruction execution depending on a condition, which includes `beq`, `bne`, `blt`, `bge`, `bltu`, and `bgeu`.
 
 {% code title="src/cpu.rs" %}
 ```rust
@@ -214,47 +212,18 @@ impl Cpu {
             0x63 => {
                 // imm[12|10:5|4:1|11] = inst[31|30:25|11:8|7]
                 let imm = (((inst & 0x80000000) as i32 as i64 >> 19) as u64)
-                    | ((inst & 0x80) << 4)   // imm[11]
+                    | ((inst & 0x80) << 4) // imm[11]
                     | ((inst >> 20) & 0x7e0) // imm[10:5]
-                    | ((inst >> 7) & 0x1e);  // imm[4:1]
+                    | ((inst >> 7) & 0x1e); // imm[4:1]
                     
                 match funct3 {
                     ...
 ```
 {% endcode %}
 
+
+
 ### Execute Stage
-
-Each operation is performed in each `match` arm. For example, a branch instruction `beq`, which is one of the branch instructions, is executed when `opcode` is 0x63 and `funct3` is 0x0. `beq` sets the `pc` to the current `pc` plus the signed-extended offset if a value in `rs1` equals a value in `rs2`. The current `pc` means the position when CPU fetched an instruction from memory so we need to subtract 4 from `pc` because we added 4 after fetch.
-
-{% code title="src/cpu.rs" %}
-```rust
-impl Cpu {
-    ... 
-    fn execute(&mut self, inst: u32) {
-        ...
-        match opcode {
-            0x63 => {
-                let imm = ...;
-
-                match funct3 {
-                    0x0 => {
-                        // beq
-                        if self.regs[rs1] == self.regs[rs2] {
-                            self.pc = self.pc.wrapping_add(imm).wrapping_sub(4);
-                        }
-                    }
-                ...
-```
-{% endcode %}
-
-### Points to Be Noted
-
-The book won't describe the details for all instructions but will indicate points to be noted when you implement RV64I. In addition, you can see the implementation in [d0iasm/rvemu-for-book/step2/src/cpu.rs](https://github.com/d0iasm/rvemu-for-book/blob/master/step2/src/cpu.rs) and description in _Chapter 2 RV32I Base Integer Instruction Set_ and _Chapter 5 RV64I Base Integer Instruction Set_ in [the unprivileged specification](https://riscv.org/specifications/isa-spec-pdf/).
-
-* Arithmetic operations are done by wrapping\_\* functions to avoid an overflow.
-* Sign-extended is done by casting from a smaller signed integer to a larger signed integer.
-* The amount for 64-bit shift operations is encoded in the lower 6 bits in an immediate, and the amount for 32-bit shift operations is encoded in the lower 5 bits.
 
 ## Testing
 
