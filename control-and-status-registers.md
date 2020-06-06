@@ -6,9 +6,13 @@ The source code is available at [d0iasm/rvemu-for-book/step3/](https://github.co
 
 ## Goal of This Page
 
-In the end of this page, we can execute 
+In the end of this page, we can execute the sample file containing CSR instructions, `csrrw`, `csrrs`, `csrrc`, `csrrwi`, `csrrsi`, and `csrrci`.
 
 ## Control and Status Registers \(CSRs\)
+
+Control and status register \(CSR\) is a register that stores various information in CPU.
+
+## CSR Instructions
 
 ## Testing
 
