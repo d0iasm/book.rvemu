@@ -284,14 +284,10 @@ x28=0x0 x29=0x5 x30=0x25 x31=0x2a
 
 ### How to Build Test Binary
 
-Our emulator can execute an ELF binary without any headers and its entry point address is `0x0` . The [Makefile](https://github.com/d0iasm/rvemu-for-book/blob/master/step1/Makefile) helps you build test binary.
+If you want to execute a bare-metal C program you write, you need to make an ELF binary without any headers because our emulator just starts to execute at the address `0x0` . The [Makefile](https://github.com/d0iasm/rvemu-for-book/blob/master/day1/Makefile) helps you build test binary.
 
 ```bash
-$ riscv64-unknown-elf-gcc -Wl,-Ttext=0x0 -nostdlib -o foo foo.s
+$ riscv64-unknown-elf-gcc -nostdlib -o foo foo.c
 $ riscv64-unknown-elf-objcopy -O binary foo foo.text
 ```
-
-### Disclaimer
-
-The sample file doesn't cover edge cases \(e.g. arithmetic overflow\). We'll not aim at perfect implementation of our emulator this step and in the following steps because it costs too much. The book just focuses on running xv6 in our emulator and its implementation is possibly wrong or not enough.
 

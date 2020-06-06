@@ -8,7 +8,7 @@ The source code is available at d0iasm/rvemu-for-book/step4/.
 
 In the end of this page, we can execute parts of supervisor ISA, `mret`, and `sret`. These instructions are used to return from traps in M-mode, S-mode, or U-mode respectively.
 
-## Privilege levels
+## Privilege Levels
 
 ## Testing
 

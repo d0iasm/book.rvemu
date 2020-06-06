@@ -8,7 +8,7 @@ The source code is available at [d0iasm/rvemu-for-book/step3/](https://github.co
 
 In the end of this page, we can execute 
 
-## Privilege levels
+## Control and Status Registers \(CSRs\)
 
 ## Testing
 
