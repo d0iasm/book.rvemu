@@ -14,5 +14,7 @@ Control and status register \(CSR\) is a register that stores various informatio
 
 ## CSR Instructions
 
+![Fig 3.1\(Source: RV32/RV64 Zicsr Standard Extension table in Volume I: Unprivileged ISA\)](.gitbook/assets/rvemubook-csr-instructions.png)
+
 ## Testing
 
