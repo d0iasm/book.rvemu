@@ -10,7 +10,25 @@ In the end of this page, we can execute the sample file containing CSR instructi
 
 ## Control and Status Registers \(CSRs\)
 
-Control and status register \(CSR\) is a register that stores various information in CPU. RISC-V defines a separate address space of 4096 CSRs associated with each hardware thread.
+Control and status register \(CSR\) is a register that stores various information in CPU. RISC-V defines a separate address space of 4096 CSRs associated with each hardware thread so we can have at most 4096 CSRs. RISC-V only allocates a part of address space so we can add custom CSRs if we want. Also, not all CSRs are required on all implementations. In this book, I'll describe only CSRs used in [xv6-riscv](https://github.com/mit-pdos/xv6-riscv).
+
+First, we're going to add `csrs` field to `Cpu` structure. We already defined registers, a program counter, and memory and now we have 4 fields in CPU.
+
+{% code title="src/cpu.rs" %}
+```rust
+pub struct Cpu {
+    /// 32 64-bit integer registers.
+    pub regs: [u64; 32],
+    /// Program counter to hold the the memory address of the next instruction that would be executed.
+    pub pc: u64,
+    /// Control and status registers. RISC-V ISA sets aside a 12-bit encoding space (csr[11:0]) for
+    /// up to 4096 CSRs.
+    pub csrs: [u64; 4096],
+    /// Computer memory to store executable instructions and the stack region.
+    pub memory: Vec<u8>,
+}
+```
+{% endcode %}
 
 ## CSR Instructions
 
