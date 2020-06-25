@@ -32,6 +32,8 @@ pub struct Cpu {
 
 ## CSR Instructions
 
+Fig 3.4 is the list for instructions to read/write CSRs. RISC-V calls the 6 instructions _Zicsr._ 
+
 ![Fig 3.4 RV64Zicsr Instruction Set \(Source: RV32/RV64 Zicsr Standard Extension table in Volume I: Unprivileged ISA\)](.gitbook/assets/rvemubook-csr-instructions.png)
 
 ## CSR List
