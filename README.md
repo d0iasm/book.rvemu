@@ -12,6 +12,7 @@ You'll learn the following basic computer architecture from making an emulator i
 * Exceptions
 * Interrupts
 * Peripheral devices
+* Virtual memory system
 
 The source code is available at [d0iasm/rvemu-for-book](https://github.com/d0iasm/rvemu-for-book).
 
@@ -23,12 +24,12 @@ The source code is available at [d0iasm/rvemu-for-book](https://github.com/d0ias
 | Step 4 | [Privileged Instruction Set](privileged-instruction-set.md) |
 | Step 5 | [Exceptions](exceptions.md) |
 | Step 6 | UART \(a universal asynchronous receiver-transmitter\) |
-| Step 7 | PLIC \(a platform-level interrupt controller\) |
+| Step 7 | PLIC \(a platform-level interrupt controller\) and CLINT \(a core-local interrupter\) |
 | Step 8 | Interrupts |
-| Step 9 | CLINT \(a core-local interruptor\) |
-| Step 10 | Virtio |
+| Step 9 | Virtio |
+| Step 10 | Virtual Memory System |
 
 Congratulations🎉 Now you can run xv6 in your emulator!
 
-Author is [@d0iasm](https://twitter.com/d0iasm) and please feel free to ask and request anything to me via [Twitter](https://twitter.com/d0iasm) or [GitHub issues](https://github.com/d0iasm/rvemu-for-book/issues)!
+The author is [@d0iasm](https://twitter.com/d0iasm) and please feel free to ask and request anything to me via [Twitter](https://twitter.com/d0iasm) or [GitHub issues](https://github.com/d0iasm/rvemu-for-book/issues)!
 
