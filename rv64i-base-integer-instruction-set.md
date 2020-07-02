@@ -196,6 +196,14 @@ impl Cpu {
 ```
 {% endcode %}
 
+## Memory Module
+
+// TODO: write this section
+
+## System Bus Module
+
+// TODO: write this section
+
 ## Instructions List
 
 The following table is the brief explanation for each instruction. The book won't describe the details of each instruction but will indicate points to be noted when you implement instructions. In addition, you can see the implementation in [d0iasm/rvemu-for-book/step2/src/cpu.rs](https://github.com/d0iasm/rvemu-for-book/blob/master/step2/src/cpu.rs) and description in _Chapter 2 RV32I Base Integer Instruction Set_ and _Chapter 5 RV64I Base Integer Instruction Set_ in [the unprivileged specification](https://riscv.org/specifications/isa-spec-pdf/).
