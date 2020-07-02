@@ -8,16 +8,16 @@ The source code is available at [d0iasm/rvemu-for-book/step1/](https://github.co
 
 In the end of this page, we can execute [the sample file](https://github.com/d0iasm/rvemu-for-book/blob/master/step1/add-addi.s) containing `add` and `addi` instructions in our emulator. The `add` instruction adds 64-bit values in two registers, and the `addi` instruction adds a 64-bit value in a register and a 12-bit immediate value.
 
-Sample binary files are also available at [d0iasm/rvemu-for-book/step1/](https://github.com/d0iasm/rvemu-for-book/tree/master/step1). We successfully see the result of addition in the `x31` register when we execute the sample binary file `add-addi.text`.
+Sample binary files are also available at [d0iasm/rvemu-for-book/step1/](https://github.com/d0iasm/rvemu-for-book/tree/master/step1). We successfully see the result of addition in the `x31` register when we execute the sample binary file `add-addi.bin`.
 
 ```bash
-// add-addi.text contains the following instructions:
+// add-addi.bin contains the following instructions:
 // main:
 // .  addi x29, x0, 5   // Add 5 and 0, and store the value to x29.
 // .  addi x30, x0, 37  // Add 37 and 0, and store the value to x30.
 // .  add x31, x30, x29 // x31 should contain 42 (0x2a).
 
-$ cargo run add-addi.text
+$ cargo run add-addi.bin
 ...
 x28=0x0 x29=0x5 x30=0x25 x31=0x2a
 ```
@@ -266,18 +266,18 @@ The reason using `wrapping_add` instead of plus \(+\) operation is to avoid to c
 
 ## Testing
 
-We're going to test 2 instructions by executing a sample file and check if the registers are expected values. I prepared a sample binary file available at [d0iasm/rvemu-for-book/step1/](https://github.com/d0iasm/rvemu-for-book/tree/master/step1). Download the [add-addi.text](https://github.com/d0iasm/rvemu-for-book/blob/master/step1/add-addi.text) file and execute it in your emulator.
+We're going to test 2 instructions by executing a sample file and check if the registers are expected values. I prepared a sample binary file available at [d0iasm/rvemu-for-book/step1/](https://github.com/d0iasm/rvemu-for-book/tree/master/step1). Download the [add-addi.bin](https://github.com/d0iasm/rvemu-for-book/blob/master/step1/add-addi.bin) file and execute it in your emulator.
 
 To see the registers after an execution is done, I added the [`dump_registers`](https://github.com/d0iasm/rvemu-for-book/blob/master/step1/src/main.rs#L21-L41) function. Now, we successfully see the result of addition in the `x31` register when we execute the sample binary file.
 
 ```bash
-// add-addi.text is binary to execute these instructions:
+// add-addi.bin is binary to execute these instructions:
 // main:
 // .  addi x29, x0, 5   // Add 5 and 0, and store the value to x29.
 // .  addi x30, x0, 37  // Add 37 and 0, and store the value to x30.
 // .  add x31, x30, x29 // x31 should contain 42 (0x2a).
 
-$ cargo run add-addi.text
+$ cargo run add-addi.bin
 ...
 x28=0x0 x29=0x5 x30=0x25 x31=0x2a
 ```
@@ -288,7 +288,7 @@ Our emulator can execute an ELF binary without any headers and its entry point a
 
 ```bash
 $ riscv64-unknown-elf-gcc -Wl,-Ttext=0x0 -nostdlib -o foo foo.s
-$ riscv64-unknown-elf-objcopy -O binary foo foo.text
+$ riscv64-unknown-elf-objcopy -O binary foo foo.bin
 ```
 
 ### Disclaimer
