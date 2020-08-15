@@ -1,6 +1,6 @@
 # RV64I Base Integer Instruction Set
 
-This is step 2 of the book [_Writing a RISC-V Emulator from Scratch in 10 Steps_](./), whose goal is running [xv6](https://github.com/mit-pdos/xv6-riscv), a small Unix-like OS, in your emulator in the final step.
+This is the step 2 of the book [_Writing a RISC-V Emulator from Scratch in 10 Steps_](./), whose goal is running [xv6](https://github.com/mit-pdos/xv6-riscv), a small Unix-like OS, in your emulator in the final step.
 
 The source code is available at [d0iasm/rvemu-for-book/step2/](https://github.com/d0iasm/rvemu-for-book/tree/master/step2).
 
@@ -8,10 +8,10 @@ The source code is available at [d0iasm/rvemu-for-book/step2/](https://github.co
 
 In the end of this page, we can execute [the sample file](https://github.com/d0iasm/rvemu-for-book/blob/master/step2/fib.c) that calculates [a fibonacci number](https://en.wikipedia.org/wiki/Fibonacci_number) in our emulator. We will support RV64 ISAs, the base integer instruction set a 64-bit architecture, to calculate a fibonacci number.
 
-Sample binary files are also available at [d0iasm/rvemu-for-book/step2/](https://github.com/d0iasm/rvemu-for-book/tree/master/step2). We successfully see the result of 10th fibonacci number when we execute the sample binary file `fib.bin`.
+Sample binary files are also available at [d0iasm/rvemu-for-book/step2/](https://github.com/d0iasm/rvemu-for-book/tree/master/step2). We successfully see the result of 10th fibonacci number when we execute the sample binary file `fib.text`.
 
 ```text
-// fib.c contains the following C code and fib.bin is the build result of it:
+// fib.c contains the following C code and fib.text is the build result of it:
 // int fib(int n);
 // int main() {
 //   return fib(10); // Calculate the 10th fibonacci number.
@@ -23,7 +23,7 @@ Sample binary files are also available at [d0iasm/rvemu-for-book/step2/](https:/
 //     return (fib(n-1) + fib(n-2));
 // }
 
-$ cargo run fib.bin
+$ cargo run fib.text
 ...           
 x12=0x0 x13=0x0 x14=0x1 x15=0x37 // x15 should contain 55 (= 10th fibonacci number).
 ```
@@ -196,14 +196,6 @@ impl Cpu {
 ```
 {% endcode %}
 
-## Memory Module
-
-// TODO: write this section
-
-## System Bus Module
-
-// TODO: write this section
-
 ## Instructions List
 
 The following table is the brief explanation for each instruction. The book won't describe the details of each instruction but will indicate points to be noted when you implement instructions. In addition, you can see the implementation in [d0iasm/rvemu-for-book/step2/src/cpu.rs](https://github.com/d0iasm/rvemu-for-book/blob/master/step2/src/cpu.rs) and description in _Chapter 2 RV32I Base Integer Instruction Set_ and _Chapter 5 RV64I Base Integer Instruction Set_ in [the unprivileged specification](https://riscv.org/specifications/isa-spec-pdf/).
@@ -268,12 +260,12 @@ The following table is the brief explanation for each instruction. The book won'
 
 ## Testing
 
-We're going to test instructions we implemented in this step by calculating [a fibonacci number](https://en.wikipedia.org/wiki/Fibonacci_number) and check if the registers are expected values. I prepared a sample binary file available at [d0iasm/rvemu-for-book/step2/](https://github.com/d0iasm/rvemu-for-book/tree/master/step2). Download the [fib.bin](https://github.com/d0iasm/rvemu-for-book/blob/master/step2/fib.bin) file and execute it in your emulator.
+We're going to test instructions we implemented in this step by calculating [a fibonacci number](https://en.wikipedia.org/wiki/Fibonacci_number) and check if the registers are expected values. I prepared a sample binary file available at [d0iasm/rvemu-for-book/step2/](https://github.com/d0iasm/rvemu-for-book/tree/master/step2). Download the [fib.text](https://github.com/d0iasm/rvemu-for-book/blob/master/step2/fib.text) file and execute it in your emulator.
 
 Calculating a fibonacci number is actually not enough to test all RV64I instructions, so it perhaps be better to use [riscv/riscv-tests](https://github.com/riscv/riscv-tests) to make sure if your implementation is correct. However, it's not obvious how to use riscv-tests so I'll skip to use the test in this book for the sake of simplicity. If you interested in using riscv-tests, [the test file in rvemu](https://github.com/d0iasm/rvemu/blob/master/tests/rv64_user.rs) may be helpful.
 
 ```text
-// fib.c contains the following C code and fib.bin is the build result of it:
+// fib.c contains the following C code and fib.text is the build result of it:
 // int fib(int n);
 // int main() {
 //   return fib(10); // Calculate the 10th fibonacci number.
@@ -285,7 +277,7 @@ Calculating a fibonacci number is actually not enough to test all RV64I instruct
 //     return (fib(n-1) + fib(n-2));
 // }
 
-$ cargo run fib.bin
+$ cargo run fib.text
 ...           
 x12=0x0 x13=0x0 x14=0x1 x15=0x37 // x15 should contain 55 (= 10th fibonacci number).
 ```
@@ -297,7 +289,7 @@ If you want to execute a bare-metal C program you write, you need to make an ELF
 ```bash
 $ riscv64-unknown-elf-gcc -S fib.c
 $ riscv64-unknown-elf-gcc -Wl,-Ttext=0x0 -nostdlib -o fib fib.s
-$ riscv64-unknown-elf-objcopy -O binary fib fib.bin
+$ riscv64-unknown-elf-objcopy -O binary fib fib.text
 ```
 
 

@@ -23,9 +23,9 @@ The source code is available at [d0iasm/rvemu-for-book](https://github.com/d0ias
 | Step 3 | [Control and Status Registers](control-and-status-registers.md) |
 | Step 4 | [Privileged Instruction Set](privileged-instruction-set.md) |
 | Step 5 | [Exceptions](exceptions.md) |
-| Step 6 | UART \(a universal asynchronous receiver-transmitter\) |
-| Step 7 | PLIC \(a platform-level interrupt controller\) and CLINT \(a core-local interrupter\) |
-| Step 8 | Interrupts |
+| Step 6 | [PLIC \(a platform-level interrupt controller\) and CLINT \(a core-local interrupter\)](plic-a-platform-level-interrupt-controller-and-clint-a-core-local-interrupter.md) |
+| Step 7 | [UART \(a universal asynchronous receiver-transmitter\)](uart-a-universal-asynchronous-receiver-transmitter.md) |
+| Step 8 | [Interrupts](interrupts.md) |
 | Step 9 | Virtio |
 | Step 10 | Virtual Memory System |
 
