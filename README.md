@@ -31,5 +31,7 @@ The source code is available at [d0iasm/rvemu-for-book](https://github.com/d0ias
 
 Congratulations🎉 Now you can run xv6 in your emulator!
 
+![](.gitbook/assets/2020-08-16-rvemu-for-book-xv6.png)
+
 The author is [@d0iasm](https://twitter.com/d0iasm) and please feel free to ask and request anything to me via [Twitter](https://twitter.com/d0iasm) or [GitHub issues](https://github.com/d0iasm/rvemu-for-book/issues)!
 
