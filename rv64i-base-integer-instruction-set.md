@@ -2,13 +2,13 @@
 
 This is step 2 of the book [_Writing a RISC-V Emulator from Scratch in 10 Steps_](./), whose goal is running [xv6](https://github.com/mit-pdos/xv6-riscv), a small Unix-like OS, in your emulator in the final step.
 
-The source code is available at [d0iasm/rvemu-for-book/step2/](https://github.com/d0iasm/rvemu-for-book/tree/master/step2).
+The source code is available at [d0iasm/rvemu-for-book/step02/](https://github.com/d0iasm/rvemu-for-book/tree/master/step2).
 
 ## Goal of This Page
 
-In the end of this page, we can execute [the sample file](https://github.com/d0iasm/rvemu-for-book/blob/master/step2/fib.c) that calculates [a fibonacci number](https://en.wikipedia.org/wiki/Fibonacci_number) in our emulator. We will support RV64 ISAs, the base integer instruction set a 64-bit architecture, to calculate a fibonacci number.
+In the end of this page, we can execute [the sample file](https://github.com/d0iasm/rvemu-for-book/blob/master/step02/fib.c) that calculates [a Fibonacci number](https://en.wikipedia.org/wiki/Fibonacci_number) in our emulator. We will support RV64 ISAs, the base integer instruction set a 64-bit architecture, to calculate a Fibonacci number.
 
-Sample binary files are also available at [d0iasm/rvemu-for-book/step2/](https://github.com/d0iasm/rvemu-for-book/tree/master/step2). We successfully see the result of 10th fibonacci number when we execute the sample binary file `fib.bin`.
+Sample binary files are also available at [d0iasm/rvemu-for-book/step02/](https://github.com/d0iasm/rvemu-for-book/tree/master/step02). We successfully see the result of the 10th Fibonacci number when we execute the sample binary file `fib.bin`.
 
 ```text
 // fib.c contains the following C code and fib.bin is the build result of it:
@@ -30,9 +30,9 @@ x12=0x0 x13=0x0 x14=0x1 x15=0x37 // x15 should contain 55 (= 10th fibonacci numb
 
 ## RV64I: Base Integer Instruction Set
 
-RV64I is a base integer instruction set for the 64-bit architecture, which builds upon the RV32I variant. RV64I shares most of instructions with RV32I but the width of registers is different and there are a few additional instructions only in RV64I.
+RV64I is a base integer instruction set for the 64-bit architecture, which builds upon the RV32I variant. RV64I shares most of the instructions with RV32I but the width of registers is different and there are a few additional instructions only in RV64I.
 
-In this step, we're going to implement 47 instructions \(35 instructions from RV32I and 12 instructions from RV64I\). We've already implemented `add` and `addi` so we'll skip them. Also, we'll skip to implement `fence`, `ecall`, and `ebreak` for now. I'll cover `ecall` and `ebreak` in the following step and won't explain `fence`. The `fence` instruction is a type of barrier instruction to apply an ordering constraint on memory operations issued before and after it. We don't need it since our emulator is a single core system and doesn't reorder memory operations \(out-of-order execution\).
+In this step, we're going to implement 47 instructions \(35 instructions from RV32I and 12 instructions from RV64I\). We've already implemented `add` and `addi` so we'll skip them. Also, we'll skip implementing `fence`, `ecall`, and `ebreak` for now. I'll cover `ecall` and `ebreak` in the following step and won't explain `fence`. The `fence` instruction is a type of barrier instruction to apply an ordering constraint on memory operations issued before and after it. We don't need it since our emulator is a single core system and doesn't reorder memory operations \(out-of-order execution\).
 
 Fig 2.1 and Fig 2.2 are the lists for RV32I and RV64I, respectively. We're going to implement all instructions in the figures.
 
@@ -42,9 +42,9 @@ Fig 2.1 and Fig 2.2 are the lists for RV32I and RV64I, respectively. We're going
 
 ## CPU Module
 
-First, we're going to divide the implementation of CPU from the `main.rs` file. Rust provides a module system to split code in logical units and organize visibility. We're going to move the implementation of CPU to a new file `cpu.rs`.
+First, we're going to divide the implementation of the CPU from the `main.rs` file. Rust provides a module system to split code into logical units and organize visibility. We're going to move the implementation of CPU to a new file `cpu.rs`.
 
-In order to define a cpu module we need to `mod` keyword at the beginning of the main file. Also `use` keyword allows to use public items in the cpu module.
+In order to define a cpu module we need to `mod` keyword at the beginning of the main file. Also `use` keyword allows us to use public items in the cpu module.
 
 {% code title="src/main.rs" %}
 ```rust
@@ -73,7 +73,7 @@ impl Cpu {
 
 ### Fetch-decode-execute Cycle
 
-The step 1 already mentioned the fetch-decode-execute cycle and we're going to implement it in the `main.rs`. An emulator is ideally an infinite loop and execute program infinitely unless something wrong happens or a user stops an emulator explicitly. However, we're going to stop an emulator implicitly when the program counter is 0 or over the length of memory, and an error happens during the execution.
+The step 1 already mentioned the fetch-decode-execute cycle and we're going to implement it in the `main.rs`. An emulator is ideally an infinite loop and executes program infinitely unless something wrong happens or a user stops an emulator explicitly. However, we're going to stop an emulator implicitly when the program counter is 0 or over the length of memory, and an error happens during the execution.
 
 {% code title="src/main.rs" %}
 ```rust
@@ -106,7 +106,7 @@ fn main() -> io::Result<()> {
 
 ### Fetch Stage
 
-The fetch stage is basically same with the previous step, but I prefer to create a new function to read 32-bit data from a memory because there are other instructions to read and write memory.
+The fetch stage is basically the same as the previous step, but I prefer to create a new function to read 32-bit data from a memory because there are other instructions to read and write memory.
 
 {% code title="src/cpu.rs" %}
 ```rust
@@ -130,7 +130,7 @@ impl Cpu {
 
 ### Decode Stage
 
-The decode stage is almost same with the previous step too and we'll add 2 new fields `funct3` and `funct7`. `funct3` is located from 12 to 14 bits and `funct7` is located from 25 to 31 bits as we can see in the Fig 2.1 and 2.2. These fields and opcode select the type of operation.
+The decode stage is almost the same as the previous step too and we'll add 2 new fields `funct3` and `funct7`. `funct3` is located from 12 to 14 bits and `funct7` is located from 25 to 31 bits as we can see in Fig 2.1 and 2.2. These fields and opcode select the type of operation.
 
 {% code title="src/cpu.rs" %}
 ```rust
@@ -206,7 +206,7 @@ impl Cpu {
 
 ## Instructions List
 
-The following table is the brief explanation for each instruction. The book won't describe the details of each instruction but will indicate points to be noted when you implement instructions. In addition, you can see the implementation in [d0iasm/rvemu-for-book/step2/src/cpu.rs](https://github.com/d0iasm/rvemu-for-book/blob/master/step2/src/cpu.rs) and description in _Chapter 2 RV32I Base Integer Instruction Set_ and _Chapter 5 RV64I Base Integer Instruction Set_ in [the unprivileged specification](https://riscv.org/specifications/isa-spec-pdf/).
+The following table is a brief explanation for each instruction. The book won't describe the details of each instruction but will indicate points to be noted when you implement instructions. In addition, you can see the implementation in [d0iasm/rvemu-for-book/step02/src/cpu.rs](https://github.com/d0iasm/rvemu-for-book/blob/master/step02/src/cpu.rs) and description in _Chapter 2 RV32I Base Integer Instruction Set_ and _Chapter 5 RV64I Base Integer Instruction Set_ in [the unprivileged specification](https://riscv.org/specifications/isa-spec-pdf/).
 
 **Points to be noted**:
 
@@ -268,9 +268,9 @@ The following table is the brief explanation for each instruction. The book won'
 
 ## Testing
 
-We're going to test instructions we implemented in this step by calculating [a fibonacci number](https://en.wikipedia.org/wiki/Fibonacci_number) and check if the registers are expected values. I prepared a sample binary file available at [d0iasm/rvemu-for-book/step2/](https://github.com/d0iasm/rvemu-for-book/tree/master/step2). Download the [fib.bin](https://github.com/d0iasm/rvemu-for-book/blob/master/step2/fib.bin) file and execute it in your emulator.
+We're going to test instructions we implemented in this step by calculating [a Fibonacci number](https://en.wikipedia.org/wiki/Fibonacci_number) and check if the registers are expected values. I prepared a sample binary file available at [d0iasm/rvemu-for-book/step02/](https://github.com/d0iasm/rvemu-for-book/tree/master/step02). Download the [fib.bin](https://github.com/d0iasm/rvemu-for-book/blob/master/step02/fib.bin) file and execute it in your emulator.
 
-Calculating a fibonacci number is actually not enough to test all RV64I instructions, so it perhaps be better to use [riscv/riscv-tests](https://github.com/riscv/riscv-tests) to make sure if your implementation is correct. However, it's not obvious how to use riscv-tests so I'll skip to use the test in this book for the sake of simplicity. If you interested in using riscv-tests, [the test file in rvemu](https://github.com/d0iasm/rvemu/blob/master/tests/rv64_user.rs) may be helpful.
+Calculating a Fibonacci number is actually not enough to test all RV64I instructions, so it perhaps be better to use [riscv/riscv-tests](https://github.com/riscv/riscv-tests) to make sure if your implementation is correct. However, it's not obvious how to use riscv-tests so I'll skip to use the test in this book for the sake of simplicity. If you are interested in using riscv-tests, [the test file in rvemu](https://github.com/d0iasm/rvemu/blob/master/tests/rv64_user.rs) may be helpful.
 
 ```text
 // fib.c contains the following C code and fib.bin is the build result of it:
@@ -292,7 +292,7 @@ x12=0x0 x13=0x0 x14=0x1 x15=0x37 // x15 should contain 55 (= 10th fibonacci numb
 
 ### How to Build Test Binary
 
-If you want to execute a bare-metal C program you write, you need to make an ELF binary without any headers because our emulator just starts to execute at the address `0x0` . The [Makefile](https://github.com/d0iasm/rvemu-for-book/blob/master/step2/Makefile) helps you build a test binary.
+If you want to execute a bare-metal C program you write, you need to make an ELF binary without any headers because our emulator just starts to execute at the address `0x0` . The [Makefile](https://github.com/d0iasm/rvemu-for-book/blob/master/step02/Makefile) helps you build a test binary.
 
 ```bash
 $ riscv64-unknown-elf-gcc -S fib.c
