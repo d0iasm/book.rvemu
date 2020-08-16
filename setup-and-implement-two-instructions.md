@@ -2,13 +2,13 @@
 
 This is step 1 of the book [_Writing a RISC-V Emulator from Scratch in 10 Steps_](./), whose goal is running [xv6](https://github.com/mit-pdos/xv6-riscv), a small Unix-like OS, in your emulator in the final step.
 
-The source code is available at [d0iasm/rvemu-for-book/step1/](https://github.com/d0iasm/rvemu-for-book/tree/master/step1).
+The source code is available at [d0iasm/rvemu-for-book/step01/](https://github.com/d0iasm/rvemu-for-book/tree/master/step01).
 
 ## Goal of This Page
 
 In the end of this page, we can execute [the sample file](https://github.com/d0iasm/rvemu-for-book/blob/master/step1/add-addi.s) containing `add` and `addi` instructions in our emulator. The `add` instruction adds 64-bit values in two registers, and the `addi` instruction adds a 64-bit value in a register and a 12-bit immediate value.
 
-Sample binary files are also available at [d0iasm/rvemu-for-book/step1/](https://github.com/d0iasm/rvemu-for-book/tree/master/step1). We successfully see the result of addition in the `x31` register when we execute the sample binary file `add-addi.bin`.
+Sample binary files are also available at [d0iasm/rvemu-for-book/step01/](https://github.com/d0iasm/rvemu-for-book/tree/master/step1). We successfully see the result of addition in the `x31` register when we execute the sample binary file `add-addi.bin`.
 
 ```bash
 // add-addi.bin contains the following instructions:
@@ -70,7 +70,7 @@ Hello, world!
 
 CPU is the most important part of a computer to execute instructions. It has registers, a small amount of fast storage that CPU can access. The width of registers is 64 bits in the 64-bit RISC-V architecture. It also has a program counter to hold the address of the current instruction.
 
-The following struct contains 32 registers, a program counter, and memory. An actual hardware doesn't have a memory inside CPU and a memory connects to CPU via a system bus, but I decided to implement that CPU has a memory in our emulator for the sake of simplicity.
+The following struct contains 32 registers, a program counter, and memory. An actual hardware doesn't have a memory inside a CPU and a memory connects to CPU via a system bus, but I decided to implement that CPU has a memory in our emulator for the sake of simplicity.
 
 {% code title="src/main.rs" %}
 ```rust
@@ -124,7 +124,7 @@ fn main() -> io::Result<()> {
 ```
 {% endcode %}
 
-We'll make `fetch` and `execute` methods in CPU. The decode stage is performed in the execute method for the sake of simplicity.
+We'll make `fetch` and `execute` methods in CPU. The decode stage is performed in the `execute` method for the sake of simplicity.
 
 {% code title="src.main.rs" %}
 ```rust
@@ -144,7 +144,7 @@ impl Cpu {
 
 ### Set Binary Data to the Memory
 
-In order to implement the `fetch` method, we need to read a binary file from a command line and store the content to the memory. We can get command line arguments via the standard `env` module. Let a file name place at the first argument.
+In order to implement the `fetch` method, we need to read a binary file from a command line and store the content to the memory. We can get command-line arguments via the standard `env` module. Let a file name place at the first argument.
 
 The binary is set up to the memory when a new CPU instance is created.
 
@@ -212,7 +212,7 @@ impl Cpu {
 
 ### Decode State
 
-RISC-V base instructions only has 4 instruction formats and a few variants as we can see in Fig 1.2. These formats keep all register specifiers at the same position in all formats since it makes it easier to decode.
+RISC-V base instructions only have 4 instruction formats and a few variants as we can see in Fig 1.2. These formats keep all register specifiers at the same position in all formats since it makes it easier to decode.
 
 ![Fig 1.2 RISC-V base instruction formats. \(Source: Figure 2.2 in Volume I: Unprivileged ISA\) ](.gitbook/assets/rvemubook-base-instruction-formats.png)
 
@@ -233,7 +233,7 @@ impl Cpu {
 
 ### Execute State
 
-As a first step, we're going to implement 2 instructions `add` \(R-type\) and `addi` \(I-type\). The `add` instruction adds 64-bit values in two registers, and the `addi` instruction adds a 64-bit value in a register and a 12-bit immediate value. We can dispatch an execution depending on the `opcode` field according to Fig 1.3 and Fig 1.4. In the `addi` instruction, we need to decode 12-bit immediate which is sign extended.
+As a first step, we're going to implement 2 instructions `add` \(R-type\) and `addi` \(I-type\). The `add` instruction adds 64-bit values in two registers, and the `addi` instruction adds a 64-bit value in a register and a 12-bit immediate value. We can dispatch an execution depending on the `opcode` field according to Fig 1.3 and Fig 1.4. In the `addi` instruction, we need to decode 12-bit immediate which is sign-extended.
 
 ![Fig 1.3 Add instruction \(Source: RV32I Base Instruction Set table in Volume I: Unprivileged ISA\)](.gitbook/assets/rvemubook-add.png)
 
@@ -262,13 +262,13 @@ impl Cpu {
 ```
 {% endcode %}
 
-The reason using `wrapping_add` instead of plus \(+\) operation is to avoid to cause an arithmetic overflow when the result is beyond the boundary of the type of registers which is a 64-bit unsigned integer.
+The reason for using `wrapping_add` instead of plus \(+\) operation is to avoid causing an arithmetic overflow when the result is beyond the boundary of the type of registers which is a 64-bit unsigned integer.
 
 ## Testing
 
-We're going to test 2 instructions by executing a sample file and check if the registers are expected values. I prepared a sample binary file available at [d0iasm/rvemu-for-book/step1/](https://github.com/d0iasm/rvemu-for-book/tree/master/step1). Download the [add-addi.bin](https://github.com/d0iasm/rvemu-for-book/blob/master/step1/add-addi.bin) file and execute it in your emulator.
+We're going to test 2 instructions by executing a sample file and check if the registers are expected values. I prepared a sample binary file available at [d0iasm/rvemu-for-book/step01/](https://github.com/d0iasm/rvemu-for-book/tree/master/step1). Download the [add-addi.bin](https://github.com/d0iasm/rvemu-for-book/raw/master/step01/add-addi.bin) file and execute it in your emulator.
 
-To see the registers after an execution is done, I added the [`dump_registers`](https://github.com/d0iasm/rvemu-for-book/blob/master/step1/src/main.rs#L21-L41) function. Now, we successfully see the result of addition in the `x31` register when we execute the sample binary file.
+To see the registers after execution is done, I added the [`dump_registers`](https://github.com/d0iasm/rvemu-for-book/blob/master/step01/src/main.rs#L33-L53) function. Now, we successfully see the result of the addition in the `x31` register when we execute the sample binary file.
 
 ```bash
 // add-addi.bin is binary to execute these instructions:
@@ -284,7 +284,7 @@ x28=0x0 x29=0x5 x30=0x25 x31=0x2a
 
 ### How to Build Test Binary
 
-Our emulator can execute an ELF binary without any headers and its entry point address is `0x0` . The [Makefile](https://github.com/d0iasm/rvemu-for-book/blob/master/step1/Makefile) helps you build test binary.
+Our emulator can execute an ELF binary without any headers and its entry point address is `0x0` . The [Makefile](https://github.com/d0iasm/rvemu-for-book/blob/master/step01/Makefile) helps you build test binary.
 
 ```bash
 $ riscv64-unknown-elf-gcc -Wl,-Ttext=0x0 -nostdlib -o foo foo.s
@@ -293,5 +293,5 @@ $ riscv64-unknown-elf-objcopy -O binary foo foo.bin
 
 ### Disclaimer
 
-The sample file doesn't cover edge cases \(e.g. arithmetic overflow\). We'll not aim at perfect implementation of our emulator this step and in the following steps because it costs too much. The book just focuses on running xv6 in our emulator and its implementation is possibly wrong or not enough.
+The sample file doesn't cover edge cases \(e.g. arithmetic overflow\). We'll not aim at the perfect implementation of our emulator this step and in the following steps because it costs too much. The book just focuses on running xv6 in our emulator and its implementation is possibly wrong or not enough.
 
