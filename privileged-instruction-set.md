@@ -6,7 +6,7 @@ The source code is available at [d0iasm/rvemu-for-book/step04/](https://github.c
 
 ## Goal of This Page
 
-In the end of this page, we can execute the part of supervisor ISA, `mret`, and `sret`. These instructions are used to return from traps in M-mode, S-mode, or U-mode respectively.
+In the end of this page, we can execute the part of supervisor ISA, `mret` and `sret`. These instructions are used to return from traps in M-mode, S-mode, or U-mode respectively. In addition, we'll add `sfence.vma` but we don't do anything for now.
 
 We also support a part of "A" standard extension and "M" standard extension. "A" standard extension is atomic instructions \(RV64A\) and we'll implement `amoadd.w`, `amoadd.d`, `amoswap.w` and `amoswap.d`.  "M" standard extension is multiplication and division instructions \(RV64M\) and we'll implement `divu` and `remuw` since xv6 uses them.
 
