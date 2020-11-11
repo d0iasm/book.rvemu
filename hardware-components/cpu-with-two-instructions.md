@@ -26,7 +26,7 @@ x28=0x0 x29=0x5 x30=0x25 x31=0x2a
 
 [RISC-V](https://riscv.org/) is a new instruction-set architecture \(ISA\) that was originally designed to support computer architecture research and education at the University of California, Berkeley, but now it gradually becomes a standard free and open architecture for industry implementations. RISC-V is also excellent **for students to learn computer architecture** since it's simple enough. We can read [the RISC-V specifications](https://riscv.org/technical/specifications/) for free and we'll implement a part of features in _Volume I: Unprivileged ISA_ and _Volume II: Privileged Architecture_. The _Unprivileged ISA_ defines instructions, the binary that the computer processor \(CPU\) can understand.
 
-RISC-V defines 32-bit and 64-bit architecture. The width of registers and the available memory size are different depending on the architecture. The 128-bit architecture also exists but it is currently in a draft state. RISC-V instructions consists of base integer instructions and optional extensions. The base integer instructions must be present in any implementation. We'll only support the 64-bit base integer instructions, which is called `RV64I`, and optional extensions that xv6 uses in this book.
+RISC-V defines 32-bit and 64-bit architecture. The width of registers and the available memory size is different depending on the architecture. The 128-bit architecture also exists but it is currently in a draft state. RISC-V instructions consist of base integer instructions and optional extensions. The base integer instructions must be present in any implementation. We'll only support the 64-bit base integer instructions, which is called `RV64I`, and optional extensions that xv6 uses in this book.
 
 [Rust](https://www.rust-lang.org/) is an open-source systems programming language that focuses on performance and safety. It is popular especially in systems programming like an operating system. We're going to implement our emulator in Rust.
 
@@ -44,7 +44,7 @@ First, we have to build a RISC-V toolchain for `RV64G`. The default toolchain wi
 * RVZicsr: control and status register instructions
 * RVZifencei: instruction-fetch fence instructions
 
-However, this book will explain only instructions that xv6 uses.
+However, this book will explain only the instructions that xv6 uses.
 
 Download code from the [riscv/riscv-gnu-toolchain](https://github.com/riscv/riscv-gnu-toolchain) repository and configure it with `rv64g` architecture. After the following commands, we can use `riscv64-unknown-elf-*` commands.
 
@@ -68,9 +68,9 @@ Hello, world!
 
 ## Create a Basic CPU
 
-CPU is the most important part of a computer to execute instructions. It has registers, a small amount of fast storage that CPU can access. The width of registers is 64 bits in the 64-bit RISC-V architecture. It also has a program counter to hold the address of the current instruction.
+CPU is the most important part of a computer to execute instructions. It has registers, a small amount of fast storage that a CPU can access. The width of registers is 64 bits in the 64-bit RISC-V architecture. It also has a program counter to hold the address of the current instruction.
 
-The following struct contains 32 registers, a program counter, and memory. An actual hardware doesn't have a memory inside a CPU and a memory connects to CPU via a system bus, but I decided to implement that CPU has a memory in our emulator for the sake of simplicity.
+The following struct contains 32 registers, a program counter, and memory. Actual hardware doesn't have a memory inside a CPU and a memory connects to the CPU via a system bus, but I decided to implement that CPU has a memory in our emulator for the sake of simplicity.
 
 {% code title="src/main.rs" %}
 ```rust
@@ -84,7 +84,7 @@ struct Cpu {
 
 ### Registers
 
-There are 32 general-purpose registers that are each 64 bits wide in RV64I. Each register has a role defined by [the integer register convention](https://github.com/riscv/riscv-elf-psabi-doc/blob/master/riscv-elf.md#integer-register-convention-). Basically, an emulator doesn't care about the roles of a register except zero \(x0\) and sp \(x2\) registers. The zero register x0 is hardwired with all bits equal to 0. The sp register x2 is a stack pointer. A stack is a data structure mainly located at the end of an address space. It is especially used to store local variables. A stack pointer keeps track of a stack. A value of a stack pointer is subtracted in [a function prologue](https://en.wikipedia.org/wiki/Function_prologue), so we need to set it up with a non-0 value.
+There are 32 general-purpose registers that are each 64 bits wide in RV64I. Each register has a role defined by [the integer register convention](https://github.com/riscv/riscv-elf-psabi-doc/blob/master/riscv-elf.md#integer-register-convention-). Basically, an emulator doesn't care about the roles of a register except zero \(x0\) and sp \(x2\) registers. The zero register x0 is hardwired with all bits equal to 0. The sp register x2 is a stack pointer. A stack is a data structure mainly located at the end of address space. It is especially used to store local variables. A stack pointer keeps track of a stack. A value of a stack pointer is subtracted in [a function prologue](https://en.wikipedia.org/wiki/Function_prologue), so we need to set it up with a non-0 value.
 
 ```rust
 // Set the register x2 with the size of a memory when a CPU is instantiated.
