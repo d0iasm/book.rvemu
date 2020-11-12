@@ -17,8 +17,7 @@
 
 ---
 
-* [Instruction Set List](instruction-set-list/README.md)
-  * [RV64I Base Integer Instruction Set](instruction-set-list/rv64i-base-integer-instruction-set.md)
-  * ["M" Standard Extension for Integer Multiplication and Division](instruction-set-list/m-standard-extension-for-integer-multiplication-and-division.md)
-  * ["A" Standard Extension for AtomicInstructions](instruction-set-list/a-standard-extension-for-atomicinstructions.md)
+* [RV64I Base Integer Instruction Set](rv64i-base-integer-instruction-set.md)
+* ["M" Standard Extension for Integer Multiplication and Division](m-standard-extension-for-integer-multiplication-and-division.md)
+* ["A" Standard Extension for AtomicInstructions](a-standard-extension-for-atomicinstructions.md)
 

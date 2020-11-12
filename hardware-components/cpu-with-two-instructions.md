@@ -4,7 +4,7 @@ This is step 1 of the book [_Writing a RISC-V Emulator from Scratch in 10 Steps_
 
 The source code is available at [d0iasm/rvemu-for-book/step01/](https://github.com/d0iasm/rvemu-for-book/tree/master/step01).
 
-## Goal of This Page
+## The Goal of This Page
 
 At the end of this page, we can execute [the sample file](https://github.com/d0iasm/rvemu-for-book/blob/master/step01/add-addi.s) containing `add` and `addi` instructions in our emulator. The `add` instruction adds 64-bit values in two registers, and the `addi` instruction adds a 64-bit value in a register and a 12-bit immediate value.
 
@@ -24,17 +24,19 @@ x28=0x0 x29=0x5 x30=0x25 x31=0x2a
 
 ## Background
 
-[RISC-V](https://riscv.org/) is a new instruction-set architecture \(ISA\) that was originally designed to support computer architecture research and education at the University of California, Berkeley, but now it gradually becomes a standard free and open architecture for industry implementations. RISC-V is also excellent **for students to learn computer architecture** since it's simple enough. We can read [the RISC-V specifications](https://riscv.org/technical/specifications/) for free and we'll implement a part of features in _Volume I: Unprivileged ISA_ and _Volume II: Privileged Architecture_. The _Unprivileged ISA_ defines instructions, the binary that the computer processor \(CPU\) can understand.
-
-RISC-V defines 32-bit and 64-bit architecture. The width of registers and the available memory size is different depending on the architecture. The 128-bit architecture also exists but it is currently in a draft state. RISC-V instructions consist of base integer instructions and optional extensions. The base integer instructions must be present in any implementation. We'll only support the 64-bit base integer instructions, which is called `RV64I`, and optional extensions that xv6 uses in this book.
+[RISC-V](https://riscv.org/) is a new instruction-set architecture \(ISA\) that was originally designed to support computer architecture research and education at the University of California, Berkeley, but now it gradually becomes a standard free and open architecture for industry implementations. RISC-V is also excellent **for students to learn computer architecture** since it's simple enough. We can read [the RISC-V specifications](https://riscv.org/technical/specifications/) for free and we'll implement a part of features in _Volume I: Unprivileged ISA_ and _Volume II: Privileged Architecture_. The _Unprivileged ISA_ defines instructions, the binary that the computer processor \(CPU\) can understand. Currently, RISC-V defines 32-bit and 64-bit architecture. The width of registers and the available memory size is different depending on the architecture. The 128-bit architecture also exists but it is currently in a draft state. 
 
 [Rust](https://www.rust-lang.org/) is an open-source systems programming language that focuses on performance and safety. It is popular especially in systems programming like an operating system. We're going to implement our emulator in Rust.
 
 An emulator is, in simple words, **an infinite loop to execute a RISC-V binary one by one** unless something wrong happens or a user stops an emulator explicitly. In this book, we try to understand the basic RISC-V architecture by making a RISC-V emulator.
 
-## Build RISC-V Toolchain
+## RISC-V ISA
 
-First, we have to build a RISC-V toolchain for `RV64G`. The default toolchain will use `RV64GC` which contains a general-purpose ISA and a compressed ISA. A general-purpose ISA is the alias of selected standard extensions, which includes:
+RISC-V ISA consists of modules, a base integer ISA plus optional extensions. The base integer ISA must be implemented in any platform. There are 2 variants in the base integer ISA, **RV32I** in a 32-bit architecture and **RV64I** in a 64-bit architecture.
+
+The base integer ISA only contains simple integer arithmetic operations so it's not enough so that it can't run complex systems such as OSes. RISC-V defines a combination of a base ISA plus selected extensions as a "general-purpose" ISA, called **RV32G** or **RV64G**, to allow complex systems to run on RISC-V hardware.
+
+Here is the list of ISAs that RV64G includes:
 
 * RV64I: base integer instructions
 * RV64M: integer multiplication and division instructions
@@ -44,15 +46,20 @@ First, we have to build a RISC-V toolchain for `RV64G`. The default toolchain wi
 * RVZicsr: control and status register instructions
 * RVZifencei: instruction-fetch fence instructions
 
-However, this book will explain only the instructions that xv6 uses.
+We'll only support the instructions that xv6 uses which are RV64I, RVZicsr, a part of RV64M, and a part of RV64A.
 
-Download code from the [riscv/riscv-gnu-toolchain](https://github.com/riscv/riscv-gnu-toolchain) repository and configure it with `rv64g` architecture. After the following commands, we can use `riscv64-unknown-elf-*` commands.
+## Build RISC-V Toolchain
+
+First, we need to build a RISC-V toolchain for RV64G. The default toolchain will use RV64GC which contains a general-purpose ISA and a compressed ISA. However, we will not support the compressed ISA in our emulator so we need to tell the architecture we use to the toolchain.
+
+Download code from the [riscv/riscv-gnu-toolchain](https://github.com/riscv/riscv-gnu-toolchain) repository and configure it with RV64G architecture. After executing the following commands, we can use `riscv64-unknown-elf-*` commands.
 
 ```bash
 $ git clone --recursive https://github.com/riscv/riscv-gnu-toolchain
 $ cd riscv-gnu-toolchain
 $ ./configure --prefix=<path-to-riscv-toolchain> --with-arch=rv64g
 $ make && make linux
+// Now we can use riscv64-unknown-elf-* commands!
 ```
 
 ## Create a New Project
