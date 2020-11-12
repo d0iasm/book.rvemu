@@ -1,4 +1,4 @@
-# Writing a RISC-V Emulator from Scratch in 10 Steps
+# Writing a RISC-V Emulator in Rust
 
 ## Introduction
 

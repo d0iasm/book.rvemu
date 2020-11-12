@@ -1,6 +1,6 @@
 # Table of contents
 
-* [Writing a RISC-V Emulator from Scratch in 10 Steps](README.md)
+* [Writing a RISC-V Emulator in Rust](README.md)
 
 ## Hardware Components
 
