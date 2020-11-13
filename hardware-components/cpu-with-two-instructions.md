@@ -276,7 +276,7 @@ The reason for using `wrapping_add` instead of plus \(+\) operation is to avoid 
 
 We're going to test 2 instructions by executing a sample file and check if the registers are expected values. I prepared a sample binary file available at [d0iasm/rvemu-for-book/step01/](https://github.com/d0iasm/rvemu-for-book/tree/master/step01). Download the [add-addi.bin](https://github.com/d0iasm/rvemu-for-book/blob/master/step01/add-addi.bin) file and execute it in your emulator.
 
-To see the registers after execution is done, I added the [`dump_registers`](https://github.com/d0iasm/rvemu-for-book/blob/master/step01/src/main.rs#L33-L53) function. Now, we successfully see the result of the addition in the `x31` register when we execute the sample binary file.
+To see the registers after execution is done, I added the [`dump_registers`](https://github.com/d0iasm/rvemu-for-book/blob/master/step01/src/main.rs#L33-L53) function. Now, we successfully see the result of the addition in the x31 register when we execute the sample binary file.
 
 ```bash
 // add-addi.bin is binary to execute these instructions:
@@ -301,5 +301,5 @@ $ riscv64-unknown-elf-objcopy -O binary foo foo.bin
 
 ### Disclaimer
 
-The sample file doesn't cover edge cases \(e.g. arithmetic overflow\). We'll not aim at the perfect implementation of our emulator this step and in the following steps because it costs too much. The book just focuses on running xv6 in our emulator and its implementation is possibly wrong or not enough.
+The sample file doesn't cover edge cases \(e.g. arithmetic overflow\). We'll not aim at the perfect implementation of our emulator in this step and in the following steps because it costs too much. The book just focuses on running xv6 in our emulator and its implementation is possibly wrong or not enough.
 
