@@ -64,7 +64,9 @@ $ make && make linux
 
 ## Create a New Project
 
-We'll use Cargo, the Rust package manager. See [the installation page](https://doc.rust-lang.org/cargo/getting-started/installation.html) in Cargo book to install it. I'll call our project `rvemu-for-book` because I originally implemented [rvemu](https://github.com/d0iasm/rvemu) and I wrote [the reference code](https://github.com/d0iasm/rvemu-for-book) for this book. We can see "Hello, world!" when we execute an initialized project by the `cargo run` command.
+We'll use Cargo, the Rust package manager. See [the installation page](https://doc.rust-lang.org/cargo/getting-started/installation.html) in the Cargo book to install it. I'll call our project `rvemu-for-book` because I originally implemented [rvemu](https://github.com/d0iasm/rvemu) and I refactored [the code for this book](https://github.com/d0iasm/rvemu-for-book).
+
+The command `cargo new` can make a new project. We can see "Hello, world!" when we execute an initialized project by `cargo run`.
 
 ```bash
 $ cargo new rvemu-for-book
@@ -75,9 +77,9 @@ Hello, world!
 
 ## Create a Basic CPU
 
-CPU is the most important part of a computer to execute instructions. It has registers, a small amount of fast storage that a CPU can access. The width of registers is 64 bits in the 64-bit RISC-V architecture. It also has a program counter to hold the address of the current instruction.
+CPU is the most important part of a computer to execute instructions. It has **registers**, a small amount of fast storage that a CPU can access. The width of registers is 64 bits in the 64-bit RISC-V architecture. It also has **a program counter** to hold the address of the current instruction.
 
-The following struct contains 32 registers, a program counter, and memory. Actual hardware doesn't have a memory inside a CPU and a memory connects to the CPU via a system bus, but I decided to implement that CPU has a memory in our emulator for the sake of simplicity.
+The following struct contains 32 registers, a program counter, and memory. Actual hardware doesn't have a memory inside a CPU and the memory connects to the CPU via a system bus. We will make a memory and system bus module on the next page, and we create a CPU that contains a memory directly for now.
 
 {% code title="src/main.rs" %}
 ```rust
@@ -91,26 +93,27 @@ struct Cpu {
 
 ### Registers
 
-There are 32 general-purpose registers that are each 64 bits wide in RV64I. Each register has a role defined by [the integer register convention](https://github.com/riscv/riscv-elf-psabi-doc/blob/master/riscv-elf.md#integer-register-convention-). Basically, an emulator doesn't care about the roles of a register except zero \(x0\) and sp \(x2\) registers. The zero register x0 is hardwired with all bits equal to 0. The sp register x2 is a stack pointer. A stack is a data structure mainly located at the end of address space. It is especially used to store local variables. A stack pointer keeps track of a stack. A value of a stack pointer is subtracted in [a function prologue](https://en.wikipedia.org/wiki/Function_prologue), so we need to set it up with a non-0 value.
+There are 32 general-purpose registers that are each 64 bits wide in RV64I. Each register has a role defined by [the integer register convention](https://github.com/riscv/riscv-elf-psabi-doc/blob/master/riscv-elf.md#integer-register-convention-). Basically, an emulator doesn't care about the roles of a register except zero \(x0\) and sp \(x2\) registers. The zero register x0 is hardwired with all bits equal to 0. The sp register x2 is a stack pointer. A stack is a data structure mainly located at the end of the address space. It is especially used to store local variables. A stack pointer keeps track of a stack. A value of a stack pointer is subtracted in [a function prologue](https://en.wikipedia.org/wiki/Function_prologue), so we need to set it up with a non-0 value.
 
 ```rust
-// Set the register x2 with the size of a memory when a CPU is instantiated.
+// Set the register x2 with the size of a memory when a CPU is
+// instantiated.
 regs[2] = MEMORY_SIZE; // 1024 * 1024 * 128 (128MiB).
 
-// Reset the value of register x0 with 0 in each cycle to mimic that register x0
-// is hardwired with all bits equal to 0.
+// Reset the value of register x0 with 0 in each cycle to mimic that
+// register x0 is hardwired with all bits equal to 0.
 self.regs[0] = 0;
 ```
 
 ### Fetch-decode-execute Cycle
 
-The main job of the CPU is composed of three main stages: fetch stage, decode stage, and execute stage. The fetch-decode-execute cycle is also known as the instruction cycle. CPU follows the cycle from the computer boots up until it shuts down.
+The main job of the CPU is composed of three main stages: fetch stage, decode stage, and execute stage. The fetch-decode-execute cycle is also known as the instruction cycle. A CPU follows the cycle from the computer boots up until it shuts down.
 
 1. Fetch: Reads the next instruction to be executed from the memory where the program is stored.
 2. Decode: Splits an instruction sequence into a form that makes sense to the CPU.
 3. Execute: Performs the action required by the instruction.
 
-Also, we need to add 4 to the program counter in each cycle.
+Also, we need to add 4 bytes, the size of one instruction, to the program counter in each cycle.
 
 {% code title="src/main.rs" %}
 ```rust
@@ -149,7 +152,7 @@ impl Cpu {
 
 ### Set Binary Data to the Memory
 
-In order to implement the `fetch` method, we need to read a binary file from a command line and store the content to the memory. We can get command-line arguments via the standard `env` module. Let a file name place at the first argument.
+In order to implement the `fetch` method, we need to read a binary file from a command line and store the content in the memory. We can get command-line arguments via the standard `env` module. Let a file name place at the first argument.
 
 The binary is set up to the memory when a new CPU instance is created.
 
@@ -221,17 +224,17 @@ RISC-V base instructions only have 4 instruction formats and a few variants as w
 
 ![Fig 1.2 RISC-V base instruction formats. \(Source: Figure 2.2 in Volume I: Unprivileged ISA\) ](../.gitbook/assets/rvemubook-base-instruction-formats.png)
 
-Decoding for common parts in all formats is performed by bitwise operations, bitwise ANDs and bit shifts.
+Decoding for common parts in all formats is performed by bitwise operations, bit shifts and bitwise ANDs.
 
 {% code title="src/main.rs" %}
 ```rust
 impl Cpu {
     ... 
     fn execute(&mut self, inst: u32) {
-        let opcode = inst & 0x0000007f;
-        let rd = ((inst & 0x00000f80) >> 7) as usize;
-        let rs1 = ((inst & 0x000f8000) >> 15) as usize;
-        let rs2 = ((inst & 0x01f00000) >> 20) as usize;
+        let opcode = inst & 0x7f;
+        let rd = ((inst >> 7) & 0x1f) as usize;
+        let rs1 = ((inst >> 15) & 0x1f) as usize;
+        let rs2 = ((inst >> 20) & 0x1f) as usize;
         ...
 ```
 {% endcode %}
