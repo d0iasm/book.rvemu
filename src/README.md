@@ -24,7 +24,7 @@ The source code is available at [d0iasm/rvemu-for-book](https://github.com/d0ias
 
 ## Chapter 1
 
-[Chapter 1][hardware-components/README.md] shows all hardward components we need to implement for running `xv6`.
+[Chapter 1](hardware-components/README.md) shows all hardward components we need to implement for running `xv6`.
 
 1. [CPU with Two Instructions](hardware-components/cpu-with-two-instructions.md)
 2. [Memory and System Bus](hardware-components/memory-and-system-bus.md)
