@@ -41,7 +41,7 @@ impl Cpu {
 
 ### Fetch-decode-execute Cycle
 
-The step 1 already mentioned the fetch-decode-execute cycle and we're going to implement it in the `main.rs`. An emulator is ideally an infinite loop and executes program infinitely unless something wrong happens or a user stops an emulator explicitly. However, we're going to stop an emulator implicitly when the program counter is 0 or over the length of memory, and an error happens during the execution.
+The previous step already mentioned the fetch-decode-execute cycle and we're going to implement it in the `main.rs`. An emulator is ideally an infinite loop and executes the program infinitely unless something wrong happens or a user stops an emulator explicitly. However, we're going to stop an emulator implicitly when the program counter is 0 or over the length of memory, and an error happens during the execution.
 
 {% code title="src/main.rs" %}
 ```rust
