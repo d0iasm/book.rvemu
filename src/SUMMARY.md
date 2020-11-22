@@ -1,19 +1,19 @@
 # Summary
 
-[Writing a RISC-V Emulator in Rust](README.md)
+[Writing a RISC-V Emulator in Rust](index.md)
 
-- [Hardware Components](hardware-components/README.md)
-  - [CPU with Two Instructions](hardware-components/cpu-with-two-instructions.md)
-  - [Memory and System Bus](hardware-components/memory-and-system-bus.md)
-  - [Control and Status Registers](hardware-components/control-and-status-registers.md)
-  - [Privileged Architecture](hardware-components/privileged-architecture.md)
-  - [Exceptions](hardware-components/exceptions.md)
-  - [PLIC \(a platform-level interrupt controller\) and CLINT \(a core-local interrupter\)](hardware-components/plic-a-platform-level-interrupt-controller-and-clint-a-core-local-interrupter.md)
-  - [UART \(a universal asynchronous receiver-transmitter\)](hardware-components/uart-a-universal-asynchronous-receiver-transmitter.md)
-  - [Interrupts](hardware-components/interrupts.md)
+- [Hardware Components](hardware-components/index.md)
+  - [CPU with Two Instructions](hardware-components/01-cpu.md)
+  - [Memory and System Bus](hardware-components/02-memory.md)
+  - [Control and Status Registers](hardware-components/03-csrs.md)
+  - [Privileged Architecture](hardware-components/04-privileged-architecture.md)
+  - [Exceptions](hardware-components/05-exceptions.md)
+  - [PLIC and CLINT](hardware-components/06-plic-and-clint.md)
+  - [UART](hardware-components/07-uart.md)
+  - [Interrupts](hardware-components/08-interrupts.md)
 
-- [Instruction Set](instruction-set/README.md)
-  - [RV64I Base Integer Instruction Set](instruction-set/rv64i-base-integer-instruction-set.md)
-  - ["M" Standard Extension for Integer Multiplication and Division](instruction-set/m-standard-extension-for-integer-multiplication-and-division.md)
-  - ["A" Standard Extension for AtomicInstructions](instruction-set/a-standard-extension-for-atomicinstructions.md)
+- [Instruction Set](instruction-set/index.md)
+  - [RV64I Base Integer Instruction Set](instruction-set/rv64i.md)
+  - ["M" Standard Extension for Integer Multiplication and Division](instruction-set/rv64m.md)
+  - ["A" Standard Extension for AtomicInstructions](instruction-set/rv64a.md)
 
