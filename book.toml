@@ -1,0 +1,7 @@
+[book]
+authors = ["Asami Doi"]
+language = "en"
+multilingual = false
+src = "src"
+title = "Writing a RISC-V Emulator in Rust"
+description = "Writing a RISC-V emulator in Rust to aim to run xv6, a small Unix-like OS."
