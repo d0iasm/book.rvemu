@@ -1,0 +1,22 @@
+.filename {
+  background-color: #6e6b5e;
+  color: #f1f1f1;
+  display: inline;
+  font-family: "Source Code Pro", Consolas, "Ubuntu Mono", Menlo, "DejaVu Sans Mono", monospace;
+  font-size: 0.875em;
+  margin: 0;
+  padding: 0 7px;
+  position: static;
+}
+
+p.filename + pre {
+  margin-top: 0;
+}
+
+p.filename + pre > pre {
+  margin-top: 0;
+}
+
+.language-rust {
+  padding-top: 0;
+}
