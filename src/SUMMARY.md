@@ -2,7 +2,7 @@
 
 [Writing a RISC-V Emulator in Rust](README.md)
 
-- [Hardware Components](hardware-componenets/index.md)
+- [Hardware Components](hardware-components/README.md)
   - [CPU with Two Instructions](hardware-components/cpu-with-two-instructions.md)
   - [Memory and System Bus](hardware-components/memory-and-system-bus.md)
   - [Control and Status Registers](hardware-components/control-and-status-registers.md)
@@ -12,7 +12,7 @@
   - [UART \(a universal asynchronous receiver-transmitter\)](hardware-components/uart-a-universal-asynchronous-receiver-transmitter.md)
   - [Interrupts](hardware-components/interrupts.md)
 
-- [Instruction Set](instruction-set/index.md)
+- [Instruction Set](instruction-set/README.md)
   - [RV64I Base Integer Instruction Set](instruction-set/rv64i-base-integer-instruction-set.md)
   - ["M" Standard Extension for Integer Multiplication and Division](instruction-set/m-standard-extension-for-integer-multiplication-and-division.md)
   - ["A" Standard Extension for AtomicInstructions](instruction-set/a-standard-extension-for-atomicinstructions.md)
