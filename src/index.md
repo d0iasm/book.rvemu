@@ -29,10 +29,9 @@ The source code used in this book is available at [d0iasm/rvemu-for-book](https:
 
 [Chapter 2](instruction-set/index.md) shows all ISAs we need to implement for running `xv6`.
 
-- [RV64I Base Integer Instruction Set](instruction-set/rv64i.md)
-- ["M" Standard Extension for Integer Multiplication and Division](instruction-set/rv64m.md)
-- ["A" Standard Extension for AtomicInstructions](instruction-set/rv64a.md)
-
+- [RV64I Base Integer Instruction Set](instruction-set/01-rv64i.md)
+- ["M" Standard Extension for Integer Multiplication and Division](instruction-set/02-rv64m.md)
+- ["A" Standard Extension for AtomicInstructions](instruction-set/03-rv64a.md)
 
 ## Outcome
 
