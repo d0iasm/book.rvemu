@@ -1,0 +1,446 @@
+<!DOCTYPE HTML>
+<html lang="en" class="sidebar-visible no-js">
+    <head>
+        <!-- Book generated using mdBook -->
+        <meta charset="UTF-8">
+        <title>Memory and System Bus - Writing a RISC-V Emulator in Rust</title>
+        
+
+        <meta content="text/html; charset=utf-8" http-equiv="Content-Type">
+        <meta name="description" content="Writing a RISC-V emulator in Rust to aim to run xv6, a small Unix-like OS.">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="theme-color" content="#ffffff" />
+
+        <link rel="shortcut icon" href="../favicon.png">
+        <link rel="stylesheet" href="../css/variables.css">
+        <link rel="stylesheet" href="../css/general.css">
+        <link rel="stylesheet" href="../css/chrome.css">
+        <link rel="stylesheet" href="../css/print.css" media="print">
+
+        <!-- Fonts -->
+        <link rel="stylesheet" href="../FontAwesome/css/font-awesome.css">
+        <link href="https://fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,800italic,400,300,600,700,800" rel="stylesheet" type="text/css">
+        <link href="https://fonts.googleapis.com/css?family=Source+Code+Pro:500" rel="stylesheet" type="text/css">
+
+        <!-- Highlight.js Stylesheets -->
+        <link rel="stylesheet" href="../highlight.css">
+        <link rel="stylesheet" href="../tomorrow-night.css">
+        <link rel="stylesheet" href="../ayu-highlight.css">
+
+        <!-- Custom theme stylesheets -->
+        
+
+        
+    </head>
+    <body class="light">
+        <!-- Provide site root to javascript -->
+        <script type="text/javascript">
+            var path_to_root = "../";
+            var default_theme = "light";
+        </script>
+
+        <!-- Work around some values being stored in localStorage wrapped in quotes -->
+        <script type="text/javascript">
+            try {
+                var theme = localStorage.getItem('mdbook-theme');
+                var sidebar = localStorage.getItem('mdbook-sidebar');
+
+                if (theme.startsWith('"') && theme.endsWith('"')) {
+                    localStorage.setItem('mdbook-theme', theme.slice(1, theme.length - 1));
+                }
+
+                if (sidebar.startsWith('"') && sidebar.endsWith('"')) {
+                    localStorage.setItem('mdbook-sidebar', sidebar.slice(1, sidebar.length - 1));
+                }
+            } catch (e) { }
+        </script>
+
+        <!-- Set the theme before any content is loaded, prevents flash -->
+        <script type="text/javascript">
+            var theme;
+            try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
+            if (theme === null || theme === undefined) { theme = default_theme; }
+            document.body.className = theme;
+            document.querySelector('html').className = theme + ' js';
+        </script>
+
+        <!-- Hide / unhide sidebar before it is displayed -->
+        <script type="text/javascript">
+            var html = document.querySelector('html');
+            var sidebar = 'hidden';
+            if (document.body.clientWidth >= 1080) {
+                try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
+                sidebar = sidebar || 'visible';
+            }
+            html.classList.remove('sidebar-visible');
+            html.classList.add("sidebar-" + sidebar);
+        </script>
+
+        <nav id="sidebar" class="sidebar" aria-label="Table of contents">
+            <div class="sidebar-scrollbox">
+                <ol class="chapter"><li class="affix"><a href="../index.html">Writing a RISC-V Emulator in Rust</a></li><li><a href="../hardware-components/index.html"><strong aria-hidden="true">1.</strong> Hardware Components</a></li><li><ol class="section"><li><a href="../hardware-components/cpu-with-two-instructions.html"><strong aria-hidden="true">1.1.</strong> CPU with Two Instructions</a></li><li><a href="../hardware-components/memory-and-system-bus.html" class="active"><strong aria-hidden="true">1.2.</strong> Memory and System Bus</a></li><li><a href="../hardware-components/control-and-status-registers.html"><strong aria-hidden="true">1.3.</strong> Control and Status Registers</a></li><li><a href="../hardware-components/privileged-architecture.html"><strong aria-hidden="true">1.4.</strong> Privileged Architecture</a></li><li><a href="../hardware-components/exceptions.html"><strong aria-hidden="true">1.5.</strong> Exceptions</a></li><li><a href="../hardware-components/plic-a-platform-level-interrupt-controller-and-clint-a-core-local-interrupter.html"><strong aria-hidden="true">1.6.</strong> PLIC (a platform-level interrupt controller) and CLINT (a core-local interrupter)</a></li><li><a href="../hardware-components/uart-a-universal-asynchronous-receiver-transmitter.html"><strong aria-hidden="true">1.7.</strong> UART (a universal asynchronous receiver-transmitter)</a></li><li><a href="../hardware-components/interrupts.html"><strong aria-hidden="true">1.8.</strong> Interrupts</a></li></ol></li><li><a href="../instruction-set/index.html"><strong aria-hidden="true">2.</strong> Instruction Set</a></li><li><ol class="section"><li><a href="../instruction-set/rv64i-base-integer-instruction-set.html"><strong aria-hidden="true">2.1.</strong> RV64I Base Integer Instruction Set</a></li><li><a href="../instruction-set/m-standard-extension-for-integer-multiplication-and-division.html"><strong aria-hidden="true">2.2.</strong> &quot;M&quot; Standard Extension for Integer Multiplication and Division</a></li><li><a href="../instruction-set/a-standard-extension-for-atomicinstructions.html"><strong aria-hidden="true">2.3.</strong> &quot;A&quot; Standard Extension for AtomicInstructions</a></li></ol></li></ol>
+            </div>
+            <div id="sidebar-resize-handle" class="sidebar-resize-handle"></div>
+        </nav>
+
+        <div id="page-wrapper" class="page-wrapper">
+
+            <div class="page">
+                
+                <div id="menu-bar" class="menu-bar">
+                    <div id="menu-bar-sticky-container">
+                        <div class="left-buttons">
+                            <button id="sidebar-toggle" class="icon-button" type="button" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="sidebar">
+                                <i class="fa fa-bars"></i>
+                            </button>
+                            <button id="theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="theme-list">
+                                <i class="fa fa-paint-brush"></i>
+                            </button>
+                            <ul id="theme-list" class="theme-popup" aria-label="Themes" role="menu">
+                                <li role="none"><button role="menuitem" class="theme" id="light">Light (default)</button></li>
+                                <li role="none"><button role="menuitem" class="theme" id="rust">Rust</button></li>
+                                <li role="none"><button role="menuitem" class="theme" id="coal">Coal</button></li>
+                                <li role="none"><button role="menuitem" class="theme" id="navy">Navy</button></li>
+                                <li role="none"><button role="menuitem" class="theme" id="ayu">Ayu</button></li>
+                            </ul>
+                            
+                            <button id="search-toggle" class="icon-button" type="button" title="Search. (Shortkey: s)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="S" aria-controls="searchbar">
+                                <i class="fa fa-search"></i>
+                            </button>
+                            
+                        </div>
+
+                        <h1 class="menu-title">Writing a RISC-V Emulator in Rust</h1>
+
+                        <div class="right-buttons">
+                            <a href="../print.html" title="Print this book" aria-label="Print this book">
+                                <i id="print-button" class="fa fa-print"></i>
+                            </a>
+                            
+                        </div>
+                    </div>
+                </div>
+
+                
+                <div id="search-wrapper" class="hidden">
+                    <form id="searchbar-outer" class="searchbar-outer">
+                        <input type="search" name="search" id="searchbar" name="searchbar" placeholder="Search this book ..." aria-controls="searchresults-outer" aria-describedby="searchresults-header">
+                    </form>
+                    <div id="searchresults-outer" class="searchresults-outer hidden">
+                        <div id="searchresults-header" class="searchresults-header"></div>
+                        <ul id="searchresults">
+                        </ul>
+                    </div>
+                </div>
+                
+
+                <!-- Apply ARIA attributes after the sidebar and the sidebar toggle button are added to the DOM -->
+                <script type="text/javascript">
+                    document.getElementById('sidebar-toggle').setAttribute('aria-expanded', sidebar === 'visible');
+                    document.getElementById('sidebar').setAttribute('aria-hidden', sidebar !== 'visible');
+                    Array.from(document.querySelectorAll('#sidebar a')).forEach(function(link) {
+                        link.setAttribute('tabIndex', sidebar === 'visible' ? 0 : -1);
+                    });
+                </script>
+
+                <div id="content" class="content">
+                    <main>
+                        <h1><a class="header" href="#memory-and-system-bus" id="memory-and-system-bus">Memory and System Bus</a></h1>
+<p>This is a part of the <a href="../">Writing a RISC-V Emulator in Rust</a>. Our goal is running <a href="https://github.com/mit-pdos/xv6-riscv">xv6</a>, a small Unix-like OS, in your emulator in the final step.</p>
+<p>The source code used in this page is available at <a href="https://github.com/d0iasm/rvemu-for-book/tree/master/step02">d0iasm/rvemu-for-book/step02/</a>.</p>
+<h2><a class="header" href="#goal-of-this-page" id="goal-of-this-page">Goal of This Page</a></h2>
+<p>At the end of this page, we can implement memory and system bus. The memory is a dynamic random-access memory (DRAM) to store data while executing a program. The system bus is a pathway to carry data between the CPU and the memory.</p>
+<h2><a class="header" href="#cpu-module" id="cpu-module">CPU Module</a></h2>
+<p>First, we're going to divide the implementation of the CPU from the <code>main.rs</code> file. Rust provides a module system to split code into logical units and organize visibility. We're going to move the implementation of CPU to a new file <code>cpu.rs</code>.</p>
+<p>In order to define a cpu module we need to <code>mod</code> keyword at the beginning of the main file. Also <code>use</code> keyword allows us to use public items in the cpu module.</p>
+<p>{% code title=&quot;src/main.rs&quot; %}</p>
+<pre><pre class="playpen"><code class="language-rust">
+# #![allow(unused_variables)]
+#fn main() {
+// This declaration will look for a file named `cpu.rs` or `cpu/mod.rs` and will
+// insert its contents inside a module named `cpu` under this scope.
+mod cpu;
+
+// Use all public structures, methods, and functions defined in the cpu module.
+use crate::cpu::*;
+#}</code></pre></pre>
+<p>{% endcode %}</p>
+<p>{% code title=&quot;src/cpu.rs&quot; %}</p>
+<pre><pre class="playpen"><code class="language-rust">
+# #![allow(unused_variables)]
+#fn main() {
+// `pub` keyword allows other modules use the `Cpu` structure and methods
+// relating to it. 
+pub struct Cpu {
+    ...
+}
+
+impl Cpu {
+    ...
+}
+#}</code></pre></pre>
+<p>{% endcode %}</p>
+<h3><a class="header" href="#fetch-decode-execute-cycle" id="fetch-decode-execute-cycle">Fetch-decode-execute Cycle</a></h3>
+<p>The previous step already mentioned the fetch-decode-execute cycle and we're going to implement it in the <code>main.rs</code>. An emulator is ideally an infinite loop and executes the program infinitely unless something wrong happens or a user stops an emulator explicitly. However, we're going to stop an emulator implicitly when the program counter is 0 or over the length of memory, and an error happens during the execution.</p>
+<p>{% code title=&quot;src/main.rs&quot; %}</p>
+<pre><pre class="playpen"><code class="language-rust">fn main() -&gt; io::Result&lt;()&gt; {
+    ...
+    while cpu.pc &lt; cpu.memory.len() as u64 {
+        // 1. Fetch
+        let inst = cpu.fetch();
+
+        // 2. Add 4 to the program counter.
+        cpu.pc += 4;
+
+        // 3. Decode.
+        // 4. Execute.
+        match cpu.execute(inst) {
+            // True if an error happens.
+            true =&gt; break,
+            false =&gt; {}
+        };
+
+        // This is a workaround for avoiding an infinite loop.
+        if cpu.pc == 0 {
+            break;
+        }
+    }
+    ...
+}
+</code></pre></pre>
+<p>{% endcode %}</p>
+<h3><a class="header" href="#fetch-stage" id="fetch-stage">Fetch Stage</a></h3>
+<p>The fetch stage is basically the same as the previous step, but I prefer to create a new function to read 32-bit data from a memory because there are other instructions to read and write memory.</p>
+<p>{% code title=&quot;src/cpu.rs&quot; %}</p>
+<pre><pre class="playpen"><code class="language-rust">
+# #![allow(unused_variables)]
+#fn main() {
+impl Cpu {
+    ...  
+    fn read32(&amp;self, addr: u64) -&gt; u64 {
+        let index = addr as usize;
+        return (self.memory[index] as u64)
+            | ((self.memory[index + 1] as u64) &lt;&lt; 8)
+            | ((self.memory[index + 2] as u64) &lt;&lt; 16)
+            | ((self.memory[index + 3] as u64) &lt;&lt; 24);
+    }
+    ...    
+    pub fn fetch(&amp;self) -&gt; u32 {
+        return self.read32(self.pc) as u32;
+    }
+    ...
+}
+#}</code></pre></pre>
+<p>{% endcode %}</p>
+<h3><a class="header" href="#decode-stage" id="decode-stage">Decode Stage</a></h3>
+<p>The decode stage is almost the same as the previous step too and we'll add 2 new fields <code>funct3</code> and <code>funct7</code>. <code>funct3</code> is located from 12 to 14 bits and <code>funct7</code> is located from 25 to 31 bits as we can see in Fig 2.1 and 2.2. These fields and opcode select the type of operation.</p>
+<p>{% code title=&quot;src/cpu.rs&quot; %}</p>
+<pre><pre class="playpen"><code class="language-rust">
+# #![allow(unused_variables)]
+#fn main() {
+impl Cpu {
+    ... 
+    fn execute(&amp;mut self, inst: u32) {
+        ...
+        let funct3 = (inst &amp; 0x00007000) &gt;&gt; 12;
+        let funct7 = (inst &amp; 0xfe000000) &gt;&gt; 25;
+        ...
+#}</code></pre></pre>
+<p>{% endcode %}</p>
+<p>In RISC-V, there are many common positions in all formats, but decoding an immediate value is quite different depending on instructions, so we'll decode an immediate value in each operation.</p>
+<p>For example, the immediate value in branch instructions is located in the place of <code>rd</code> and <code>funct7</code>. A branch instruction is a <code>if</code> statement in C to change the sequence of instruction execution depending on a condition, which includes <code>beq</code>, <code>bne</code>, <code>blt</code>, <code>bge</code>, <code>bltu</code>, and <code>bgeu</code>.</p>
+<p>Decoding is performed by bitwise ANDs and bit shifts. The point to be noted is that an immediate value should be sign-extended. It means we need to fill in the upper bits with 1 when the significant bit is 1. In this implementation, filling in bits with 1 is performed by casting from a signed integer to an unsigned integer.</p>
+<p>The way how to decode each instruction is listed in Fig 2.1 and Fig 2.2.</p>
+<p>{% code title=&quot;src/cpu.rs&quot; %}</p>
+<pre><pre class="playpen"><code class="language-rust">
+# #![allow(unused_variables)]
+#fn main() {
+impl Cpu {
+    ... 
+    fn execute(&amp;mut self, inst: u32) {
+        ...
+        match opcode {
+            0x63 =&gt; {
+                // imm[12|10:5|4:1|11] = inst[31|30:25|11:8|7]
+                let imm = (((inst &amp; 0x80000000) as i32 as i64 &gt;&gt; 19) as u64)
+                    | ((inst &amp; 0x80) &lt;&lt; 4)   // imm[11]
+                    | ((inst &gt;&gt; 20) &amp; 0x7e0) // imm[10:5]
+                    | ((inst &gt;&gt; 7) &amp; 0x1e);  // imm[4:1]
+
+                match funct3 {
+                    ...
+#}</code></pre></pre>
+<p>{% endcode %}</p>
+<h3><a class="header" href="#execute-stage" id="execute-stage">Execute Stage</a></h3>
+<p>Each operation is performed in each <code>match</code> arm. For example, a branch instruction <code>beq</code>, which is one of the branch instructions, is executed when <code>opcode</code> is 0x63 and <code>funct3</code> is 0x0. <code>beq</code> sets the <code>pc</code> to the current <code>pc</code> plus the signed-extended offset if a value in <code>rs1</code> equals a value in <code>rs2</code>. The current <code>pc</code> means the position when CPU fetched an instruction from memory so we need to subtract 4 from <code>pc</code> because we added 4 after fetch.</p>
+<p>{% code title=&quot;src/cpu.rs&quot; %}</p>
+<pre><pre class="playpen"><code class="language-rust">
+# #![allow(unused_variables)]
+#fn main() {
+impl Cpu {
+    ... 
+    fn execute(&amp;mut self, inst: u32) {
+        ...
+        match opcode {
+            0x63 =&gt; {
+                let imm = ...;
+
+                match funct3 {
+                    0x0 =&gt; {
+                        // beq
+                        if self.regs[rs1] == self.regs[rs2] {
+                            self.pc = self.pc.wrapping_add(imm).wrapping_sub(4);
+                        }
+                    }
+                ...
+#}</code></pre></pre>
+<p>{% endcode %}</p>
+<h2><a class="header" href="#memory-module" id="memory-module">Memory Module</a></h2>
+<p>// TODO: write this section</p>
+<h2><a class="header" href="#system-bus-module" id="system-bus-module">System Bus Module</a></h2>
+<p>// TODO: write this section</p>
+<h2><a class="header" href="#instructions-list" id="instructions-list">Instructions List</a></h2>
+<p>The following table is a brief explanation for each instruction. The book won't describe the details of each instruction but will indicate points to be noted when you implement instructions. In addition, you can see the implementation in <a href="https://github.com/d0iasm/rvemu-for-book/blob/master/step02/src/cpu.rs">d0iasm/rvemu-for-book/step02/src/cpu.rs</a> and description in <em>Chapter 2 RV32I Base Integer Instruction Set</em> and <em>Chapter 5 RV64I Base Integer Instruction Set</em> in <a href="https://riscv.org/specifications/isa-spec-pdf/">the unprivileged specification</a>.</p>
+<p><strong>Points to be noted</strong>:</p>
+<ul>
+<li>Arithmetic operations are done by wrapping_* functions to avoid an overflow.</li>
+<li>Sign-extended is done by casting from a smaller signed integer to a larger signed integer.</li>
+<li>The amount for 64-bit shift operations is encoded in the lower 6 bits in an immediate, and the amount for 32-bit shift operations is encoded in the lower 5 bits.</li>
+</ul>
+<table><thead><tr><th align="left">Instruction</th><th align="left">Pseudocode</th><th align="left">Description</th></tr></thead><tbody>
+<tr><td align="left"><strong>lui</strong> rd, imm</td><td align="left">x[rd] = sext(imm[31:12] &lt;&lt; 12)</td><td align="left">Load upper immediate value.</td></tr>
+<tr><td align="left"><strong>auipc</strong> rd, imm</td><td align="left">x[rd] = pc + sext(imm[31:12] &lt;&lt; 12)</td><td align="left">Add upper immediate value to PC.</td></tr>
+<tr><td align="left"><strong>jal</strong> rd, offset</td><td align="left">x[rd] = pc + 4; pc += sext(offset)</td><td align="left">Jump and link.</td></tr>
+<tr><td align="left"><strong>jalr</strong> rd, offset(rs1)</td><td align="left">t = pc+4; pc = (x[rs1] + sext(offset)&amp;~1); x[rd] = t</td><td align="left">Jump and link register.</td></tr>
+<tr><td align="left"><strong>beq</strong> rs1, rs2, offset</td><td align="left">if (rs1 == rs2) pc += sext(offset)</td><td align="left">Branch if equal.</td></tr>
+<tr><td align="left"><strong>bne</strong> rs1, rs2, offset</td><td align="left">if (rs1 != rs2) pc += sext(offset)</td><td align="left">Branch if not equal.</td></tr>
+<tr><td align="left"><strong>blt</strong> rs1, rs2, offset</td><td align="left">if (rs1 &lt; rs2) pc += sext(offset)</td><td align="left">Branch if less than.</td></tr>
+<tr><td align="left"><strong>bge</strong> rs1, rs2, offset</td><td align="left">if (rs1 &gt;= rs2) pc += sext(offset)</td><td align="left">Branch if greater than or equal.</td></tr>
+<tr><td align="left"><strong>bltu</strong> rs1, rs2, offset</td><td align="left">if (rs1 &lt; rs2) pc += sext(offset)</td><td align="left">Branch if less than, unsigned.</td></tr>
+<tr><td align="left"><strong>bgeu</strong> rs1, rs2, offset</td><td align="left">if (rs1 &gt;= rs2) pc += sext(offset)</td><td align="left">Branch if greater than or equal, unsigned.</td></tr>
+<tr><td align="left"><strong>lb</strong> rd, offset(rs1)</td><td align="left">x[rd] = sext(M[x[rs1] + sext(offset)][7:0])</td><td align="left">Load byte (8 bits).</td></tr>
+<tr><td align="left"><strong>lh</strong> rd, offset(rs1)</td><td align="left">x[rd] = sext(M[x[rs1] + sext(offset)][15:0])</td><td align="left">Load halfword (16 bits).</td></tr>
+<tr><td align="left"><strong>lw</strong> rd, offset(rs1)</td><td align="left">x[rd] = sext(M[x[rs1] + sext(offset)][31:0])</td><td align="left">Load word (32 bits).</td></tr>
+<tr><td align="left"><strong>lbu</strong> rd, offset(rs1)</td><td align="left">x[rd] = M[x[rs1] + sext(offset)][7:0]</td><td align="left">Load byte, unsigned.</td></tr>
+<tr><td align="left"><strong>lhu</strong> rd, offset(rs1)</td><td align="left">x[rd] = M[x[rs1] + sext(offset)][15:0]</td><td align="left">Load halfword, unsigned.</td></tr>
+<tr><td align="left"><strong>sb</strong> rs2, offset(rs1)</td><td align="left">M[x[rs1] + sext(offset)] = x[rs2][7:0]</td><td align="left">Store byte.</td></tr>
+<tr><td align="left"><strong>sh</strong> rs2, offset(rs1)</td><td align="left">M[x[rs1] + sext(offset)] = x[rs2][15:0]</td><td align="left">Store halfword.</td></tr>
+<tr><td align="left"><strong>sw</strong> rs2, offset(rs1)</td><td align="left">M[x[rs1] + sext(offset)] = x[rs2][31:0]</td><td align="left">Store word.</td></tr>
+<tr><td align="left"><strong>addi</strong> rd, rs1, imm</td><td align="left">x[rd] = x[rs1] + sext(imm)</td><td align="left">Add immediate.</td></tr>
+<tr><td align="left"><strong>slti</strong> rd, rs1, imm</td><td align="left">x[rd] = x[rs1] &lt; x[rs2]</td><td align="left">Set if less than.</td></tr>
+<tr><td align="left"><strong>sltiu</strong> rd, rs1, imm</td><td align="left">x[rd] = x[rs1] &lt; x[rs2]</td><td align="left">Set if less than, unsigned.</td></tr>
+<tr><td align="left"><strong>xori</strong> rd, rs1, imm</td><td align="left">x[rd] = x[rs1] ^ sext(imm)</td><td align="left">Exclusive OR immediate.</td></tr>
+<tr><td align="left"><strong>ori</strong> rd, rs1, imm</td><td align="left">x[rd] = x[rs1] | sext(imm)</td><td align="left">OR immediate.</td></tr>
+<tr><td align="left"><strong>andi</strong> rd, rs1, imm</td><td align="left">x[rd] = x[rs1] &amp; sext(imm)</td><td align="left">AND immediate.</td></tr>
+<tr><td align="left"><strong>slli</strong> rd, rs1, shamt</td><td align="left">x[rd] = x[rs1] &lt;&lt; shamt</td><td align="left">Shift left logical immediate.</td></tr>
+<tr><td align="left"><strong>srli</strong> rd, rs1, shamt</td><td align="left">x[rd] = x[rs1] &gt;&gt; shamt</td><td align="left">Shift right logical immediate.</td></tr>
+<tr><td align="left"><strong>srai</strong> rd, rs1, shamt</td><td align="left">x[rd] = x[rs1] &gt;&gt; shamt</td><td align="left">Shift right arithmetic immediate.</td></tr>
+<tr><td align="left"><strong>add</strong> rd, rs1, rs2</td><td align="left">x[rd] = x[rs1] + x[rs2]</td><td align="left">Add.</td></tr>
+<tr><td align="left"><strong>sub</strong> rd, rs1, rs2</td><td align="left">x[rd] = x[rs1] - x[rs2]</td><td align="left">Subtract.</td></tr>
+<tr><td align="left"><strong>sll</strong> rs, rs1, rs2</td><td align="left">x[rd] = x[rs1] &lt;&lt; x[rs2]</td><td align="left">Shift left logical.</td></tr>
+<tr><td align="left"><strong>slt</strong> rd, rs1, rs2</td><td align="left">x[rd] = x[rs1] &lt; x[rs2]</td><td align="left">Set if less than.</td></tr>
+<tr><td align="left"><strong>sltu</strong> rd, rs1, rs2</td><td align="left">x[rd] = x[rs1] &lt; x[rs2]</td><td align="left">Set if less than, unsigned.</td></tr>
+<tr><td align="left"><strong>xor</strong> rd, rs1, rs2</td><td align="left">x[rd] = x[rs1] ^ x[rs2]</td><td align="left">Exclusive OR.</td></tr>
+<tr><td align="left"><strong>srl</strong> rd, rs1, rs2</td><td align="left">x[rd] = x[rs1] &gt;&gt; x[rs2]</td><td align="left">Shift right logical.</td></tr>
+<tr><td align="left"><strong>sra</strong> rd, rs1, rs2</td><td align="left">x[rd] = x[rs1] &gt;&gt; x[rs2]</td><td align="left">Shift right arithmetic.</td></tr>
+<tr><td align="left"><strong>or</strong> rd, rs1, rs2</td><td align="left">x[rd] = x[rs1] | x[rs2]</td><td align="left">OR.</td></tr>
+<tr><td align="left"><strong>and</strong> rd, rs1, rs2</td><td align="left">x[rd] = x[rs1] &amp; x[rs2]</td><td align="left">AND.</td></tr>
+<tr><td align="left"><strong>lwu</strong> rd, offset(rs1)</td><td align="left">x[rd] = M[x[rs1] + sext(offset)][31:0]</td><td align="left">Load word, unsigned.</td></tr>
+<tr><td align="left"><strong>ld</strong> rd, offset(rs1)</td><td align="left">x[rd] = M[x[rs1] + sext(offset)][63:0]</td><td align="left">Load doubleword (64 bits), unsigned.</td></tr>
+<tr><td align="left"><strong>sd</strong> rs2, offset(rs1)</td><td align="left">M[x[rs1] + sext(offset)] = x[rs2][63:0]</td><td align="left">Store doubleword.</td></tr>
+<tr><td align="left"><strong>addiw</strong> rd, rs1, imm</td><td align="left">x[rd] = sext((x[rs1] + sext(imm))[31:0])</td><td align="left">Add word immediate.</td></tr>
+<tr><td align="left"><strong>slliw</strong> rd, rs1, shamt</td><td align="left">x[rd] = sext((x[rs1] &lt;&lt; shamt)[31:0])</td><td align="left">Shift left logical word immediate.</td></tr>
+<tr><td align="left"><strong>srliw</strong> rd, rs1, shamt</td><td align="left">x[rd] = sext((x[rs1] &gt;&gt; shamt)[31:0])</td><td align="left">Shift right logical word immediate.</td></tr>
+<tr><td align="left"><strong>sraiw</strong> rd, rs1, shamt</td><td align="left">x[rd] = sext((x[rs1] &gt;&gt; shamt)[31:0])</td><td align="left">Shift right arithmetic word immediate.</td></tr>
+<tr><td align="left"><strong>addw</strong> rd, rs1, rs2</td><td align="left">x[rd] = sext((x[rs1] + x[rs2])[31:0])</td><td align="left">Add word.</td></tr>
+<tr><td align="left"><strong>subw</strong> rd, rs1, rs2</td><td align="left">x[rd] = sext((x[rs1] - x[rs2])[31:0])</td><td align="left">Subtract word.</td></tr>
+<tr><td align="left"><strong>sllw</strong> rd, rs1, rs2</td><td align="left">x[rd] = sext((x[rs1] &lt;&lt; x[rs2][4:0])[31:0])</td><td align="left">Shift left logical word.</td></tr>
+<tr><td align="left"><strong>srlw</strong> rd, rs1, rs2</td><td align="left">x[rd] = sext(x[rs1][31:0] &lt;&lt; x[rs2][4:0])</td><td align="left">Shift right logical word.</td></tr>
+<tr><td align="left"><strong>sraw</strong> rd, rs1, rs2</td><td align="left">x[rd] = sext(x[rs1][31:0] &lt;&lt; x[rs2][4:0])</td><td align="left">Shift right arithmetic word.</td></tr>
+</tbody></table>
+<h2><a class="header" href="#testing" id="testing">Testing</a></h2>
+<p>We're going to test instructions we implemented in this step by calculating <a href="https://en.wikipedia.org/wiki/Fibonacci_number">a Fibonacci number</a> and check if the registers are expected values. I prepared a sample binary file available at <a href="https://github.com/d0iasm/rvemu-for-book/tree/master/step02">d0iasm/rvemu-for-book/step02/</a>. Download the <a href="https://github.com/d0iasm/rvemu-for-book/blob/master/step02/fib.bin">fib.bin</a> file and execute it in your emulator.</p>
+<p>Calculating a Fibonacci number is actually not enough to test all RV64I instructions, so it perhaps be better to use <a href="https://github.com/riscv/riscv-tests">riscv/riscv-tests</a> to make sure if your implementation is correct. However, it's not obvious how to use riscv-tests so I'll skip to use the test in this book for the sake of simplicity. If you are interested in using riscv-tests, <a href="https://github.com/d0iasm/rvemu/blob/master/tests/rv64_user.rs">the test file in rvemu</a> may be helpful.</p>
+<pre><code class="language-text">// fib.c contains the following C code and fib.bin is the build result of it:
+// int fib(int n);
+// int main() {
+//   return fib(10); // Calculate the 10th fibonacci number.
+// }
+// int fib(int n) {
+//   if (n == 0 || n == 1)
+//     return n;
+//   else
+//     return (fib(n-1) + fib(n-2));
+// }
+
+$ cargo run fib.bin
+...           
+x12=0x0 x13=0x0 x14=0x1 x15=0x37 // x15 should contain 55 (= 10th fibonacci number).
+</code></pre>
+<h3><a class="header" href="#how-to-build-test-binary" id="how-to-build-test-binary">How to Build Test Binary</a></h3>
+<p>If you want to execute a bare-metal C program you write, you need to make an ELF binary without any headers because our emulator just starts to execute at the address <code>0x0</code> . The <a href="https://github.com/d0iasm/rvemu-for-book/blob/master/step02/Makefile">Makefile</a> helps you build a test binary.</p>
+<pre><code class="language-bash">$ riscv64-unknown-elf-gcc -S fib.c
+$ riscv64-unknown-elf-gcc -Wl,-Ttext=0x0 -nostdlib -o fib fib.s
+$ riscv64-unknown-elf-objcopy -O binary fib fib.bin
+</code></pre>
+
+                    </main>
+
+                    <nav class="nav-wrapper" aria-label="Page navigation">
+                        <!-- Mobile navigation buttons -->
+                        
+                            <a rel="prev" href="../hardware-components/cpu-with-two-instructions.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                                <i class="fa fa-angle-left"></i>
+                            </a>
+                        
+
+                        
+                            <a rel="next" href="../hardware-components/control-and-status-registers.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                                <i class="fa fa-angle-right"></i>
+                            </a>
+                        
+
+                        <div style="clear: both"></div>
+                    </nav>
+                </div>
+            </div>
+
+            <nav class="nav-wide-wrapper" aria-label="Page navigation">
+                
+                    <a href="../hardware-components/cpu-with-two-instructions.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                        <i class="fa fa-angle-left"></i>
+                    </a>
+                
+
+                
+                    <a href="../hardware-components/control-and-status-registers.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                        <i class="fa fa-angle-right"></i>
+                    </a>
+                
+            </nav>
+
+        </div>
+
+        
+
+        
+
+        
+
+        
+        <script src="../elasticlunr.min.js" type="text/javascript" charset="utf-8"></script>
+        <script src="../mark.min.js" type="text/javascript" charset="utf-8"></script>
+        <script src="../searcher.js" type="text/javascript" charset="utf-8"></script>
+        
+
+        <script src="../clipboard.min.js" type="text/javascript" charset="utf-8"></script>
+        <script src="../highlight.js" type="text/javascript" charset="utf-8"></script>
+        <script src="../book.js" type="text/javascript" charset="utf-8"></script>
+
+        <!-- Custom JS scripts -->
+        
+
+        
+
+    </body>
+</html>
