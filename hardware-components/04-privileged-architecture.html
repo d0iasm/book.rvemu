@@ -3,7 +3,7 @@
     <head>
         <!-- Book generated using mdBook -->
         <meta charset="UTF-8">
-        <title>RV64I Base Integer Instruction Set - Writing a RISC-V Emulator in Rust</title>
+        <title>Privileged Architecture - Writing a RISC-V Emulator in Rust</title>
         
         
 
@@ -95,7 +95,7 @@
 
         <nav id="sidebar" class="sidebar" aria-label="Table of contents">
             <div class="sidebar-scrollbox">
-                <ol class="chapter"><li class="chapter-item expanded affix "><a href="../index.html">Writing a RISC-V Emulator in Rust</a></li><li class="chapter-item expanded "><a href="../hardware-components/index.html"><strong aria-hidden="true">1.</strong> Hardware Components</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../hardware-components/cpu-with-two-instructions.html"><strong aria-hidden="true">1.1.</strong> CPU with Two Instructions</a></li><li class="chapter-item expanded "><a href="../hardware-components/memory-and-system-bus.html"><strong aria-hidden="true">1.2.</strong> Memory and System Bus</a></li><li class="chapter-item expanded "><a href="../hardware-components/control-and-status-registers.html"><strong aria-hidden="true">1.3.</strong> Control and Status Registers</a></li><li class="chapter-item expanded "><a href="../hardware-components/privileged-architecture.html"><strong aria-hidden="true">1.4.</strong> Privileged Architecture</a></li><li class="chapter-item expanded "><a href="../hardware-components/exceptions.html"><strong aria-hidden="true">1.5.</strong> Exceptions</a></li><li class="chapter-item expanded "><a href="../hardware-components/plic-a-platform-level-interrupt-controller-and-clint-a-core-local-interrupter.html"><strong aria-hidden="true">1.6.</strong> PLIC (a platform-level interrupt controller) and CLINT (a core-local interrupter)</a></li><li class="chapter-item expanded "><a href="../hardware-components/uart-a-universal-asynchronous-receiver-transmitter.html"><strong aria-hidden="true">1.7.</strong> UART (a universal asynchronous receiver-transmitter)</a></li><li class="chapter-item expanded "><a href="../hardware-components/interrupts.html"><strong aria-hidden="true">1.8.</strong> Interrupts</a></li></ol></li><li class="chapter-item expanded "><a href="../instruction-set/index.html"><strong aria-hidden="true">2.</strong> Instruction Set</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../instruction-set/rv64i-base-integer-instruction-set.html" class="active"><strong aria-hidden="true">2.1.</strong> RV64I Base Integer Instruction Set</a></li><li class="chapter-item expanded "><a href="../instruction-set/m-standard-extension-for-integer-multiplication-and-division.html"><strong aria-hidden="true">2.2.</strong> &quot;M&quot; Standard Extension for Integer Multiplication and Division</a></li><li class="chapter-item expanded "><a href="../instruction-set/a-standard-extension-for-atomicinstructions.html"><strong aria-hidden="true">2.3.</strong> &quot;A&quot; Standard Extension for AtomicInstructions</a></li></ol></li></ol>
+                <ol class="chapter"><li class="chapter-item expanded affix "><a href="../index.html">Writing a RISC-V Emulator in Rust</a></li><li class="chapter-item expanded "><a href="../hardware-components/index.html"><strong aria-hidden="true">1.</strong> Hardware Components</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../hardware-components/01-cpu.html"><strong aria-hidden="true">1.1.</strong> CPU with Two Instructions</a></li><li class="chapter-item expanded "><a href="../hardware-components/02-memory.html"><strong aria-hidden="true">1.2.</strong> Memory and System Bus</a></li><li class="chapter-item expanded "><a href="../hardware-components/03-csrs.html"><strong aria-hidden="true">1.3.</strong> Control and Status Registers</a></li><li class="chapter-item expanded "><a href="../hardware-components/04-privileged-architecture.html" class="active"><strong aria-hidden="true">1.4.</strong> Privileged Architecture</a></li><li class="chapter-item expanded "><a href="../hardware-components/05-exceptions.html"><strong aria-hidden="true">1.5.</strong> Exceptions</a></li><li class="chapter-item expanded "><a href="../hardware-components/06-plic-and-clint.html"><strong aria-hidden="true">1.6.</strong> PLIC and CLINT</a></li><li class="chapter-item expanded "><a href="../hardware-components/07-uart.html"><strong aria-hidden="true">1.7.</strong> UART</a></li><li class="chapter-item expanded "><a href="../hardware-components/08-interrupts.html"><strong aria-hidden="true">1.8.</strong> Interrupts</a></li></ol></li><li class="chapter-item expanded "><a href="../instruction-set/index.html"><strong aria-hidden="true">2.</strong> Instruction Set</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../instruction-set/rv64i.html"><strong aria-hidden="true">2.1.</strong> RV64I Base Integer Instruction Set</a></li><li class="chapter-item expanded "><a href="../instruction-set/rv64m.html"><strong aria-hidden="true">2.2.</strong> &quot;M&quot; Standard Extension for Integer Multiplication and Division</a></li><li class="chapter-item expanded "><a href="../instruction-set/rv64a.html"><strong aria-hidden="true">2.3.</strong> &quot;A&quot; Standard Extension for AtomicInstructions</a></li></ol></li></ol>
             </div>
             <div id="sidebar-resize-handle" class="sidebar-resize-handle"></div>
         </nav>
@@ -163,46 +163,26 @@
 
                 <div id="content" class="content">
                     <main>
-                        <h1><a class="header" href="#rv64i-base-integer-instruction-set" id="rv64i-base-integer-instruction-set">RV64I Base Integer Instruction Set</a></h1>
+                        <h1><a class="header" href="#privileged-architecture" id="privileged-architecture">Privileged Architecture</a></h1>
+<p>This is step 4 of the book <a href="../"><em>Writing a RISC-V Emulator from Scratch in 10 Steps</em></a>, whose goal is running <a href="https://github.com/mit-pdos/xv6-riscv">xv6</a>, a small Unix-like OS, in your emulator in the final step.</p>
+<p>The source code is available at <a href="https://github.com/d0iasm/rvemu-for-book/tree/master/step04">d0iasm/rvemu-for-book/step04/</a>.</p>
 <h2><a class="header" href="#goal-of-this-page" id="goal-of-this-page">Goal of This Page</a></h2>
-<p>In the end of this page, we can execute <a href="https://github.com/d0iasm/rvemu-for-book/blob/master/step02/fib.c">the sample file</a> that calculates <a href="https://en.wikipedia.org/wiki/Fibonacci_number">a Fibonacci number</a> in our emulator. We will support RV64 ISAs, the base integer instruction set a 64-bit architecture, to calculate a Fibonacci number.</p>
-<p>Sample binary files are also available at <a href="https://github.com/d0iasm/rvemu-for-book/tree/master/step02">d0iasm/rvemu-for-book/step02/</a>. We successfully see the result of the 10th Fibonacci number when we execute the sample binary file <code>fib.bin</code>.</p>
-<pre><code class="language-text">// fib.c contains the following C code and fib.bin is the build result of it:
-// int fib(int n);
-// int main() {
-//   return fib(10); // Calculate the 10th fibonacci number.
-// }
-// int fib(int n) {
-//   if (n == 0 || n == 1)
-//     return n;
-//   else
-//     return (fib(n-1) + fib(n-2));
-// }
-
-$ cargo run fib.bin
-...           
-x12=0x0 x13=0x0 x14=0x1 x15=0x37 // x15 should contain 55 (= 10th fibonacci number).
-</code></pre>
-<h2><a class="header" href="#rv64i-base-integer-instruction-set-1" id="rv64i-base-integer-instruction-set-1">RV64I: Base Integer Instruction Set</a></h2>
-<p>RV64I is a base integer instruction set for the 64-bit architecture, which builds upon the RV32I variant. RV64I shares most of the instructions with RV32I but the width of registers is different and there are a few additional instructions only in RV64I.</p>
-<p>In this step, we're going to implement 47 instructions (35 instructions from RV32I and 12 instructions from RV64I). We've already implemented <code>add</code> and <code>addi</code> so we'll skip them. Also, we'll skip implementing <code>fence</code>, <code>ecall</code>, and <code>ebreak</code> for now. I'll cover <code>ecall</code> and <code>ebreak</code> in the following step and won't explain <code>fence</code>. The <code>fence</code> instruction is a type of barrier instruction to apply an ordering constraint on memory operations issued before and after it. We don't need it since our emulator is a single core system and doesn't reorder memory operations (out-of-order execution).</p>
-<p>Fig 2.1 and Fig 2.2 are the lists for RV32I and RV64I, respectively. We're going to implement all instructions in the figures.</p>
-<p><img src="../.gitbook/assets/rvemubook-rv32i.png" alt="Fig 2.1 RV32I Base Instruction Set (Source: RV32I Base Instruction Set table in Volume I: Unprivileged ISA)" /></p>
-<p><img src="../.gitbook/assets/screen-shot-2020-04-19-at-20.20.35.png" alt="Fig 2.2 RV64I Base Instruction Set (Source: RV64I Base Instruction Set table in Volume I: Unprivileged ISA)" /></p>
-<h2><a class="header" href="#" id=""></a></h2>
+<p>In the end of this page, we can execute the part of supervisor ISA, <code>mret</code> and <code>sret</code>. These instructions are used to return from traps in M-mode, S-mode, or U-mode respectively. In addition, we'll add <code>sfence.vma</code> but we don't do anything for now.</p>
+<h2><a class="header" href="#privilege-levels" id="privilege-levels">Privilege Levels</a></h2>
+<h2><a class="header" href="#testing" id="testing">Testing</a></h2>
 
                     </main>
 
                     <nav class="nav-wrapper" aria-label="Page navigation">
                         <!-- Mobile navigation buttons -->
                         
-                            <a rel="prev" href="../instruction-set/index.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                            <a rel="prev" href="../hardware-components/03-csrs.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
                                 <i class="fa fa-angle-left"></i>
                             </a>
                         
 
                         
-                            <a rel="next" href="../instruction-set/m-standard-extension-for-integer-multiplication-and-division.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                            <a rel="next" href="../hardware-components/05-exceptions.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
                                 <i class="fa fa-angle-right"></i>
                             </a>
                         
@@ -214,13 +194,13 @@ x12=0x0 x13=0x0 x14=0x1 x15=0x37 // x15 should contain 55 (= 10th fibonacci numb
 
             <nav class="nav-wide-wrapper" aria-label="Page navigation">
                 
-                    <a rel="prev" href="../instruction-set/index.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                    <a rel="prev" href="../hardware-components/03-csrs.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
                         <i class="fa fa-angle-left"></i>
                     </a>
                 
 
                 
-                    <a rel="next" href="../instruction-set/m-standard-extension-for-integer-multiplication-and-division.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                    <a rel="next" href="../hardware-components/05-exceptions.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
                         <i class="fa fa-angle-right"></i>
                     </a>
                 

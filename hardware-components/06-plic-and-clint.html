@@ -3,7 +3,7 @@
     <head>
         <!-- Book generated using mdBook -->
         <meta charset="UTF-8">
-        <title>PLIC (a platform-level interrupt controller) and CLINT (a core-local interrupter) - Writing a RISC-V Emulator in Rust</title>
+        <title>PLIC and CLINT - Writing a RISC-V Emulator in Rust</title>
         
         
 
@@ -95,7 +95,7 @@
 
         <nav id="sidebar" class="sidebar" aria-label="Table of contents">
             <div class="sidebar-scrollbox">
-                <ol class="chapter"><li class="chapter-item expanded affix "><a href="../index.html">Writing a RISC-V Emulator in Rust</a></li><li class="chapter-item expanded "><a href="../hardware-components/index.html"><strong aria-hidden="true">1.</strong> Hardware Components</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../hardware-components/cpu-with-two-instructions.html"><strong aria-hidden="true">1.1.</strong> CPU with Two Instructions</a></li><li class="chapter-item expanded "><a href="../hardware-components/memory-and-system-bus.html"><strong aria-hidden="true">1.2.</strong> Memory and System Bus</a></li><li class="chapter-item expanded "><a href="../hardware-components/control-and-status-registers.html"><strong aria-hidden="true">1.3.</strong> Control and Status Registers</a></li><li class="chapter-item expanded "><a href="../hardware-components/privileged-architecture.html"><strong aria-hidden="true">1.4.</strong> Privileged Architecture</a></li><li class="chapter-item expanded "><a href="../hardware-components/exceptions.html"><strong aria-hidden="true">1.5.</strong> Exceptions</a></li><li class="chapter-item expanded "><a href="../hardware-components/plic-a-platform-level-interrupt-controller-and-clint-a-core-local-interrupter.html" class="active"><strong aria-hidden="true">1.6.</strong> PLIC (a platform-level interrupt controller) and CLINT (a core-local interrupter)</a></li><li class="chapter-item expanded "><a href="../hardware-components/uart-a-universal-asynchronous-receiver-transmitter.html"><strong aria-hidden="true">1.7.</strong> UART (a universal asynchronous receiver-transmitter)</a></li><li class="chapter-item expanded "><a href="../hardware-components/interrupts.html"><strong aria-hidden="true">1.8.</strong> Interrupts</a></li></ol></li><li class="chapter-item expanded "><a href="../instruction-set/index.html"><strong aria-hidden="true">2.</strong> Instruction Set</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../instruction-set/rv64i-base-integer-instruction-set.html"><strong aria-hidden="true">2.1.</strong> RV64I Base Integer Instruction Set</a></li><li class="chapter-item expanded "><a href="../instruction-set/m-standard-extension-for-integer-multiplication-and-division.html"><strong aria-hidden="true">2.2.</strong> &quot;M&quot; Standard Extension for Integer Multiplication and Division</a></li><li class="chapter-item expanded "><a href="../instruction-set/a-standard-extension-for-atomicinstructions.html"><strong aria-hidden="true">2.3.</strong> &quot;A&quot; Standard Extension for AtomicInstructions</a></li></ol></li></ol>
+                <ol class="chapter"><li class="chapter-item expanded affix "><a href="../index.html">Writing a RISC-V Emulator in Rust</a></li><li class="chapter-item expanded "><a href="../hardware-components/index.html"><strong aria-hidden="true">1.</strong> Hardware Components</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../hardware-components/01-cpu.html"><strong aria-hidden="true">1.1.</strong> CPU with Two Instructions</a></li><li class="chapter-item expanded "><a href="../hardware-components/02-memory.html"><strong aria-hidden="true">1.2.</strong> Memory and System Bus</a></li><li class="chapter-item expanded "><a href="../hardware-components/03-csrs.html"><strong aria-hidden="true">1.3.</strong> Control and Status Registers</a></li><li class="chapter-item expanded "><a href="../hardware-components/04-privileged-architecture.html"><strong aria-hidden="true">1.4.</strong> Privileged Architecture</a></li><li class="chapter-item expanded "><a href="../hardware-components/05-exceptions.html"><strong aria-hidden="true">1.5.</strong> Exceptions</a></li><li class="chapter-item expanded "><a href="../hardware-components/06-plic-and-clint.html" class="active"><strong aria-hidden="true">1.6.</strong> PLIC and CLINT</a></li><li class="chapter-item expanded "><a href="../hardware-components/07-uart.html"><strong aria-hidden="true">1.7.</strong> UART</a></li><li class="chapter-item expanded "><a href="../hardware-components/08-interrupts.html"><strong aria-hidden="true">1.8.</strong> Interrupts</a></li></ol></li><li class="chapter-item expanded "><a href="../instruction-set/index.html"><strong aria-hidden="true">2.</strong> Instruction Set</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../instruction-set/rv64i.html"><strong aria-hidden="true">2.1.</strong> RV64I Base Integer Instruction Set</a></li><li class="chapter-item expanded "><a href="../instruction-set/rv64m.html"><strong aria-hidden="true">2.2.</strong> &quot;M&quot; Standard Extension for Integer Multiplication and Division</a></li><li class="chapter-item expanded "><a href="../instruction-set/rv64a.html"><strong aria-hidden="true">2.3.</strong> &quot;A&quot; Standard Extension for AtomicInstructions</a></li></ol></li></ol>
             </div>
             <div id="sidebar-resize-handle" class="sidebar-resize-handle"></div>
         </nav>
@@ -175,13 +175,13 @@
                     <nav class="nav-wrapper" aria-label="Page navigation">
                         <!-- Mobile navigation buttons -->
                         
-                            <a rel="prev" href="../hardware-components/exceptions.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                            <a rel="prev" href="../hardware-components/05-exceptions.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
                                 <i class="fa fa-angle-left"></i>
                             </a>
                         
 
                         
-                            <a rel="next" href="../hardware-components/uart-a-universal-asynchronous-receiver-transmitter.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                            <a rel="next" href="../hardware-components/07-uart.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
                                 <i class="fa fa-angle-right"></i>
                             </a>
                         
@@ -193,13 +193,13 @@
 
             <nav class="nav-wide-wrapper" aria-label="Page navigation">
                 
-                    <a rel="prev" href="../hardware-components/exceptions.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                    <a rel="prev" href="../hardware-components/05-exceptions.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
                         <i class="fa fa-angle-left"></i>
                     </a>
                 
 
                 
-                    <a rel="next" href="../hardware-components/uart-a-universal-asynchronous-receiver-transmitter.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                    <a rel="next" href="../hardware-components/07-uart.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
                         <i class="fa fa-angle-right"></i>
                     </a>
                 

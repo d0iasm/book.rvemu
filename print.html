@@ -97,7 +97,7 @@
 
         <nav id="sidebar" class="sidebar" aria-label="Table of contents">
             <div class="sidebar-scrollbox">
-                <ol class="chapter"><li class="chapter-item expanded affix "><a href="index.html">Writing a RISC-V Emulator in Rust</a></li><li class="chapter-item expanded "><a href="hardware-components/index.html"><strong aria-hidden="true">1.</strong> Hardware Components</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="hardware-components/cpu-with-two-instructions.html"><strong aria-hidden="true">1.1.</strong> CPU with Two Instructions</a></li><li class="chapter-item expanded "><a href="hardware-components/memory-and-system-bus.html"><strong aria-hidden="true">1.2.</strong> Memory and System Bus</a></li><li class="chapter-item expanded "><a href="hardware-components/control-and-status-registers.html"><strong aria-hidden="true">1.3.</strong> Control and Status Registers</a></li><li class="chapter-item expanded "><a href="hardware-components/privileged-architecture.html"><strong aria-hidden="true">1.4.</strong> Privileged Architecture</a></li><li class="chapter-item expanded "><a href="hardware-components/exceptions.html"><strong aria-hidden="true">1.5.</strong> Exceptions</a></li><li class="chapter-item expanded "><a href="hardware-components/plic-a-platform-level-interrupt-controller-and-clint-a-core-local-interrupter.html"><strong aria-hidden="true">1.6.</strong> PLIC (a platform-level interrupt controller) and CLINT (a core-local interrupter)</a></li><li class="chapter-item expanded "><a href="hardware-components/uart-a-universal-asynchronous-receiver-transmitter.html"><strong aria-hidden="true">1.7.</strong> UART (a universal asynchronous receiver-transmitter)</a></li><li class="chapter-item expanded "><a href="hardware-components/interrupts.html"><strong aria-hidden="true">1.8.</strong> Interrupts</a></li></ol></li><li class="chapter-item expanded "><a href="instruction-set/index.html"><strong aria-hidden="true">2.</strong> Instruction Set</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="instruction-set/rv64i-base-integer-instruction-set.html"><strong aria-hidden="true">2.1.</strong> RV64I Base Integer Instruction Set</a></li><li class="chapter-item expanded "><a href="instruction-set/m-standard-extension-for-integer-multiplication-and-division.html"><strong aria-hidden="true">2.2.</strong> &quot;M&quot; Standard Extension for Integer Multiplication and Division</a></li><li class="chapter-item expanded "><a href="instruction-set/a-standard-extension-for-atomicinstructions.html"><strong aria-hidden="true">2.3.</strong> &quot;A&quot; Standard Extension for AtomicInstructions</a></li></ol></li></ol>
+                <ol class="chapter"><li class="chapter-item expanded affix "><a href="index.html">Writing a RISC-V Emulator in Rust</a></li><li class="chapter-item expanded "><a href="hardware-components/index.html"><strong aria-hidden="true">1.</strong> Hardware Components</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="hardware-components/01-cpu.html"><strong aria-hidden="true">1.1.</strong> CPU with Two Instructions</a></li><li class="chapter-item expanded "><a href="hardware-components/02-memory.html"><strong aria-hidden="true">1.2.</strong> Memory and System Bus</a></li><li class="chapter-item expanded "><a href="hardware-components/03-csrs.html"><strong aria-hidden="true">1.3.</strong> Control and Status Registers</a></li><li class="chapter-item expanded "><a href="hardware-components/04-privileged-architecture.html"><strong aria-hidden="true">1.4.</strong> Privileged Architecture</a></li><li class="chapter-item expanded "><a href="hardware-components/05-exceptions.html"><strong aria-hidden="true">1.5.</strong> Exceptions</a></li><li class="chapter-item expanded "><a href="hardware-components/06-plic-and-clint.html"><strong aria-hidden="true">1.6.</strong> PLIC and CLINT</a></li><li class="chapter-item expanded "><a href="hardware-components/07-uart.html"><strong aria-hidden="true">1.7.</strong> UART</a></li><li class="chapter-item expanded "><a href="hardware-components/08-interrupts.html"><strong aria-hidden="true">1.8.</strong> Interrupts</a></li></ol></li><li class="chapter-item expanded "><a href="instruction-set/index.html"><strong aria-hidden="true">2.</strong> Instruction Set</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="instruction-set/rv64i.html"><strong aria-hidden="true">2.1.</strong> RV64I Base Integer Instruction Set</a></li><li class="chapter-item expanded "><a href="instruction-set/rv64m.html"><strong aria-hidden="true">2.2.</strong> &quot;M&quot; Standard Extension for Integer Multiplication and Division</a></li><li class="chapter-item expanded "><a href="instruction-set/rv64a.html"><strong aria-hidden="true">2.3.</strong> &quot;A&quot; Standard Extension for AtomicInstructions</a></li></ol></li></ol>
             </div>
             <div id="sidebar-resize-handle" class="sidebar-resize-handle"></div>
         </nav>
@@ -168,46 +168,49 @@
                         <h1><a class="header" href="#writing-a-risc-v-emulator-in-rust" id="writing-a-risc-v-emulator-in-rust">Writing a RISC-V Emulator in Rust</a></h1>
 <p><strong>NOTE: This project is actively ongoing. Pages are not perfect and they can change soon.</strong></p>
 <h2><a class="header" href="#introduction" id="introduction">Introduction</a></h2>
-<p>This is the book for writing a 64-bit RISC-V emulator from scratch in Rust. It shows us how to implement an emulator in 10 steps. You can run <a href="https://github.com/mit-pdos/xv6-riscv">xv6</a>, a simple Unix-like OS, in your emulator in the final step.</p>
-<p>You'll learn the following basic computer architecture from making an emulator in Rust:</p>
-<ul>
-<li>Basic RISC-V architecture</li>
-<li>Instruction sets</li>
-<li>Privileged architecture</li>
-<li>Exceptions</li>
-<li>Interrupts</li>
-<li>Peripheral devices
-<ul>
-<li>UART</li>
-<li>PLIC</li>
-<li>CLINT</li>
-<li>Virtio</li>
-</ul>
-</li>
-<li>Virtual memory system</li>
-</ul>
-<p>The source code is available at <a href="https://github.com/d0iasm/rvemu-for-book">d0iasm/rvemu-for-book</a>.</p>
+<p>This is the book for writing a 64-bit RISC-V emulator from scratch in Rust. You can run <a href="https://github.com/mit-pdos/xv6-riscv">xv6</a>, a simple Unix-like OS, in your emulator once you finish the book.</p>
+<p>You'll learn the basic computer architecture such as ISA, previleged architecture, exceptions, interrupts, peripheral devices, and virtual memory system from making an emulator.</p>
+<p>The source code used in this book is available at <a href="https://github.com/d0iasm/rvemu-for-book">d0iasm/rvemu-for-book</a>.</p>
 <h2><a class="header" href="#chapter-1" id="chapter-1">Chapter 1</a></h2>
-<p><a href="hardware-components/README.html">Chapter 1</a> shows all hardward components we need to implement for running <code>xv6</code>.</p>
+<p><a href="hardware-components/index.html">Chapter 1</a> shows all hardward components we need to implement for running <code>xv6</code>.</p>
 <ol>
-<li><a href="hardware-components/cpu-with-two-instructions.html">CPU with Two Instructions</a></li>
-<li><a href="hardware-components/memory-and-system-bus.html">Memory and System Bus</a></li>
-<li><a href="hardware-components/control-and-status-registers.html">Control and Status Registers</a></li>
-<li><a href="hardware-components/privileged-architecture.html">Privileged Architecture</a></li>
-<li><a href="hardware-components/exceptions.html">Exceptions</a></li>
-<li><a href="hardware-components/plic-a-platform-level-interrupt-controller-and-clint-a-core-local-interrupter.html">PLIC (a platform-level interrupt controller) and CLINT (a core-local interrupter)</a></li>
-<li><a href="hardware-components/uart-a-universal-asynchronous-receiver-transmitter.html">UART (a universal asynchronous receiver-transmitter)</a></li>
-<li><a href="hardware-components/interrupts.html">Interrupts</a></li>
+<li><a href="hardware-components/01-cpu.html">CPU with Two Instructions</a></li>
+<li><a href="hardware-components/02-memory.html">Memory and System Bus</a></li>
+<li><a href="hardware-components/03-csrs.html">Control and Status Registers</a></li>
+<li><a href="hardware-components/04-privileged-architecture.html">Privileged Architecture</a></li>
+<li><a href="hardware-components/05-exceptions.html">Exceptions</a></li>
+<li><a href="hardware-components/06-plic-and-clint.html">PLIC (a platform-level interrupt controller) and CLINT (a core-local interrupter)</a></li>
+<li><a href="hardware-components/07-uart.html">UART (a universal asynchronous receiver-transmitter)</a></li>
+<li><a href="hardware-components/08-interrupts.html">Interrupts</a></li>
 <li>Virtio</li>
 <li>Virtual Memory System</li>
 </ol>
 <h2><a class="header" href="#chapter-2" id="chapter-2">Chapter 2</a></h2>
-<p><a href="instruction-set/README.html">Chapter 2</a> shows all ISAs we need to implement for running <code>xv6</code>.</p>
+<p><a href="instruction-set/index.html">Chapter 2</a> shows all ISAs we need to implement for running <code>xv6</code>.</p>
+<ul>
+<li><a href="instruction-set/rv64i.html">RV64I Base Integer Instruction Set</a></li>
+<li><a href="instruction-set/rv64m.html">&quot;M&quot; Standard Extension for Integer Multiplication and Division</a></li>
+<li><a href="instruction-set/rv64a.html">&quot;A&quot; Standard Extension for AtomicInstructions</a></li>
+</ul>
 <h2><a class="header" href="#outcome" id="outcome">Outcome</a></h2>
-<p>Congratulations🎉
-Once you read this book and implement the emulator, you will be able to run xv6 in your emulator!</p>
+<p>Once you read this book and implement the emulator, you will be able to run xv6 in your emulator!</p>
 <p><img src="img/2020-08-16-rvemu-for-book-xv6.png" alt="Demo for running xv6 on the emulator" /></p>
+<h2><a class="header" href="#contact" id="contact">Contact</a></h2>
 <p>The author is <a href="https://twitter.com/d0iasm">@d0iasm</a> and please feel free to ask and request anything to me via <a href="https://twitter.com/d0iasm">Twitter</a> or <a href="https://github.com/d0iasm/rvemu-for-book/issues">GitHub issues</a>!</p>
+<h1><a class="header" href="#hardware-components" id="hardware-components">Hardware Components</a></h1>
+<p><a href="hardware-components/hardware-components/index.html">Chapter 1</a> shows all hardward components we need to implement for running <code>xv6</code>.</p>
+<ol>
+<li><a href="hardware-components/hardware-components/01-cpu.html">CPU with Two Instructions</a></li>
+<li><a href="hardware-components/hardware-components/02-memory.html">Memory and System Bus</a></li>
+<li><a href="hardware-components/hardware-components/03-csrs.html">Control and Status Registers</a></li>
+<li><a href="hardware-components/hardware-components/04-privileged-architecture.html">Privileged Architecture</a></li>
+<li><a href="hardware-components/hardware-components/05-exceptions.html">Exceptions</a></li>
+<li><a href="hardware-components/hardware-components/06-plic-and-clint.html">PLIC (a platform-level interrupt controller) and CLINT (a core-local interrupter)</a></li>
+<li><a href="hardware-components/hardware-components/07-uart.html">UART (a universal asynchronous receiver-transmitter)</a></li>
+<li><a href="hardware-components/hardware-components/08-interrupts.html">Interrupts</a></li>
+<li>Virtio</li>
+<li>Virtual Memory System</li>
+</ol>
 <h1><a class="header" href="#cpu-with-two-instructions" id="cpu-with-two-instructions">CPU with Two Instructions</a></h1>
 <p>This is a part of the <a href="hardware-components/../">Writing a RISC-V Emulator in Rust</a>. Our goal is running <a href="https://github.com/mit-pdos/xv6-riscv">xv6</a>, a small Unix-like OS, in your emulator in the final step.</p>
 <p>The source code used in this page is available at <a href="https://github.com/d0iasm/rvemu-for-book/tree/master/step01">d0iasm/rvemu-for-book/step01/</a>.</p>
@@ -770,6 +773,12 @@ $ riscv64-unknown-elf-objcopy -O binary fib fib.bin
 <h2><a class="header" href="#goal-of-this-page-6" id="goal-of-this-page-6">Goal of This Page</a></h2>
 <p>In the end of this page, we support interrupts, external asynchronous events that may cause a hardware thread to experience an unexpected transfer of control.</p>
 <h1><a class="header" href="#instruction-set" id="instruction-set">Instruction Set</a></h1>
+<p><a href="instruction-set/instruction-set/index.html">Chapter 2</a> shows all ISAs we need to implement for running <code>xv6</code>.</p>
+<ul>
+<li><a href="instruction-set/instruction-set/rv64i.html">RV64I Base Integer Instruction Set</a></li>
+<li><a href="instruction-set/instruction-set/rv64m.html">&quot;M&quot; Standard Extension for Integer Multiplication and Division</a></li>
+<li><a href="instruction-set/instruction-set/rv64a.html">&quot;A&quot; Standard Extension for AtomicInstructions</a></li>
+</ul>
 <h1><a class="header" href="#rv64i-base-integer-instruction-set" id="rv64i-base-integer-instruction-set">RV64I Base Integer Instruction Set</a></h1>
 <h2><a class="header" href="#goal-of-this-page-7" id="goal-of-this-page-7">Goal of This Page</a></h2>
 <p>In the end of this page, we can execute <a href="https://github.com/d0iasm/rvemu-for-book/blob/master/step02/fib.c">the sample file</a> that calculates <a href="https://en.wikipedia.org/wiki/Fibonacci_number">a Fibonacci number</a> in our emulator. We will support RV64 ISAs, the base integer instruction set a 64-bit architecture, to calculate a Fibonacci number.</p>
@@ -799,7 +808,6 @@ x12=0x0 x13=0x0 x14=0x1 x15=0x37 // x15 should contain 55 (= 10th fibonacci numb
 <h2><a class="header" href="#" id=""></a></h2>
 <h1><a class="header" href="#m-standard-extension-for-integer-multiplication-and-division" id="m-standard-extension-for-integer-multiplication-and-division">&quot;M&quot; Standard Extension for Integer Multiplication and Division</a></h1>
 <p>We also support a part of &quot;M&quot; standard extension since xv6 uses them. &quot;M&quot; standard extension is multiplication and division instructions (RV64M) and we'll implement <code>divu</code> and <code>remuw</code>.</p>
-<p>test paragraph.</p>
 <h1><a class="header" href="#a-standard-extension-for-atomicinstructions" id="a-standard-extension-for-atomicinstructions">&quot;A&quot; Standard Extension for AtomicInstructions</a></h1>
 <p>We also support a part of &quot;A&quot; standard extension since xv6 uses them. &quot;A&quot; standard extension is atomic instructions (RV64A) and we'll implement <code>amoadd.w</code>, <code>amoadd.d</code>, <code>amoswap.w</code> and <code>amoswap.d</code>.</p>
 
