@@ -6,7 +6,9 @@ The source code is available at [d0iasm/rvemu-for-book/step02/](https://github.c
 
 ## Goal of This Page
 
-In the end of this page, we can execute [the sample file](https://github.com/d0iasm/rvemu-for-book/blob/master/step02/fib.c) that calculates [a Fibonacci number](https://en.wikipedia.org/wiki/Fibonacci_number) in our emulator. We will support RV64 ISAs, the base integer instruction set a 64-bit architecture, to calculate a Fibonacci number.
+At the end of this page, we can implement memory and system bus. The memory is a component to store data while executing a program. The system bus is a pathway to carry data between the CPU and the memory.
+
+we can execute [the sample file](https://github.com/d0iasm/rvemu-for-book/blob/master/step02/fib.c) that calculates [a Fibonacci number](https://en.wikipedia.org/wiki/Fibonacci_number) in our emulator. We will support RV64 ISAs, the base integer instruction set a 64-bit architecture, to calculate a Fibonacci number.
 
 Sample binary files are also available at [d0iasm/rvemu-for-book/step02/](https://github.com/d0iasm/rvemu-for-book/tree/master/step02). We successfully see the result of the 10th Fibonacci number when we execute the sample binary file `fib.bin`.
 

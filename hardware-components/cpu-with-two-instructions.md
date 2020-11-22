@@ -6,7 +6,7 @@ The source code is available at [d0iasm/rvemu-for-book/step01/](https://github.c
 
 ## The Goal of This Page
 
-At the end of this page, we can execute [the sample file](https://github.com/d0iasm/rvemu-for-book/blob/master/step01/add-addi.s) containing `add` and `addi` instructions in our emulator. The `add` instruction adds 64-bit values in two registers, and the `addi` instruction adds a 64-bit value in a register and a 12-bit immediate value.
+At the end of this page, we can implement a simple CPU and we can execute [the sample file](https://github.com/d0iasm/rvemu-for-book/blob/master/step01/add-addi.s) containing `add` and `addi` instructions in our emulator. The `add` instruction adds 64-bit values in two registers, and the `addi` instruction adds a 64-bit value in a register and a 12-bit immediate value.
 
 Sample binary files are also available at [d0iasm/rvemu-for-book/step01/](https://github.com/d0iasm/rvemu-for-book/tree/master/step01). We successfully see the result of addition in the `x31` register when we execute the sample binary file `add-addi.bin`.
 
