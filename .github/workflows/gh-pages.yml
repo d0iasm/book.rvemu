@@ -1,4 +1,4 @@
-name: book.rvemu.app
+name: book.rvemu
 
 on:
   push:

@@ -23,3 +23,6 @@ Serves the book at `http://localhost:3000`.
 $ mdbook serve
 ```
 
+## Deploy
+
+GitHub Actions with [peaceiris/actions-gh-pages](https://github.com/peaceiris/actions-gh-pages) deploys the page to GitHub pages.
