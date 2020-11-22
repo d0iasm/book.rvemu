@@ -464,15 +464,28 @@ $ riscv64-unknown-elf-objcopy -O binary foo foo.bin
 <h3><a class="header" href="#disclaimer" id="disclaimer">Disclaimer</a></h3>
 <p>The sample file doesn't cover edge cases (e.g. arithmetic overflow). We'll not aim at the perfect implementation of our emulator in this step and in the following steps because it costs too much. The book just focuses on running xv6 in our emulator and its implementation is possibly wrong or not enough.</p>
 <h1><a class="header" href="#memory-and-system-bus" id="memory-and-system-bus">Memory and System Bus</a></h1>
-<p>This is a part of the <a href="hardware-components/../">Writing a RISC-V Emulator in Rust</a>. Our goal is running <a href="https://github.com/mit-pdos/xv6-riscv">xv6</a>, a small Unix-like OS, in your emulator in the final step.</p>
-<p>The source code used in this page is available at <a href="https://github.com/d0iasm/rvemu-for-book/tree/master/step02">d0iasm/rvemu-for-book/step02/</a>.</p>
+<p>This is a part of the <a href="hardware-components/../">Writing a RISC-V Emulator in Rust</a>. Our goal is
+running <a href="https://github.com/mit-pdos/xv6-riscv">xv6</a>, a small Unix-like OS, in
+your emulator in the final step.</p>
+<p>The source code used in this page is available at
+<a href="https://github.com/d0iasm/rvemu-for-book/tree/master/02">d0iasm/rvemu-for-book/02/</a>.</p>
 <h2><a class="header" href="#goal-of-this-page" id="goal-of-this-page">Goal of This Page</a></h2>
-<p>At the end of this page, we can implement memory and system bus. The memory is a dynamic random-access memory (DRAM) to store data while executing a program. The system bus is a pathway to carry data between the CPU and the memory.</p>
+<p>In this page, we will implement a memory and a system bus. The memory is used to
+store and load data. The system bus is a pathway to carry data between the CPU
+and the memory.</p>
+<p>These components enable to execute load and store instructions which are the
+part of base integer instruction set. There are 7 load instructions (<code>lb</code>, <code>lh</code>,
+<code>lw</code>, <code>ld</code>, <code>lbu</code>, <code>lhu</code>, and <code>lwu</code>) and 3 store instructions (<code>sb</code>, <code>sh</code>, <code>sw</code>,
+and <code>sd</code>).</p>
 <h2><a class="header" href="#define-modules" id="define-modules">Define Modules</a></h2>
-<p>Rust has a powerful module system that can split code into logical units. Each unit is called a module.</p>
-<p>First, we're going to divide the code implemented in the previous section from the <code>main.rs</code> file. The implementation of the CPU is splited to a new file <code>cpu.rs</code>.</p>
-<p>In order to define a cpu module we need to <code>mod</code> keyword at the beginning of the main file. Also <code>use</code> keyword allows us to use public items in the cpu module.</p>
-<p class="filename">src/cpu.rs</p>
+<p>Rust has a powerful module system that can split code into logical units. Each
+unit is called a module.</p>
+<p>First, we divide <code>main.rs</code> implemented in the previous section. The code of the
+CPU is splited to a new file <code>cpu.rs</code>.</p>
+<p>To define a CPU module, we need to <code>mod</code> keyword at the beginning of the
+<code>main.rs</code> file. The <code>use</code> keyword allows us to use public items in the CPU
+module.</p>
+<p class="filename">main.rs</p>
 <pre><pre class="playground"><code class="language-rust">
 <span class="boring">#![allow(unused)]
 </span><span class="boring">fn main() {
@@ -484,12 +497,12 @@ mod cpu;
 use crate::cpu::*;
 <span class="boring">}
 </span></code></pre></pre>
-<p class="filename">src/cpu.rs</p>
+<p class="filename">cpu.rs</p>
 <pre><pre class="playground"><code class="language-rust">
 <span class="boring">#![allow(unused)]
 </span><span class="boring">fn main() {
 </span>// `pub` keyword allows other modules use the `Cpu` structure and methods
-// relating to it. 
+// relating to it.
 pub struct Cpu {
     ...
 }
@@ -500,13 +513,116 @@ impl Cpu {
 <span class="boring">}
 </span></code></pre></pre>
 <h2><a class="header" href="#memory" id="memory">Memory</a></h2>
-<p>// TODO: write this section</p>
+<p>The memory we going to implement is a dynamic random-access memory which is
+called DRAM. It is used to store/load data while the program is running.</p>
+<p>We represent it as a <code>Memory</code> struct. It contains a vector of bytes as a member.</p>
+<p>The vector of bytes in the <code>Memory</code> instance is initialized with the data
+containing executable binary when it's created by <code>Memory::new()</code>.</p>
+<p class="filename">memory.rs</p>
+<pre><pre class="playground"><code class="language-rust">
+<span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>pub const MEMORY_SIZE: u64 = 1024 * 1024 * 128; // 128MiB
+
+pub struct Memory {
+    pub memory: Vec&lt;u8&gt;,
+}
+
+impl Memory {
+    pub fn new(binary: Vec&lt;u8&gt;) -&gt; Memory {
+        let mut memory = vec![0; MEMORY_SIZE as usize];
+        memory.splice(..binary.len(), binary.iter().cloned());
+
+        Self { memory }
+    }
+}
+<span class="boring">}
+</span></code></pre></pre>
+<h3><a class="header" href="#load-and-store-methods" id="load-and-store-methods">Load and Store Methods</a></h3>
+<p>There are <code>load</code> and <code>store</code> public methods for the <code>Memory</code> struct. Arguments in each method are an address and the number of bytes. The number of bytes can be 8, 16, 32, and 64 bytes.</p>
+<p class="filename">memory.rs</p>
+<pre><pre class="playground"><code class="language-rust">
+<span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>impl Memory {
+    ...
+    pub fn load(&amp;self, addr: u64, size: u64) -&gt; Result&lt;u64, ()&gt; {
+        match size {
+            8 =&gt; Ok(self.load8(addr)),
+            16 =&gt; Ok(self.load16(addr)),
+            32 =&gt; Ok(self.load32(addr)),
+            64 =&gt; Ok(self.load64(addr)),
+            _ =&gt; Err(()),
+        }
+    }
+
+    pub fn store(&amp;mut self, addr: u64, size: u64, value: u64) -&gt; Result&lt;(), ()&gt; {
+        match size {
+            8 =&gt; Ok(self.store8(addr, value)),
+            16 =&gt; Ok(self.store16(addr, value)),
+            32 =&gt; Ok(self.store32(addr, value)),
+            64 =&gt; Ok(self.store64(addr, value)),
+            _ =&gt; Err(()),
+        }
+    }
+    ...
+}
+<span class="boring">}
+</span></code></pre></pre>
+<p><code>load8</code>, <code>load16</code>, <code>load32</code>, and <code>load64</code> (<code>store*</code> as well) are private methods to help us operate the memory with the specific size of bytes. The memory is a little-endian system as described in the previous section so we need to be careful the order of bytes.</p>
+<p>The following code is <code>load32</code> and <code>store32</code>. The byte of a smallest memory address (<code>index</code>) is stored at the least signigicant byte at the largest and the byte of a largest memory address (<code>index + 3</code>) is stored at the most significant byte of a word.</p>
+<p class="filename">memory.rs</p>
+<pre><pre class="playground"><code class="language-rust">
+<span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>impl Memory {
+    ...
+
+    fn load32(&amp;self, addr: u64) -&gt; u64 {
+        let index = (addr - MEMORY_BASE) as usize;
+        return (self.memory[index] as u64)
+            | ((self.memory[index + 1] as u64) &lt;&lt; 8)
+            | ((self.memory[index + 2] as u64) &lt;&lt; 16)
+            | ((self.memory[index + 3] as u64) &lt;&lt; 24);
+    }
+
+    fn store32(&amp;mut self, addr: u64, value: u64) {
+        let index = (addr - MEMORY_BASE) as usize;
+        self.memory[index] = (value &amp; 0xff) as u8;
+        self.memory[index + 1] = ((value &gt;&gt; 8) &amp; 0xff) as u8;
+        self.memory[index + 2] = ((value &gt;&gt; 16) &amp; 0xff) as u8;
+        self.memory[index + 3] = ((value &gt;&gt; 24) &amp; 0xff) as u8;
+    }
+    ...
+}
+<span class="boring">}
+</span></code></pre></pre>
+<h3><a class="header" href="#add-memory-to-module" id="add-memory-to-module">Add Memory to Module</a></h3>
+<p>Let's add the <code>Memory</code> as a module. Once adding one line at <code>main.rs</code>, <code>memory.rs</code> can be included to the build target by <code>cargo build</code> and we can use methods defined at <code>memory.rs</code>.</p>
+<p class="filename">main.rs</p>
+<pre><pre class="playground"><code class="language-rust">
+<span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>mod memory;
+<span class="boring">}
+</span></code></pre></pre>
+<p>From now on, when a new file is added, we will add it as a module implicitly.</p>
 <h2><a class="header" href="#system-bus" id="system-bus">System Bus</a></h2>
+<p>System bus is a component to carry data between the CPU and the memory.</p>
+<p class="filename">bus.rs</p>
+<pre><pre class="playground"><code class="language-rust">
+<span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>pub struct Bus {
+    memory: Memory,
+}
+<span class="boring">}
+</span></code></pre></pre>
 <h2><a class="header" href="#update-the-cpu" id="update-the-cpu">Update the CPU</a></h2>
 <h3><a class="header" href="#fetch-decode-execute-cycle-1" id="fetch-decode-execute-cycle-1">Fetch-decode-execute Cycle</a></h3>
 <p>The previous step already mentioned the fetch-decode-execute cycle and we're going to implement it in the <code>main.rs</code>. An emulator is ideally an infinite loop and executes the program infinitely unless something wrong happens or a user stops an emulator explicitly. However, we're going to stop an emulator implicitly when the program counter is 0 or over the length of memory, and an error happens during the execution.</p>
-<pre><pre class="playground"><code class="language-rust">// src/main.rs
-fn main() -&gt; io::Result&lt;()&gt; {
+<p class="filename">main.rs</p>
+<pre><pre class="playground"><code class="language-rust">fn main() -&gt; io::Result&lt;()&gt; {
     ...
     while cpu.pc &lt; cpu.memory.len() as u64 {
         // 1. Fetch
@@ -533,11 +649,11 @@ fn main() -&gt; io::Result&lt;()&gt; {
 </code></pre></pre>
 <h3><a class="header" href="#fetch-stage-1" id="fetch-stage-1">Fetch Stage</a></h3>
 <p>The fetch stage is basically the same as the previous step, but I prefer to create a new function to read 32-bit data from a memory because there are other instructions to read and write memory.</p>
+<p class="filename">cpu.rs</p>
 <pre><pre class="playground"><code class="language-rust">
 <span class="boring">#![allow(unused)]
 </span><span class="boring">fn main() {
-</span>// src.cpu.rs
-impl Cpu {
+</span>impl Cpu {
     ...  
     fn read32(&amp;self, addr: u64) -&gt; u64 {
         let index = addr as usize;
@@ -556,11 +672,11 @@ impl Cpu {
 </span></code></pre></pre>
 <h3><a class="header" href="#decode-stage" id="decode-stage">Decode Stage</a></h3>
 <p>The decode stage is almost the same as the previous step too and we'll add 2 new fields <code>funct3</code> and <code>funct7</code>. <code>funct3</code> is located from 12 to 14 bits and <code>funct7</code> is located from 25 to 31 bits as we can see in Fig 2.1 and 2.2. These fields and opcode select the type of operation.</p>
+<p class="filename">cpu.rs</p>
 <pre><pre class="playground"><code class="language-rust">
 <span class="boring">#![allow(unused)]
 </span><span class="boring">fn main() {
-</span>// src/cpu.rs
-impl Cpu {
+</span>impl Cpu {
     ... 
     fn execute(&amp;mut self, inst: u32) {
         ...
@@ -573,11 +689,11 @@ impl Cpu {
 <p>For example, the immediate value in branch instructions is located in the place of <code>rd</code> and <code>funct7</code>. A branch instruction is a <code>if</code> statement in C to change the sequence of instruction execution depending on a condition, which includes <code>beq</code>, <code>bne</code>, <code>blt</code>, <code>bge</code>, <code>bltu</code>, and <code>bgeu</code>.</p>
 <p>Decoding is performed by bitwise ANDs and bit shifts. The point to be noted is that an immediate value should be sign-extended. It means we need to fill in the upper bits with 1 when the significant bit is 1. In this implementation, filling in bits with 1 is performed by casting from a signed integer to an unsigned integer.</p>
 <p>The way how to decode each instruction is listed in Fig 2.1 and Fig 2.2.</p>
+<p class="filename">cpu.rs</p>
 <pre><pre class="playground"><code class="language-rust">
 <span class="boring">#![allow(unused)]
 </span><span class="boring">fn main() {
-</span>// src/cpu.rs
-impl Cpu {
+</span>impl Cpu {
     ... 
     fn execute(&amp;mut self, inst: u32) {
         ...
@@ -595,11 +711,11 @@ impl Cpu {
 </span></code></pre></pre>
 <h3><a class="header" href="#execute-stage" id="execute-stage">Execute Stage</a></h3>
 <p>Each operation is performed in each <code>match</code> arm. For example, a branch instruction <code>beq</code>, which is one of the branch instructions, is executed when <code>opcode</code> is 0x63 and <code>funct3</code> is 0x0. <code>beq</code> sets the <code>pc</code> to the current <code>pc</code> plus the signed-extended offset if a value in <code>rs1</code> equals a value in <code>rs2</code>. The current <code>pc</code> means the position when CPU fetched an instruction from memory so we need to subtract 4 from <code>pc</code> because we added 4 after fetch.</p>
+<p class="filename">cpu.rs</p>
 <pre><pre class="playground"><code class="language-rust">
 <span class="boring">#![allow(unused)]
 </span><span class="boring">fn main() {
-</span>// src/cpu.rs
-impl Cpu {
+</span>impl Cpu {
     ... 
     fn execute(&amp;mut self, inst: u32) {
         ...
