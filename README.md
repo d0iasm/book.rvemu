@@ -1,7 +1,7 @@
 # Writing a RISC-V Emulator in Rust
 
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-![GitHub Actions status](https://github.com/d0iasm/book.rvemu/workflows/book.rvemu/badge.svg)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](./LICENSE)
+[![GitHub Actions status](https://github.com/d0iasm/book.rvemu/workflows/book.rvemu/badge.svg)](https://github.com/d0iasm/book.rvemu/actions)
 
 [https://book.rvemu.app/](https://book.rvemu.app/)
 

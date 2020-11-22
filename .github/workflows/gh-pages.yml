@@ -1,4 +1,4 @@
-name: book.rvemu
+name: deploy
 
 on:
   push:
