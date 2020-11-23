@@ -52,7 +52,7 @@
         <!-- Provide site root to javascript -->
         <script type="text/javascript">
             var path_to_root = "../";
-            var default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? "navy" : "light";
+            var default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? "coal" : "light";
         </script>
 
         <!-- Work around some values being stored in localStorage wrapped in quotes -->
@@ -171,13 +171,13 @@ running <a href="https://github.com/mit-pdos/xv6-riscv">xv6</a>, a small Unix-li
 your emulator in the final step.</p>
 <p>The source code used in this page is available at
 <a href="https://github.com/d0iasm/rvemu-for-book/tree/master/02">d0iasm/rvemu-for-book/02/</a>.</p>
-<h2><a class="header" href="#goal-of-this-page" id="goal-of-this-page">Goal of This Page</a></h2>
-<p>In this page, we will implement a memory and a system bus. The memory is used to
-store and load data. The system bus is a pathway to carry data between the CPU
-and the memory.</p>
+<h2><a class="header" href="#the-goal-of-this-page" id="the-goal-of-this-page">The Goal of This Page</a></h2>
+<p>In this page, we will implement a memory (DRAM) and a system bus. The memory is
+used to store and load data. The system bus is a pathway to carry data between
+the CPU and the memory.</p>
 <p>These components enable to execute load and store instructions which are the
 part of base integer instruction set. There are 7 load instructions (<code>lb</code>, <code>lh</code>,
-<code>lw</code>, <code>ld</code>, <code>lbu</code>, <code>lhu</code>, and <code>lwu</code>) and 3 store instructions (<code>sb</code>, <code>sh</code>, <code>sw</code>,
+<code>lw</code>, <code>ld</code>, <code>lbu</code>, <code>lhu</code>, and <code>lwu</code>) and 4 store instructions (<code>sb</code>, <code>sh</code>, <code>sw</code>,
 and <code>sd</code>).</p>
 <h2><a class="header" href="#define-modules" id="define-modules">Define Modules</a></h2>
 <p>Rust has a powerful module system that can split code into logical units. Each
@@ -185,8 +185,8 @@ unit is called a module.</p>
 <p>First, we divide <code>main.rs</code> implemented in the previous section. The code of the
 CPU is splited to a new file <code>cpu.rs</code>.</p>
 <p>To define a CPU module, we need to <code>mod</code> keyword at the beginning of the
-<code>main.rs</code> file. The <code>use</code> keyword allows us to use public items in the CPU
-module.</p>
+<code>main.rs</code> file. The <code>use</code> keyword allows us to use public items defined in the
+CPU module.</p>
 <p class="filename">main.rs</p>
 <pre><pre class="playground"><code class="language-rust">
 <span class="boring">#![allow(unused)]
@@ -214,39 +214,41 @@ impl Cpu {
 }
 <span class="boring">}
 </span></code></pre></pre>
-<h2><a class="header" href="#memory" id="memory">Memory</a></h2>
+<h2><a class="header" href="#memory-dram" id="memory-dram">Memory (DRAM)</a></h2>
 <p>The memory we going to implement is a dynamic random-access memory which is
 called DRAM. It is used to store/load data while the program is running.</p>
-<p>We represent it as a <code>Memory</code> struct. It contains a vector of bytes as a member.</p>
-<p>The vector of bytes in the <code>Memory</code> instance is initialized with the data
-containing executable binary when it's created by <code>Memory::new()</code>.</p>
-<p class="filename">memory.rs</p>
+<p>We represent it as a <code>Dram</code> struct. It contains a vector of bytes as a member.</p>
+<p>The vector of bytes in the <code>Dram</code> instance is initialized with the data
+containing executable binary when it's created by <code>Dram::new()</code>.</p>
+<p class="filename">dram.rs</p>
 <pre><pre class="playground"><code class="language-rust">
 <span class="boring">#![allow(unused)]
 </span><span class="boring">fn main() {
 </span>pub const MEMORY_SIZE: u64 = 1024 * 1024 * 128; // 128MiB
 
-pub struct Memory {
-    pub memory: Vec&lt;u8&gt;,
+pub struct Dram {
+    pub dram: Vec&lt;u8&gt;,
 }
 
-impl Memory {
-    pub fn new(binary: Vec&lt;u8&gt;) -&gt; Memory {
-        let mut memory = vec![0; MEMORY_SIZE as usize];
-        memory.splice(..binary.len(), binary.iter().cloned());
+impl Dram {
+    pub fn new(code: Vec&lt;u8&gt;) -&gt; Dram {
+        let mut dram = vec![0; MEMORY_SIZE as usize];
+        dram.splice(..code.len(), code.iter().cloned());
 
-        Self { memory }
+        Self { dram }
     }
 }
 <span class="boring">}
 </span></code></pre></pre>
 <h3><a class="header" href="#load-and-store-methods" id="load-and-store-methods">Load and Store Methods</a></h3>
-<p>There are <code>load</code> and <code>store</code> public methods for the <code>Memory</code> struct. Arguments in each method are an address and the number of bytes. The number of bytes can be 8, 16, 32, and 64 bytes.</p>
-<p class="filename">memory.rs</p>
+<p>There are <code>load</code> and <code>store</code> public methods for the <code>Dram</code> struct. Arguments in
+each method are an address and the number of bytes. The number of bytes can be
+8, 16, 32, and 64 bytes.</p>
+<p class="filename">dram.rs</p>
 <pre><pre class="playground"><code class="language-rust">
 <span class="boring">#![allow(unused)]
 </span><span class="boring">fn main() {
-</span>impl Memory {
+</span>impl Dram {
     ...
     pub fn load(&amp;self, addr: u64, size: u64) -&gt; Result&lt;u64, ()&gt; {
         match size {
@@ -271,64 +273,163 @@ impl Memory {
 }
 <span class="boring">}
 </span></code></pre></pre>
-<p><code>load8</code>, <code>load16</code>, <code>load32</code>, and <code>load64</code> (<code>store*</code> as well) are private methods to help us operate the memory with the specific size of bytes. The memory is a little-endian system as described in the previous section so we need to be careful the order of bytes.</p>
-<p>The following code is <code>load32</code> and <code>store32</code>. The byte of a smallest memory address (<code>index</code>) is stored at the least signigicant byte at the largest and the byte of a largest memory address (<code>index + 3</code>) is stored at the most significant byte of a word.</p>
-<p class="filename">memory.rs</p>
+<p><code>load8</code>, <code>load16</code>, <code>load32</code>, and <code>load64</code> (<code>store*</code> as well) are private
+methods to help us operate the DRAM with the specific size of bytes. The DRAM
+is a little-endian system as described in the previous section so we need to be
+careful the order of bytes.</p>
+<p>The following code is <code>load32</code> and <code>store32</code>. The byte of a smallest memory
+address (<code>index</code>) is stored at the least signigicant byte at the largest and
+the byte of a largest memory address (<code>index + 3</code>) is stored at the most
+significant byte of a word.</p>
+<p class="filename">dram.rs</p>
 <pre><pre class="playground"><code class="language-rust">
 <span class="boring">#![allow(unused)]
 </span><span class="boring">fn main() {
-</span>impl Memory {
+</span>impl Dram {
     ...
 
     fn load32(&amp;self, addr: u64) -&gt; u64 {
         let index = (addr - MEMORY_BASE) as usize;
-        return (self.memory[index] as u64)
-            | ((self.memory[index + 1] as u64) &lt;&lt; 8)
-            | ((self.memory[index + 2] as u64) &lt;&lt; 16)
-            | ((self.memory[index + 3] as u64) &lt;&lt; 24);
+        return (self.dram[index] as u64)
+            | ((self.dram[index + 1] as u64) &lt;&lt; 8)
+            | ((self.dram[index + 2] as u64) &lt;&lt; 16)
+            | ((self.dram[index + 3] as u64) &lt;&lt; 24);
     }
 
     fn store32(&amp;mut self, addr: u64, value: u64) {
         let index = (addr - MEMORY_BASE) as usize;
-        self.memory[index] = (value &amp; 0xff) as u8;
-        self.memory[index + 1] = ((value &gt;&gt; 8) &amp; 0xff) as u8;
-        self.memory[index + 2] = ((value &gt;&gt; 16) &amp; 0xff) as u8;
-        self.memory[index + 3] = ((value &gt;&gt; 24) &amp; 0xff) as u8;
+        self.dram[index] = (value &amp; 0xff) as u8;
+        self.dram[index + 1] = ((value &gt;&gt; 8) &amp; 0xff) as u8;
+        self.dram[index + 2] = ((value &gt;&gt; 16) &amp; 0xff) as u8;
+        self.dram[index + 3] = ((value &gt;&gt; 24) &amp; 0xff) as u8;
     }
     ...
 }
 <span class="boring">}
 </span></code></pre></pre>
-<h3><a class="header" href="#add-memory-to-module" id="add-memory-to-module">Add Memory to Module</a></h3>
-<p>Let's add the <code>Memory</code> as a module. Once adding one line at <code>main.rs</code>, <code>memory.rs</code> can be included to the build target by <code>cargo build</code> and we can use methods defined at <code>memory.rs</code>.</p>
+<h3><a class="header" href="#add-dram-to-module" id="add-dram-to-module">Add Dram to Module</a></h3>
+<p>Let's add the <code>Dram</code> as a module. Once adding one line at <code>main.rs</code>, <code>dram.rs</code>
+can be included to the build target by <code>cargo build</code> and we can use methods
+defined at <code>dram.rs</code>.</p>
 <p class="filename">main.rs</p>
 <pre><pre class="playground"><code class="language-rust">
 <span class="boring">#![allow(unused)]
 </span><span class="boring">fn main() {
-</span>mod memory;
+</span>mod dram;
 <span class="boring">}
 </span></code></pre></pre>
-<p>From now on, when a new file is added, we will add it as a module implicitly.</p>
+<p>From now on, we will add it as a module implicitly when a new file is added.</p>
 <h2><a class="header" href="#system-bus" id="system-bus">System Bus</a></h2>
-<p>System bus is a component to carry data between the CPU and the memory.</p>
+<p>A system bus is a component to carry data between the CPU and the memory. In
+actual hardware, a bus is a there are 3 types of a bus. The 3 buses together
+are called a system bus.</p>
+<ul>
+<li>Address bus: carries memory addresses.</li>
+<li>Data bus: carries the data.</li>
+<li>Control bus: carries control signals.</li>
+</ul>
+<p>Our implementation doesn't care the differences betweeen them and a system bus
+just connects the DRAM (and other peripheral devices) to the CPU and carries
+memory addresses and data stored in the memory and between them.</p>
+<p>The <code>Bus</code> struct has a <code>dram</code> member and other peripheral devices we will add
+later. The <code>Cpu</code> struct now has a <code>bus</code> member in it instead of a <code>dram</code>
+member so that the CPU can access the DRAM via a system bus.</p>
 <p class="filename">bus.rs</p>
 <pre><pre class="playground"><code class="language-rust">
 <span class="boring">#![allow(unused)]
 </span><span class="boring">fn main() {
 </span>pub struct Bus {
-    memory: Memory,
+    dram: Dram,
+}
+<span class="boring">}
+</span></code></pre></pre>
+<p class="filename">cpu.rs</p>
+<pre><pre class="playground"><code class="language-rust">
+<span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>pub struct Cpu {
+    pub regs: [u64; 32],
+    pub pc: u64,
+    pub bus: Bus,
+}
+<span class="boring">}
+</span></code></pre></pre>
+<h3><a class="header" href="#memory-mapped-io" id="memory-mapped-io">Memory-mapped I/O</a></h3>
+<p>Memory-mapped I/O (MMIO) is a method performing input and output between the
+CPU and peripheral devices. MMIO uses the same address space as both DRAM and
+peripheral devices. It means you can use same <code>load</code> and <code>store</code> instructions
+for accessing peripheral devices. When you access at a memory address, it can
+connect to either a DRAM or a specific peripheral device via the system bus.</p>
+<p>The system bus is responsible for a memory map in our implementation. A memory
+map is a structure of data which indicates how memory is laid out for a DRAM
+and peripheral devices. This can be different depending on a hardware system.</p>
+<p>For example, <a href="https://github.com/qemu/qemu/blob/master/hw/riscv/virt.c">virt machine in
+QEMU</a> has the
+following memory map. In the virt machine, DRAM starts at 0x80000000. We're
+going to implement the same memory map as the map of a virt machine although we
+only have a part of the peripheral devices the virt machine has.</p>
+<pre><code class="language-c">static const struct MemmapEntry {
+    hwaddr base;
+    hwaddr size;
+} virt_memmap[] = {
+    [VIRT_DEBUG] =       {        0x0,         0x100 },
+    [VIRT_MROM] =        {     0x1000,        0xf000 },
+    [VIRT_TEST] =        {   0x100000,        0x1000 },
+    [VIRT_RTC] =         {   0x101000,        0x1000 },
+    [VIRT_CLINT] =       {  0x2000000,       0x10000 },
+    [VIRT_PCIE_PIO] =    {  0x3000000,       0x10000 },
+    [VIRT_PLIC] =        {  0xc000000, VIRT_PLIC_SIZE(VIRT_CPUS_MAX * 2) },
+    [VIRT_UART0] =       { 0x10000000,         0x100 },
+    [VIRT_VIRTIO] =      { 0x10001000,        0x1000 },
+    [VIRT_FLASH] =       { 0x20000000,     0x4000000 },
+    [VIRT_PCIE_ECAM] =   { 0x30000000,    0x10000000 },
+    [VIRT_PCIE_MMIO] =   { 0x40000000,    0x40000000 },
+    [VIRT_DRAM] =        { 0x80000000,           0x0 },
+};
+</code></pre>
+<p>There are <code>load</code> and <code>store</code> public methods for the <code>Bus</code> struct. Arguments in
+each method are an address and the number of bytes. The number of bytes can be
+8, 16, 32, and 64 bytes.</p>
+<p>If the <code>addr</code> is larger than 0x80000000, we can access to the DRAM.</p>
+<p class="filename">dram.rs</p>
+<pre><pre class="playground"><code class="language-rust">
+<span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>impl Bus {
+    ...
+
+    pub fn load(&amp;self, addr: u64, size: u64) -&gt; Result&lt;u64, ()&gt; {
+        if MEMORY_BASE &lt;= addr {
+            return self.dram.load(addr, size);
+        }
+        Err(())
+    }
+
+    pub fn store(&amp;mut self, addr: u64, size: u64, value: u64) -&gt; Result&lt;(), ()&gt; {
+        if MEMORY_BASE &lt;= addr {
+            return self.dram.store(addr, size, value);
+        }
+        Err(())
+    }
 }
 <span class="boring">}
 </span></code></pre></pre>
 <h2><a class="header" href="#update-the-cpu" id="update-the-cpu">Update the CPU</a></h2>
+<p>We're going to implement load and store instructions which are the part of base
+integer instruction set. There are 7 load instructions, <code>lb</code>, <code>lh</code>, <code>lw</code>, <code>lbu</code>, and <code>lhu</code> defined at RV32I and <code>lwu</code> and <code>ld</code> defined at RV64I. There are 4 store instructions, <code>sb</code>, <code>sh</code>, and <code>sw</code> defined at RV32I and <code>sd</code> defined at RV64I.</p>
 <h3><a class="header" href="#fetch-decode-execute-cycle" id="fetch-decode-execute-cycle">Fetch-decode-execute Cycle</a></h3>
-<p>The previous step already mentioned the fetch-decode-execute cycle and we're going to implement it in the <code>main.rs</code>. An emulator is ideally an infinite loop and executes the program infinitely unless something wrong happens or a user stops an emulator explicitly. However, we're going to stop an emulator implicitly when the program counter is 0 or over the length of memory, and an error happens during the execution.</p>
+<p>We update the fetch-decode-execute cycle introduced in the previous page. The
+emulator continues to execute the cycle until <code>fetch</code> or <code>execute</code> fail.</p>
 <p class="filename">main.rs</p>
 <pre><pre class="playground"><code class="language-rust">fn main() -&gt; io::Result&lt;()&gt; {
     ...
-    while cpu.pc &lt; cpu.memory.len() as u64 {
-        // 1. Fetch
-        let inst = cpu.fetch();
+    loop {
+        // 1. Fetch.
+        let inst = match cpu.fetch() {
+            // Break the loop if an error occurs.
+            Ok(inst) =&gt; inst,
+            Err(_) =&gt; break,
+        };
 
         // 2. Add 4 to the program counter.
         cpu.pc += 4;
@@ -336,10 +437,10 @@ impl Memory {
         // 3. Decode.
         // 4. Execute.
         match cpu.execute(inst) {
-            // True if an error happens.
-            true =&gt; break,
-            false =&gt; {}
-        };
+            // Break the loop if an error occurs.
+            Ok(_) =&gt; {}
+            Err(_) =&gt; break,
+        }
 
         // This is a workaround for avoiding an infinite loop.
         if cpu.pc == 0 {
@@ -350,23 +451,19 @@ impl Memory {
 }
 </code></pre></pre>
 <h3><a class="header" href="#fetch-stage" id="fetch-stage">Fetch Stage</a></h3>
-<p>The fetch stage is basically the same as the previous step, but I prefer to create a new function to read 32-bit data from a memory because there are other instructions to read and write memory.</p>
+<p>The next executable binary can be fetched from DRAM via the system bus we just
+created.</p>
 <p class="filename">cpu.rs</p>
 <pre><pre class="playground"><code class="language-rust">
 <span class="boring">#![allow(unused)]
 </span><span class="boring">fn main() {
 </span>impl Cpu {
     ...  
-    fn read32(&amp;self, addr: u64) -&gt; u64 {
-        let index = addr as usize;
-        return (self.memory[index] as u64)
-            | ((self.memory[index + 1] as u64) &lt;&lt; 8)
-            | ((self.memory[index + 2] as u64) &lt;&lt; 16)
-            | ((self.memory[index + 3] as u64) &lt;&lt; 24);
-    }
-    ...    
-    pub fn fetch(&amp;self) -&gt; u32 {
-        return self.read32(self.pc) as u32;
+    pub fn fetch(&amp;mut self) -&gt; Result&lt;u64, ()&gt; {
+        match self.bus.load(self.pc, 32) {
+            Ok(inst) =&gt; Ok(inst),
+            Err(_e) =&gt; Err(()),
+        }
     }
     ...
 }
@@ -374,12 +471,18 @@ impl Memory {
 </span></code></pre></pre>
 <h3><a class="header" href="#decode-stage" id="decode-stage">Decode Stage</a></h3>
 <p>The decode stage is almost the same as the previous step too and we'll add 2 new fields <code>funct3</code> and <code>funct7</code>. <code>funct3</code> is located from 12 to 14 bits and <code>funct7</code> is located from 25 to 31 bits as we can see in Fig 2.1 and 2.2. These fields and opcode select the type of operation.</p>
+<p>As we can see in Fig 2.1 and 2.2, there are 2 ways of decoding immediate values.</p>
+<p><img src="../img/1-2-1.png" alt="Fig 2.1 Load and store instructions in RV32I." /></p>
+<p>Fig 2.1 Load and store instructions in RV32I.</p>
+<p><img src="../img/1-2-2.png" alt="Fig 2.2 Load and store instructions in RV64I." /></p>
+<p>Fig 2.2 Load and store instructions in RV64I.</p>
 <p class="filename">cpu.rs</p>
 <pre><pre class="playground"><code class="language-rust">
 <span class="boring">#![allow(unused)]
 </span><span class="boring">fn main() {
 </span>impl Cpu {
     ... 
+    // Execute an instruction after decoding.
     fn execute(&amp;mut self, inst: u32) {
         ...
         let funct3 = (inst &amp; 0x00007000) &gt;&gt; 12;

@@ -54,7 +54,7 @@
         <!-- Provide site root to javascript -->
         <script type="text/javascript">
             var path_to_root = "";
-            var default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? "navy" : "light";
+            var default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? "coal" : "light";
         </script>
 
         <!-- Work around some values being stored in localStorage wrapped in quotes -->
@@ -357,8 +357,13 @@ self.regs[0] = 0;
 <h3><a class="header" href="#fetch-decode-execute-cycle" id="fetch-decode-execute-cycle">Fetch-decode-execute Cycle</a></h3>
 <p>The main job of the CPU is composed of three main stages: fetch stage, decode
 stage, and execute stage. The fetch-decode-execute cycle is also known as the
-instruction cycle. A CPU follows the cycle from the computer boots up until it
-shuts down.</p>
+instruction cycle.</p>
+<p>A CPU follows the cycle from the computer boots up until it shuts down.  An
+emulator is ideally an infinite loop and continues to perform the
+fetch-decode-execute cycle infinitely unless something wrong happens or a user
+stops an emulator explicitly.  However, we're going to stop an emulator
+implicitly when the program counter is 0 or over the length of memory, and an
+error happens during the execution.</p>
 <ol>
 <li>Fetch: Reads the next instruction to be executed from the memory where the
 program is stored.</li>
@@ -371,7 +376,7 @@ counter in each cycle.</p>
 <p class="filename">main.rs</p>
 <pre><pre class="playground"><code class="language-rust">fn main() -&gt; io::Result&lt;()&gt; {
     ...
-    while cpu.pc &lt; cpu.memory.len() as u64 {
+    while cpu.pc &lt; cpu.dram.len() as u64 {
         // 1. Fetch.
         let inst = cpu.fetch();
 
@@ -417,20 +422,20 @@ fn main() -&gt; io::Result&lt;()&gt; {
         panic!(&quot;Usage: rvemu-simple &lt;filename&gt;&quot;);
     }
     let mut file = File::open(&amp;args[1])?;
-    let mut binary = Vec::new();
-    file.read_to_end(&amp;mut binary)?;
+    let mut code = Vec::new();
+    file.read_to_end(&amp;mut code)?;
 
-    let cpu = Cpu::new(binary);
+    let cpu = Cpu::new(code);
 
     ...
 }
 
 impl Cpu {
-    fn new(binary: Vec&lt;u8&gt;) -&gt; Self {
+    fn new(code: Vec&lt;u8&gt;) -&gt; Self {
         Self {
             regs: [0; 32],
             pc: 0,
-            memory: binary,
+            dram: code,
         }
     }
 
@@ -446,7 +451,7 @@ little-endian and big-endian. A little-endian ordering places the least
 significant byte (LSB) at the lowest address and the most significant byte
 (MSB) places at the highest address in a 32-bit word. While a big-endian
 ordering does the opposite.</p>
-<p><img src="hardware-components/../img/1-1.jpg" alt="Fig 1.1 Little-endian and big-endian 2 instructions." /></p>
+<p><img src="hardware-components/../img/1-1-1.jpg" alt="Fig 1.1 Little-endian and big-endian 2 instructions." /></p>
 <p>Fig 1.1 Little-endian and big-endian 2 instructions.</p>
 <p>RISC-V has either little-endian or big-endian byte order. Our emulator only
 supports a little-endian system because RISC-V originally chose little-endian
@@ -461,10 +466,10 @@ them in the little-endian ordering.</p>
     ...  
     fn fetch(&amp;self) -&gt; u32 {
         let index = self.pc as usize;
-        return (self.memory[index] as u32)
-            | ((self.memory[index + 1] as u32) &lt;&lt; 8)
-            | ((self.memory[index + 2] as u32) &lt;&lt; 16)
-            | ((self.memory[index + 3] as u32) &lt;&lt; 24);
+        return (self.dram[index] as u32)
+            | ((self.dram[index + 1] as u32) &lt;&lt; 8)
+            | ((self.dram[index + 2] as u32) &lt;&lt; 16)
+            | ((self.dram[index + 3] as u32) &lt;&lt; 24);
     }
     ...
 }
@@ -474,7 +479,7 @@ them in the little-endian ordering.</p>
 <p>RISC-V base instructions only have 4 instruction formats and a few variants as
 we can see in Fig 1.2. These formats keep all register specifiers at the same
 position in all formats since it makes it easier to decode.</p>
-<p><img src="hardware-components/../img/1-2.png" alt="Fig 1.2 RISC-V base instruction formats. (Source: Figure 2.2 in Volume I: Unprivileged ISA)" /></p>
+<p><img src="hardware-components/../img/1-1-2.png" alt="Fig 1.2 RISC-V base instruction formats. (Source: Figure 2.2 in Volume I: Unprivileged ISA)" /></p>
 <p>Fig 1.2 RISC-V base instruction formats. (Source: Figure 2.2 in Volume I:
 Unprivileged ISA)</p>
 <p>Decoding for common parts in all formats is performed by bitwise operations, bit
@@ -500,10 +505,10 @@ and the <code>addi</code> instruction adds a 64-bit value in a register and a 12
 immediate value. We can dispatch an execution depending on the <code>opcode</code> field
 according to Fig 1.3 and Fig 1.4. In the <code>addi</code> instruction, we need to decode
 12-bit immediate which is sign-extended.</p>
-<p><img src="hardware-components/../img/1-3.png" alt="Fig 1.3 Add instruction (Source: RV32I Base Instruction Set table in Volume I: Unprivileged ISA)" /></p>
+<p><img src="hardware-components/../img/1-1-3.png" alt="Fig 1.3 Add instruction (Source: RV32I Base Instruction Set table in Volume I: Unprivileged ISA)" /></p>
 <p>Fig 1.3 Add instruction (Source: RV32I Base Instruction Set table in Volume
 I: Unprivileged ISA)</p>
-<p><img src="hardware-components/../img/1-4.png" alt="Fig 1.4 Addi instruction (Source: RV32I Base Instruction Set table in Volume I: Unprivileged ISA)" /></p>
+<p><img src="hardware-components/../img/1-1-4.png" alt="Fig 1.4 Addi instruction (Source: RV32I Base Instruction Set table in Volume I: Unprivileged ISA)" /></p>
 <p>Fig 1.4 Addi instruction (Source: RV32I Base Instruction Set table in Volume
 I: Unprivileged ISA)</p>
 <p class="filename">main.rs</p>
@@ -573,13 +578,13 @@ running <a href="https://github.com/mit-pdos/xv6-riscv">xv6</a>, a small Unix-li
 your emulator in the final step.</p>
 <p>The source code used in this page is available at
 <a href="https://github.com/d0iasm/rvemu-for-book/tree/master/02">d0iasm/rvemu-for-book/02/</a>.</p>
-<h2><a class="header" href="#goal-of-this-page" id="goal-of-this-page">Goal of This Page</a></h2>
-<p>In this page, we will implement a memory and a system bus. The memory is used to
-store and load data. The system bus is a pathway to carry data between the CPU
-and the memory.</p>
+<h2><a class="header" href="#the-goal-of-this-page-1" id="the-goal-of-this-page-1">The Goal of This Page</a></h2>
+<p>In this page, we will implement a memory (DRAM) and a system bus. The memory is
+used to store and load data. The system bus is a pathway to carry data between
+the CPU and the memory.</p>
 <p>These components enable to execute load and store instructions which are the
 part of base integer instruction set. There are 7 load instructions (<code>lb</code>, <code>lh</code>,
-<code>lw</code>, <code>ld</code>, <code>lbu</code>, <code>lhu</code>, and <code>lwu</code>) and 3 store instructions (<code>sb</code>, <code>sh</code>, <code>sw</code>,
+<code>lw</code>, <code>ld</code>, <code>lbu</code>, <code>lhu</code>, and <code>lwu</code>) and 4 store instructions (<code>sb</code>, <code>sh</code>, <code>sw</code>,
 and <code>sd</code>).</p>
 <h2><a class="header" href="#define-modules" id="define-modules">Define Modules</a></h2>
 <p>Rust has a powerful module system that can split code into logical units. Each
@@ -587,8 +592,8 @@ unit is called a module.</p>
 <p>First, we divide <code>main.rs</code> implemented in the previous section. The code of the
 CPU is splited to a new file <code>cpu.rs</code>.</p>
 <p>To define a CPU module, we need to <code>mod</code> keyword at the beginning of the
-<code>main.rs</code> file. The <code>use</code> keyword allows us to use public items in the CPU
-module.</p>
+<code>main.rs</code> file. The <code>use</code> keyword allows us to use public items defined in the
+CPU module.</p>
 <p class="filename">main.rs</p>
 <pre><pre class="playground"><code class="language-rust">
 <span class="boring">#![allow(unused)]
@@ -616,39 +621,41 @@ impl Cpu {
 }
 <span class="boring">}
 </span></code></pre></pre>
-<h2><a class="header" href="#memory" id="memory">Memory</a></h2>
+<h2><a class="header" href="#memory-dram" id="memory-dram">Memory (DRAM)</a></h2>
 <p>The memory we going to implement is a dynamic random-access memory which is
 called DRAM. It is used to store/load data while the program is running.</p>
-<p>We represent it as a <code>Memory</code> struct. It contains a vector of bytes as a member.</p>
-<p>The vector of bytes in the <code>Memory</code> instance is initialized with the data
-containing executable binary when it's created by <code>Memory::new()</code>.</p>
-<p class="filename">memory.rs</p>
+<p>We represent it as a <code>Dram</code> struct. It contains a vector of bytes as a member.</p>
+<p>The vector of bytes in the <code>Dram</code> instance is initialized with the data
+containing executable binary when it's created by <code>Dram::new()</code>.</p>
+<p class="filename">dram.rs</p>
 <pre><pre class="playground"><code class="language-rust">
 <span class="boring">#![allow(unused)]
 </span><span class="boring">fn main() {
 </span>pub const MEMORY_SIZE: u64 = 1024 * 1024 * 128; // 128MiB
 
-pub struct Memory {
-    pub memory: Vec&lt;u8&gt;,
+pub struct Dram {
+    pub dram: Vec&lt;u8&gt;,
 }
 
-impl Memory {
-    pub fn new(binary: Vec&lt;u8&gt;) -&gt; Memory {
-        let mut memory = vec![0; MEMORY_SIZE as usize];
-        memory.splice(..binary.len(), binary.iter().cloned());
+impl Dram {
+    pub fn new(code: Vec&lt;u8&gt;) -&gt; Dram {
+        let mut dram = vec![0; MEMORY_SIZE as usize];
+        dram.splice(..code.len(), code.iter().cloned());
 
-        Self { memory }
+        Self { dram }
     }
 }
 <span class="boring">}
 </span></code></pre></pre>
 <h3><a class="header" href="#load-and-store-methods" id="load-and-store-methods">Load and Store Methods</a></h3>
-<p>There are <code>load</code> and <code>store</code> public methods for the <code>Memory</code> struct. Arguments in each method are an address and the number of bytes. The number of bytes can be 8, 16, 32, and 64 bytes.</p>
-<p class="filename">memory.rs</p>
+<p>There are <code>load</code> and <code>store</code> public methods for the <code>Dram</code> struct. Arguments in
+each method are an address and the number of bytes. The number of bytes can be
+8, 16, 32, and 64 bytes.</p>
+<p class="filename">dram.rs</p>
 <pre><pre class="playground"><code class="language-rust">
 <span class="boring">#![allow(unused)]
 </span><span class="boring">fn main() {
-</span>impl Memory {
+</span>impl Dram {
     ...
     pub fn load(&amp;self, addr: u64, size: u64) -&gt; Result&lt;u64, ()&gt; {
         match size {
@@ -673,64 +680,163 @@ impl Memory {
 }
 <span class="boring">}
 </span></code></pre></pre>
-<p><code>load8</code>, <code>load16</code>, <code>load32</code>, and <code>load64</code> (<code>store*</code> as well) are private methods to help us operate the memory with the specific size of bytes. The memory is a little-endian system as described in the previous section so we need to be careful the order of bytes.</p>
-<p>The following code is <code>load32</code> and <code>store32</code>. The byte of a smallest memory address (<code>index</code>) is stored at the least signigicant byte at the largest and the byte of a largest memory address (<code>index + 3</code>) is stored at the most significant byte of a word.</p>
-<p class="filename">memory.rs</p>
+<p><code>load8</code>, <code>load16</code>, <code>load32</code>, and <code>load64</code> (<code>store*</code> as well) are private
+methods to help us operate the DRAM with the specific size of bytes. The DRAM
+is a little-endian system as described in the previous section so we need to be
+careful the order of bytes.</p>
+<p>The following code is <code>load32</code> and <code>store32</code>. The byte of a smallest memory
+address (<code>index</code>) is stored at the least signigicant byte at the largest and
+the byte of a largest memory address (<code>index + 3</code>) is stored at the most
+significant byte of a word.</p>
+<p class="filename">dram.rs</p>
 <pre><pre class="playground"><code class="language-rust">
 <span class="boring">#![allow(unused)]
 </span><span class="boring">fn main() {
-</span>impl Memory {
+</span>impl Dram {
     ...
 
     fn load32(&amp;self, addr: u64) -&gt; u64 {
         let index = (addr - MEMORY_BASE) as usize;
-        return (self.memory[index] as u64)
-            | ((self.memory[index + 1] as u64) &lt;&lt; 8)
-            | ((self.memory[index + 2] as u64) &lt;&lt; 16)
-            | ((self.memory[index + 3] as u64) &lt;&lt; 24);
+        return (self.dram[index] as u64)
+            | ((self.dram[index + 1] as u64) &lt;&lt; 8)
+            | ((self.dram[index + 2] as u64) &lt;&lt; 16)
+            | ((self.dram[index + 3] as u64) &lt;&lt; 24);
     }
 
     fn store32(&amp;mut self, addr: u64, value: u64) {
         let index = (addr - MEMORY_BASE) as usize;
-        self.memory[index] = (value &amp; 0xff) as u8;
-        self.memory[index + 1] = ((value &gt;&gt; 8) &amp; 0xff) as u8;
-        self.memory[index + 2] = ((value &gt;&gt; 16) &amp; 0xff) as u8;
-        self.memory[index + 3] = ((value &gt;&gt; 24) &amp; 0xff) as u8;
+        self.dram[index] = (value &amp; 0xff) as u8;
+        self.dram[index + 1] = ((value &gt;&gt; 8) &amp; 0xff) as u8;
+        self.dram[index + 2] = ((value &gt;&gt; 16) &amp; 0xff) as u8;
+        self.dram[index + 3] = ((value &gt;&gt; 24) &amp; 0xff) as u8;
     }
     ...
 }
 <span class="boring">}
 </span></code></pre></pre>
-<h3><a class="header" href="#add-memory-to-module" id="add-memory-to-module">Add Memory to Module</a></h3>
-<p>Let's add the <code>Memory</code> as a module. Once adding one line at <code>main.rs</code>, <code>memory.rs</code> can be included to the build target by <code>cargo build</code> and we can use methods defined at <code>memory.rs</code>.</p>
+<h3><a class="header" href="#add-dram-to-module" id="add-dram-to-module">Add Dram to Module</a></h3>
+<p>Let's add the <code>Dram</code> as a module. Once adding one line at <code>main.rs</code>, <code>dram.rs</code>
+can be included to the build target by <code>cargo build</code> and we can use methods
+defined at <code>dram.rs</code>.</p>
 <p class="filename">main.rs</p>
 <pre><pre class="playground"><code class="language-rust">
 <span class="boring">#![allow(unused)]
 </span><span class="boring">fn main() {
-</span>mod memory;
+</span>mod dram;
 <span class="boring">}
 </span></code></pre></pre>
-<p>From now on, when a new file is added, we will add it as a module implicitly.</p>
+<p>From now on, we will add it as a module implicitly when a new file is added.</p>
 <h2><a class="header" href="#system-bus" id="system-bus">System Bus</a></h2>
-<p>System bus is a component to carry data between the CPU and the memory.</p>
+<p>A system bus is a component to carry data between the CPU and the memory. In
+actual hardware, a bus is a there are 3 types of a bus. The 3 buses together
+are called a system bus.</p>
+<ul>
+<li>Address bus: carries memory addresses.</li>
+<li>Data bus: carries the data.</li>
+<li>Control bus: carries control signals.</li>
+</ul>
+<p>Our implementation doesn't care the differences betweeen them and a system bus
+just connects the DRAM (and other peripheral devices) to the CPU and carries
+memory addresses and data stored in the memory and between them.</p>
+<p>The <code>Bus</code> struct has a <code>dram</code> member and other peripheral devices we will add
+later. The <code>Cpu</code> struct now has a <code>bus</code> member in it instead of a <code>dram</code>
+member so that the CPU can access the DRAM via a system bus.</p>
 <p class="filename">bus.rs</p>
 <pre><pre class="playground"><code class="language-rust">
 <span class="boring">#![allow(unused)]
 </span><span class="boring">fn main() {
 </span>pub struct Bus {
-    memory: Memory,
+    dram: Dram,
+}
+<span class="boring">}
+</span></code></pre></pre>
+<p class="filename">cpu.rs</p>
+<pre><pre class="playground"><code class="language-rust">
+<span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>pub struct Cpu {
+    pub regs: [u64; 32],
+    pub pc: u64,
+    pub bus: Bus,
+}
+<span class="boring">}
+</span></code></pre></pre>
+<h3><a class="header" href="#memory-mapped-io" id="memory-mapped-io">Memory-mapped I/O</a></h3>
+<p>Memory-mapped I/O (MMIO) is a method performing input and output between the
+CPU and peripheral devices. MMIO uses the same address space as both DRAM and
+peripheral devices. It means you can use same <code>load</code> and <code>store</code> instructions
+for accessing peripheral devices. When you access at a memory address, it can
+connect to either a DRAM or a specific peripheral device via the system bus.</p>
+<p>The system bus is responsible for a memory map in our implementation. A memory
+map is a structure of data which indicates how memory is laid out for a DRAM
+and peripheral devices. This can be different depending on a hardware system.</p>
+<p>For example, <a href="https://github.com/qemu/qemu/blob/master/hw/riscv/virt.c">virt machine in
+QEMU</a> has the
+following memory map. In the virt machine, DRAM starts at 0x80000000. We're
+going to implement the same memory map as the map of a virt machine although we
+only have a part of the peripheral devices the virt machine has.</p>
+<pre><code class="language-c">static const struct MemmapEntry {
+    hwaddr base;
+    hwaddr size;
+} virt_memmap[] = {
+    [VIRT_DEBUG] =       {        0x0,         0x100 },
+    [VIRT_MROM] =        {     0x1000,        0xf000 },
+    [VIRT_TEST] =        {   0x100000,        0x1000 },
+    [VIRT_RTC] =         {   0x101000,        0x1000 },
+    [VIRT_CLINT] =       {  0x2000000,       0x10000 },
+    [VIRT_PCIE_PIO] =    {  0x3000000,       0x10000 },
+    [VIRT_PLIC] =        {  0xc000000, VIRT_PLIC_SIZE(VIRT_CPUS_MAX * 2) },
+    [VIRT_UART0] =       { 0x10000000,         0x100 },
+    [VIRT_VIRTIO] =      { 0x10001000,        0x1000 },
+    [VIRT_FLASH] =       { 0x20000000,     0x4000000 },
+    [VIRT_PCIE_ECAM] =   { 0x30000000,    0x10000000 },
+    [VIRT_PCIE_MMIO] =   { 0x40000000,    0x40000000 },
+    [VIRT_DRAM] =        { 0x80000000,           0x0 },
+};
+</code></pre>
+<p>There are <code>load</code> and <code>store</code> public methods for the <code>Bus</code> struct. Arguments in
+each method are an address and the number of bytes. The number of bytes can be
+8, 16, 32, and 64 bytes.</p>
+<p>If the <code>addr</code> is larger than 0x80000000, we can access to the DRAM.</p>
+<p class="filename">dram.rs</p>
+<pre><pre class="playground"><code class="language-rust">
+<span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>impl Bus {
+    ...
+
+    pub fn load(&amp;self, addr: u64, size: u64) -&gt; Result&lt;u64, ()&gt; {
+        if MEMORY_BASE &lt;= addr {
+            return self.dram.load(addr, size);
+        }
+        Err(())
+    }
+
+    pub fn store(&amp;mut self, addr: u64, size: u64, value: u64) -&gt; Result&lt;(), ()&gt; {
+        if MEMORY_BASE &lt;= addr {
+            return self.dram.store(addr, size, value);
+        }
+        Err(())
+    }
 }
 <span class="boring">}
 </span></code></pre></pre>
 <h2><a class="header" href="#update-the-cpu" id="update-the-cpu">Update the CPU</a></h2>
+<p>We're going to implement load and store instructions which are the part of base
+integer instruction set. There are 7 load instructions, <code>lb</code>, <code>lh</code>, <code>lw</code>, <code>lbu</code>, and <code>lhu</code> defined at RV32I and <code>lwu</code> and <code>ld</code> defined at RV64I. There are 4 store instructions, <code>sb</code>, <code>sh</code>, and <code>sw</code> defined at RV32I and <code>sd</code> defined at RV64I.</p>
 <h3><a class="header" href="#fetch-decode-execute-cycle-1" id="fetch-decode-execute-cycle-1">Fetch-decode-execute Cycle</a></h3>
-<p>The previous step already mentioned the fetch-decode-execute cycle and we're going to implement it in the <code>main.rs</code>. An emulator is ideally an infinite loop and executes the program infinitely unless something wrong happens or a user stops an emulator explicitly. However, we're going to stop an emulator implicitly when the program counter is 0 or over the length of memory, and an error happens during the execution.</p>
+<p>We update the fetch-decode-execute cycle introduced in the previous page. The
+emulator continues to execute the cycle until <code>fetch</code> or <code>execute</code> fail.</p>
 <p class="filename">main.rs</p>
 <pre><pre class="playground"><code class="language-rust">fn main() -&gt; io::Result&lt;()&gt; {
     ...
-    while cpu.pc &lt; cpu.memory.len() as u64 {
-        // 1. Fetch
-        let inst = cpu.fetch();
+    loop {
+        // 1. Fetch.
+        let inst = match cpu.fetch() {
+            // Break the loop if an error occurs.
+            Ok(inst) =&gt; inst,
+            Err(_) =&gt; break,
+        };
 
         // 2. Add 4 to the program counter.
         cpu.pc += 4;
@@ -738,10 +844,10 @@ impl Memory {
         // 3. Decode.
         // 4. Execute.
         match cpu.execute(inst) {
-            // True if an error happens.
-            true =&gt; break,
-            false =&gt; {}
-        };
+            // Break the loop if an error occurs.
+            Ok(_) =&gt; {}
+            Err(_) =&gt; break,
+        }
 
         // This is a workaround for avoiding an infinite loop.
         if cpu.pc == 0 {
@@ -752,23 +858,19 @@ impl Memory {
 }
 </code></pre></pre>
 <h3><a class="header" href="#fetch-stage-1" id="fetch-stage-1">Fetch Stage</a></h3>
-<p>The fetch stage is basically the same as the previous step, but I prefer to create a new function to read 32-bit data from a memory because there are other instructions to read and write memory.</p>
+<p>The next executable binary can be fetched from DRAM via the system bus we just
+created.</p>
 <p class="filename">cpu.rs</p>
 <pre><pre class="playground"><code class="language-rust">
 <span class="boring">#![allow(unused)]
 </span><span class="boring">fn main() {
 </span>impl Cpu {
     ...  
-    fn read32(&amp;self, addr: u64) -&gt; u64 {
-        let index = addr as usize;
-        return (self.memory[index] as u64)
-            | ((self.memory[index + 1] as u64) &lt;&lt; 8)
-            | ((self.memory[index + 2] as u64) &lt;&lt; 16)
-            | ((self.memory[index + 3] as u64) &lt;&lt; 24);
-    }
-    ...    
-    pub fn fetch(&amp;self) -&gt; u32 {
-        return self.read32(self.pc) as u32;
+    pub fn fetch(&amp;mut self) -&gt; Result&lt;u64, ()&gt; {
+        match self.bus.load(self.pc, 32) {
+            Ok(inst) =&gt; Ok(inst),
+            Err(_e) =&gt; Err(()),
+        }
     }
     ...
 }
@@ -776,12 +878,18 @@ impl Memory {
 </span></code></pre></pre>
 <h3><a class="header" href="#decode-stage" id="decode-stage">Decode Stage</a></h3>
 <p>The decode stage is almost the same as the previous step too and we'll add 2 new fields <code>funct3</code> and <code>funct7</code>. <code>funct3</code> is located from 12 to 14 bits and <code>funct7</code> is located from 25 to 31 bits as we can see in Fig 2.1 and 2.2. These fields and opcode select the type of operation.</p>
+<p>As we can see in Fig 2.1 and 2.2, there are 2 ways of decoding immediate values.</p>
+<p><img src="hardware-components/../img/1-2-1.png" alt="Fig 2.1 Load and store instructions in RV32I." /></p>
+<p>Fig 2.1 Load and store instructions in RV32I.</p>
+<p><img src="hardware-components/../img/1-2-2.png" alt="Fig 2.2 Load and store instructions in RV64I." /></p>
+<p>Fig 2.2 Load and store instructions in RV64I.</p>
 <p class="filename">cpu.rs</p>
 <pre><pre class="playground"><code class="language-rust">
 <span class="boring">#![allow(unused)]
 </span><span class="boring">fn main() {
 </span>impl Cpu {
     ... 
+    // Execute an instruction after decoding.
     fn execute(&amp;mut self, inst: u32) {
         ...
         let funct3 = (inst &amp; 0x00007000) &gt;&gt; 12;
@@ -840,7 +948,7 @@ impl Memory {
 <h1><a class="header" href="#control-and-status-registers" id="control-and-status-registers">Control and Status Registers</a></h1>
 <p>This is step 3 of the book <a href="hardware-components/../"><em>Writing a RISC-V Emulator from Scratch in 10 Steps</em></a>, whose goal is running <a href="https://github.com/mit-pdos/xv6-riscv">xv6</a>, a small Unix-like OS, in your emulator in the final step.</p>
 <p>The source code is available at <a href="https://github.com/d0iasm/rvemu-for-book/tree/master/step03">d0iasm/rvemu-for-book/step03/</a>.</p>
-<h2><a class="header" href="#goal-of-this-page-1" id="goal-of-this-page-1">Goal of This Page</a></h2>
+<h2><a class="header" href="#goal-of-this-page" id="goal-of-this-page">Goal of This Page</a></h2>
 <p>In the end of this page, we can execute the sample file containing CSR instructions, <code>csrrw</code>, <code>csrrs</code>, <code>csrrc</code>, <code>csrrwi</code>, <code>csrrsi</code>, and <code>csrrci</code>.</p>
 <h2><a class="header" href="#control-and-status-registers-csrs" id="control-and-status-registers-csrs">Control and Status Registers (CSRs)</a></h2>
 <p>Control and status register (CSR) is a register that stores various information in CPU. RISC-V defines a separate address space of 4096 CSRs associated with each hardware thread so we can have at most 4096 CSRs. RISC-V only allocates a part of address space so we can add custom CSRs if we want. Also, not all CSRs are required on all implementations. In this book, I'll describe only CSRs used in <a href="https://github.com/mit-pdos/xv6-riscv">xv6-riscv</a>.</p>
@@ -875,34 +983,34 @@ impl Memory {
 <h1><a class="header" href="#privileged-architecture" id="privileged-architecture">Privileged Architecture</a></h1>
 <p>This is step 4 of the book <a href="hardware-components/../"><em>Writing a RISC-V Emulator from Scratch in 10 Steps</em></a>, whose goal is running <a href="https://github.com/mit-pdos/xv6-riscv">xv6</a>, a small Unix-like OS, in your emulator in the final step.</p>
 <p>The source code is available at <a href="https://github.com/d0iasm/rvemu-for-book/tree/master/step04">d0iasm/rvemu-for-book/step04/</a>.</p>
-<h2><a class="header" href="#goal-of-this-page-2" id="goal-of-this-page-2">Goal of This Page</a></h2>
+<h2><a class="header" href="#goal-of-this-page-1" id="goal-of-this-page-1">Goal of This Page</a></h2>
 <p>In the end of this page, we can execute the part of supervisor ISA, <code>mret</code> and <code>sret</code>. These instructions are used to return from traps in M-mode, S-mode, or U-mode respectively. In addition, we'll add <code>sfence.vma</code> but we don't do anything for now.</p>
 <h2><a class="header" href="#privilege-levels" id="privilege-levels">Privilege Levels</a></h2>
 <h2><a class="header" href="#testing-2" id="testing-2">Testing</a></h2>
 <h1><a class="header" href="#exceptions" id="exceptions">Exceptions</a></h1>
 <p>This is step 5 of the book <a href="hardware-components/../"><em>Writing a RISC-V Emulator from Scratch in 10 Steps</em></a>, whose goal is running <a href="https://github.com/mit-pdos/xv6-riscv">xv6</a>, a small Unix-like OS, in your emulator in the final step.</p>
 <p>The source code is available at <a href="https://github.com/d0iasm/rvemu-for-book/tree/master/step05">d0iasm/rvemu-for-book/step05/</a>.</p>
-<h2><a class="header" href="#goal-of-this-page-3" id="goal-of-this-page-3">Goal of This Page</a></h2>
+<h2><a class="header" href="#goal-of-this-page-2" id="goal-of-this-page-2">Goal of This Page</a></h2>
 <p>In the end of this page, we support exceptions and can execute <code>ecall</code>, <code>ebreak</code> and <code>fence</code>, parts of the base integer instruction set (RV64I). The <code>ecall</code> and <code>ebreak</code> instructions raise an exception.</p>
 <h2><a class="header" href="#exceptions-1" id="exceptions-1">Exceptions</a></h2>
 <h2><a class="header" href="#testing-3" id="testing-3">Testing</a></h2>
 <h1><a class="header" href="#plic-a-platform-level-interrupt-controller-and-clint-a-core-local-interrupter" id="plic-a-platform-level-interrupt-controller-and-clint-a-core-local-interrupter">PLIC (a platform-level interrupt controller) and CLINT (a core-local interrupter)</a></h1>
 <p>This is step 6 of the book <a href="hardware-components/../"><em>Writing a RISC-V Emulator from Scratch in 10 Steps</em></a>, whose goal is running <a href="https://github.com/mit-pdos/xv6-riscv">xv6</a>, a small Unix-like OS, in your emulator in the final step.</p>
 <p>The source code is available at <a href="https://github.com/d0iasm/rvemu-for-book/tree/master/step06">d0iasm/rvemu-for-book/step06/</a>.</p>
-<h2><a class="header" href="#goal-of-this-page-4" id="goal-of-this-page-4">Goal of This Page</a></h2>
+<h2><a class="header" href="#goal-of-this-page-3" id="goal-of-this-page-3">Goal of This Page</a></h2>
 <p>In the end of this page, we can support a platform-level interrupt controller (PLIC) and a core-local interrupter (CLINT) as CPU's peripheral devices.</p>
 <h2><a class="header" href="#testing-4" id="testing-4">Testing</a></h2>
 <h1><a class="header" href="#uart-a-universal-asynchronous-receiver-transmitter" id="uart-a-universal-asynchronous-receiver-transmitter">UART (a universal asynchronous receiver-transmitter)</a></h1>
 <p>This is step 7 of the book <a href="hardware-components/../"><em>Writing a RISC-V Emulator from Scratch in 10 Steps</em></a>, whose goal is running <a href="https://github.com/mit-pdos/xv6-riscv">xv6</a>, a small Unix-like OS, in your emulator in the final step.</p>
 <p>The source code is available at <a href="https://github.com/d0iasm/rvemu-for-book/tree/master/step07">d0iasm/rvemu-for-book/step07/</a>.</p>
-<h2><a class="header" href="#goal-of-this-page-5" id="goal-of-this-page-5">Goal of This Page</a></h2>
+<h2><a class="header" href="#goal-of-this-page-4" id="goal-of-this-page-4">Goal of This Page</a></h2>
 <p>In the end of this page, we can support a universal asynchronous receiver-transmitter (UART) as one of CPU's peripheral devices.</p>
 <h2><a class="header" href="#testing-5" id="testing-5">Testing</a></h2>
 <p>// TODO: print &quot;Hello, world!&quot; and echoback</p>
 <h1><a class="header" href="#interrupts" id="interrupts">Interrupts</a></h1>
 <p>This is step 8 of the book <a href="hardware-components/../"><em>Writing a RISC-V Emulator from Scratch in 10 Steps</em></a>, whose goal is running <a href="https://github.com/mit-pdos/xv6-riscv">xv6</a>, a small Unix-like OS, in your emulator in the final step.</p>
 <p>The source code is available at <a href="https://github.com/d0iasm/rvemu-for-book/tree/master/step08">d0iasm/rvemu-for-book/step08/</a>.</p>
-<h2><a class="header" href="#goal-of-this-page-6" id="goal-of-this-page-6">Goal of This Page</a></h2>
+<h2><a class="header" href="#goal-of-this-page-5" id="goal-of-this-page-5">Goal of This Page</a></h2>
 <p>In the end of this page, we support interrupts, external asynchronous events that may cause a hardware thread to experience an unexpected transfer of control.</p>
 <h1><a class="header" href="#instruction-set" id="instruction-set">Instruction Set</a></h1>
 <p><a href="instruction-set/instruction-set/index.html">Chapter 2</a> shows all ISAs we need to implement for running <code>xv6</code>.</p>
@@ -912,7 +1020,7 @@ impl Memory {
 <li><a href="instruction-set/03-rv64a.html">&quot;A&quot; Standard Extension for AtomicInstructions</a></li>
 </ul>
 <h1><a class="header" href="#rv64i-base-integer-instruction-set" id="rv64i-base-integer-instruction-set">RV64I Base Integer Instruction Set</a></h1>
-<h2><a class="header" href="#goal-of-this-page-7" id="goal-of-this-page-7">Goal of This Page</a></h2>
+<h2><a class="header" href="#goal-of-this-page-6" id="goal-of-this-page-6">Goal of This Page</a></h2>
 <p>In the end of this page, we can execute <a href="https://github.com/d0iasm/rvemu-for-book/blob/master/step02/fib.c">the sample file</a> that calculates <a href="https://en.wikipedia.org/wiki/Fibonacci_number">a Fibonacci number</a> in our emulator. We will support RV64 ISAs, the base integer instruction set a 64-bit architecture, to calculate a Fibonacci number.</p>
 <p>Sample binary files are also available at <a href="https://github.com/d0iasm/rvemu-for-book/tree/master/step02">d0iasm/rvemu-for-book/step02/</a>. We successfully see the result of the 10th Fibonacci number when we execute the sample binary file <code>fib.bin</code>.</p>
 <pre><code class="language-text">// fib.c contains the following C code and fib.bin is the build result of it:

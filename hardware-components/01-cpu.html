@@ -52,7 +52,7 @@
         <!-- Provide site root to javascript -->
         <script type="text/javascript">
             var path_to_root = "../";
-            var default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? "navy" : "light";
+            var default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? "coal" : "light";
         </script>
 
         <!-- Work around some values being stored in localStorage wrapped in quotes -->
@@ -309,8 +309,13 @@ self.regs[0] = 0;
 <h3><a class="header" href="#fetch-decode-execute-cycle" id="fetch-decode-execute-cycle">Fetch-decode-execute Cycle</a></h3>
 <p>The main job of the CPU is composed of three main stages: fetch stage, decode
 stage, and execute stage. The fetch-decode-execute cycle is also known as the
-instruction cycle. A CPU follows the cycle from the computer boots up until it
-shuts down.</p>
+instruction cycle.</p>
+<p>A CPU follows the cycle from the computer boots up until it shuts down.  An
+emulator is ideally an infinite loop and continues to perform the
+fetch-decode-execute cycle infinitely unless something wrong happens or a user
+stops an emulator explicitly.  However, we're going to stop an emulator
+implicitly when the program counter is 0 or over the length of memory, and an
+error happens during the execution.</p>
 <ol>
 <li>Fetch: Reads the next instruction to be executed from the memory where the
 program is stored.</li>
@@ -323,7 +328,7 @@ counter in each cycle.</p>
 <p class="filename">main.rs</p>
 <pre><pre class="playground"><code class="language-rust">fn main() -&gt; io::Result&lt;()&gt; {
     ...
-    while cpu.pc &lt; cpu.memory.len() as u64 {
+    while cpu.pc &lt; cpu.dram.len() as u64 {
         // 1. Fetch.
         let inst = cpu.fetch();
 
@@ -369,20 +374,20 @@ fn main() -&gt; io::Result&lt;()&gt; {
         panic!(&quot;Usage: rvemu-simple &lt;filename&gt;&quot;);
     }
     let mut file = File::open(&amp;args[1])?;
-    let mut binary = Vec::new();
-    file.read_to_end(&amp;mut binary)?;
+    let mut code = Vec::new();
+    file.read_to_end(&amp;mut code)?;
 
-    let cpu = Cpu::new(binary);
+    let cpu = Cpu::new(code);
 
     ...
 }
 
 impl Cpu {
-    fn new(binary: Vec&lt;u8&gt;) -&gt; Self {
+    fn new(code: Vec&lt;u8&gt;) -&gt; Self {
         Self {
             regs: [0; 32],
             pc: 0,
-            memory: binary,
+            dram: code,
         }
     }
 
@@ -398,7 +403,7 @@ little-endian and big-endian. A little-endian ordering places the least
 significant byte (LSB) at the lowest address and the most significant byte
 (MSB) places at the highest address in a 32-bit word. While a big-endian
 ordering does the opposite.</p>
-<p><img src="../img/1-1.jpg" alt="Fig 1.1 Little-endian and big-endian 2 instructions." /></p>
+<p><img src="../img/1-1-1.jpg" alt="Fig 1.1 Little-endian and big-endian 2 instructions." /></p>
 <p>Fig 1.1 Little-endian and big-endian 2 instructions.</p>
 <p>RISC-V has either little-endian or big-endian byte order. Our emulator only
 supports a little-endian system because RISC-V originally chose little-endian
@@ -413,10 +418,10 @@ them in the little-endian ordering.</p>
     ...  
     fn fetch(&amp;self) -&gt; u32 {
         let index = self.pc as usize;
-        return (self.memory[index] as u32)
-            | ((self.memory[index + 1] as u32) &lt;&lt; 8)
-            | ((self.memory[index + 2] as u32) &lt;&lt; 16)
-            | ((self.memory[index + 3] as u32) &lt;&lt; 24);
+        return (self.dram[index] as u32)
+            | ((self.dram[index + 1] as u32) &lt;&lt; 8)
+            | ((self.dram[index + 2] as u32) &lt;&lt; 16)
+            | ((self.dram[index + 3] as u32) &lt;&lt; 24);
     }
     ...
 }
@@ -426,7 +431,7 @@ them in the little-endian ordering.</p>
 <p>RISC-V base instructions only have 4 instruction formats and a few variants as
 we can see in Fig 1.2. These formats keep all register specifiers at the same
 position in all formats since it makes it easier to decode.</p>
-<p><img src="../img/1-2.png" alt="Fig 1.2 RISC-V base instruction formats. (Source: Figure 2.2 in Volume I: Unprivileged ISA)" /></p>
+<p><img src="../img/1-1-2.png" alt="Fig 1.2 RISC-V base instruction formats. (Source: Figure 2.2 in Volume I: Unprivileged ISA)" /></p>
 <p>Fig 1.2 RISC-V base instruction formats. (Source: Figure 2.2 in Volume I:
 Unprivileged ISA)</p>
 <p>Decoding for common parts in all formats is performed by bitwise operations, bit
@@ -452,10 +457,10 @@ and the <code>addi</code> instruction adds a 64-bit value in a register and a 12
 immediate value. We can dispatch an execution depending on the <code>opcode</code> field
 according to Fig 1.3 and Fig 1.4. In the <code>addi</code> instruction, we need to decode
 12-bit immediate which is sign-extended.</p>
-<p><img src="../img/1-3.png" alt="Fig 1.3 Add instruction (Source: RV32I Base Instruction Set table in Volume I: Unprivileged ISA)" /></p>
+<p><img src="../img/1-1-3.png" alt="Fig 1.3 Add instruction (Source: RV32I Base Instruction Set table in Volume I: Unprivileged ISA)" /></p>
 <p>Fig 1.3 Add instruction (Source: RV32I Base Instruction Set table in Volume
 I: Unprivileged ISA)</p>
-<p><img src="../img/1-4.png" alt="Fig 1.4 Addi instruction (Source: RV32I Base Instruction Set table in Volume I: Unprivileged ISA)" /></p>
+<p><img src="../img/1-1-4.png" alt="Fig 1.4 Addi instruction (Source: RV32I Base Instruction Set table in Volume I: Unprivileged ISA)" /></p>
 <p>Fig 1.4 Addi instruction (Source: RV32I Base Instruction Set table in Volume
 I: Unprivileged ISA)</p>
 <p class="filename">main.rs</p>
