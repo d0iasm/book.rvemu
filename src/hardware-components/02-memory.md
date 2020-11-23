@@ -7,15 +7,15 @@ your emulator in the final step.
 The source code used in this page is available at
 [d0iasm/rvemu-for-book/02/](https://github.com/d0iasm/rvemu-for-book/tree/master/02).
 
-## Goal of This Page
+## The Goal of This Page
 
-In this page, we will implement a memory and a system bus. The memory is used to
-store and load data. The system bus is a pathway to carry data between the CPU
-and the memory.
+In this page, we will implement a memory (DRAM) and a system bus. The memory is
+used to store and load data. The system bus is a pathway to carry data between
+the CPU and the memory.
 
 These components enable to execute load and store instructions which are the
 part of base integer instruction set. There are 7 load instructions (`lb`, `lh`,
-`lw`, `ld`, `lbu`, `lhu`, and `lwu`) and 3 store instructions (`sb`, `sh`, `sw`,
+`lw`, `ld`, `lbu`, `lhu`, and `lwu`) and 4 store instructions (`sb`, `sh`, `sw`,
 and `sd`).
 
 ## Define Modules
@@ -27,8 +27,8 @@ First, we divide `main.rs` implemented in the previous section. The code of the
 CPU is splited to a new file `cpu.rs`.
 
 To define a CPU module, we need to `mod` keyword at the beginning of the
-`main.rs` file. The `use` keyword allows us to use public items in the CPU
-module.
+`main.rs` file. The `use` keyword allows us to use public items defined in the
+CPU module.
 
 <p class="filename">main.rs</p>
 
@@ -55,43 +55,45 @@ impl Cpu {
 }
 ```
 
-## Memory
+## Memory (DRAM)
 
 The memory we going to implement is a dynamic random-access memory which is
 called DRAM. It is used to store/load data while the program is running.
 
-We represent it as a `Memory` struct. It contains a vector of bytes as a member.
+We represent it as a `Dram` struct. It contains a vector of bytes as a member.
 
-The vector of bytes in the `Memory` instance is initialized with the data
-containing executable binary when it's created by `Memory::new()`.
+The vector of bytes in the `Dram` instance is initialized with the data
+containing executable binary when it's created by `Dram::new()`.
 
-<p class="filename">memory.rs</p>
+<p class="filename">dram.rs</p>
 
 ```rust
 pub const MEMORY_SIZE: u64 = 1024 * 1024 * 128; // 128MiB
 
-pub struct Memory {
-    pub memory: Vec<u8>,
+pub struct Dram {
+    pub dram: Vec<u8>,
 }
 
-impl Memory {
-    pub fn new(binary: Vec<u8>) -> Memory {
-        let mut memory = vec![0; MEMORY_SIZE as usize];
-        memory.splice(..binary.len(), binary.iter().cloned());
+impl Dram {
+    pub fn new(code: Vec<u8>) -> Dram {
+        let mut dram = vec![0; MEMORY_SIZE as usize];
+        dram.splice(..code.len(), code.iter().cloned());
 
-        Self { memory }
+        Self { dram }
     }
 }
 ```
 
 ### Load and Store Methods
 
-There are `load` and `store` public methods for the `Memory` struct. Arguments in each method are an address and the number of bytes. The number of bytes can be 8, 16, 32, and 64 bytes.
+There are `load` and `store` public methods for the `Dram` struct. Arguments in
+each method are an address and the number of bytes. The number of bytes can be
+8, 16, 32, and 64 bytes.
 
-<p class="filename">memory.rs</p>
+<p class="filename">dram.rs</p>
 
 ```rust
-impl Memory {
+impl Dram {
     ...
     pub fn load(&self, addr: u64, size: u64) -> Result<u64, ()> {
         match size {
@@ -116,74 +118,180 @@ impl Memory {
 }
 ```
 
-`load8`, `load16`, `load32`, and `load64` (`store*` as well) are private methods to help us operate the memory with the specific size of bytes. The memory is a little-endian system as described in the previous section so we need to be careful the order of bytes.
+`load8`, `load16`, `load32`, and `load64` (`store*` as well) are private
+methods to help us operate the DRAM with the specific size of bytes. The DRAM
+is a little-endian system as described in the previous section so we need to be
+careful the order of bytes.
 
-The following code is `load32` and `store32`. The byte of a smallest memory address (`index`) is stored at the least signigicant byte at the largest and the byte of a largest memory address (`index + 3`) is stored at the most significant byte of a word.
+The following code is `load32` and `store32`. The byte of a smallest memory
+address (`index`) is stored at the least signigicant byte at the largest and
+the byte of a largest memory address (`index + 3`) is stored at the most
+significant byte of a word.
 
-<p class="filename">memory.rs</p>
+<p class="filename">dram.rs</p>
 
 ```rust
-impl Memory {
+impl Dram {
     ...
 
     fn load32(&self, addr: u64) -> u64 {
         let index = (addr - MEMORY_BASE) as usize;
-        return (self.memory[index] as u64)
-            | ((self.memory[index + 1] as u64) << 8)
-            | ((self.memory[index + 2] as u64) << 16)
-            | ((self.memory[index + 3] as u64) << 24);
+        return (self.dram[index] as u64)
+            | ((self.dram[index + 1] as u64) << 8)
+            | ((self.dram[index + 2] as u64) << 16)
+            | ((self.dram[index + 3] as u64) << 24);
     }
 
     fn store32(&mut self, addr: u64, value: u64) {
         let index = (addr - MEMORY_BASE) as usize;
-        self.memory[index] = (value & 0xff) as u8;
-        self.memory[index + 1] = ((value >> 8) & 0xff) as u8;
-        self.memory[index + 2] = ((value >> 16) & 0xff) as u8;
-        self.memory[index + 3] = ((value >> 24) & 0xff) as u8;
+        self.dram[index] = (value & 0xff) as u8;
+        self.dram[index + 1] = ((value >> 8) & 0xff) as u8;
+        self.dram[index + 2] = ((value >> 16) & 0xff) as u8;
+        self.dram[index + 3] = ((value >> 24) & 0xff) as u8;
     }
     ...
 }
 ```
 
-### Add Memory to Module
+### Add Dram to Module
 
-Let's add the `Memory` as a module. Once adding one line at `main.rs`, `memory.rs` can be included to the build target by `cargo build` and we can use methods defined at `memory.rs`.
+Let's add the `Dram` as a module. Once adding one line at `main.rs`, `dram.rs`
+can be included to the build target by `cargo build` and we can use methods
+defined at `dram.rs`.
 
 <p class="filename">main.rs</p>
 
 ```rust
-mod memory;
+mod dram;
 ```
 
-From now on, when a new file is added, we will add it as a module implicitly.
+From now on, we will add it as a module implicitly when a new file is added.
 
 ## System Bus
 
-System bus is a component to carry data between the CPU and the memory.
+A system bus is a component to carry data between the CPU and the memory. In
+actual hardware, a bus is a there are 3 types of a bus. The 3 buses together
+are called a system bus.
+
+- Address bus: carries memory addresses.
+- Data bus: carries the data.
+- Control bus: carries control signals.
+
+Our implementation doesn't care the differences betweeen them and a system bus
+just connects the DRAM (and other peripheral devices) to the CPU and carries
+memory addresses and data stored in the memory and between them.
+
+The `Bus` struct has a `dram` member and other peripheral devices we will add
+later. The `Cpu` struct now has a `bus` member in it instead of a `dram`
+member so that the CPU can access the DRAM via a system bus.
 
 <p class="filename">bus.rs</p>
 
 ```rust
 pub struct Bus {
-    memory: Memory,
+    dram: Dram,
 }
 ```
 
+<p class="filename">cpu.rs</p>
+
+```rust
+pub struct Cpu {
+    pub regs: [u64; 32],
+    pub pc: u64,
+    pub bus: Bus,
+}
+```
+
+### Memory-mapped I/O
+
+Memory-mapped I/O (MMIO) is a method performing input and output between the
+CPU and peripheral devices. MMIO uses the same address space as both DRAM and
+peripheral devices. It means you can use same `load` and `store` instructions
+for accessing peripheral devices. When you access at a memory address, it can
+connect to either a DRAM or a specific peripheral device via the system bus.
+
+The system bus is responsible for a memory map in our implementation. A memory
+map is a structure of data which indicates how memory is laid out for a DRAM
+and peripheral devices. This can be different depending on a hardware system.
+
+For example, [virt machine in
+QEMU](https://github.com/qemu/qemu/blob/master/hw/riscv/virt.c) has the
+following memory map. In the virt machine, DRAM starts at 0x80000000. We're
+going to implement the same memory map as the map of a virt machine although we
+only have a part of the peripheral devices the virt machine has.
+
+```c
+static const struct MemmapEntry {
+    hwaddr base;
+    hwaddr size;
+} virt_memmap[] = {
+    [VIRT_DEBUG] =       {        0x0,         0x100 },
+    [VIRT_MROM] =        {     0x1000,        0xf000 },
+    [VIRT_TEST] =        {   0x100000,        0x1000 },
+    [VIRT_RTC] =         {   0x101000,        0x1000 },
+    [VIRT_CLINT] =       {  0x2000000,       0x10000 },
+    [VIRT_PCIE_PIO] =    {  0x3000000,       0x10000 },
+    [VIRT_PLIC] =        {  0xc000000, VIRT_PLIC_SIZE(VIRT_CPUS_MAX * 2) },
+    [VIRT_UART0] =       { 0x10000000,         0x100 },
+    [VIRT_VIRTIO] =      { 0x10001000,        0x1000 },
+    [VIRT_FLASH] =       { 0x20000000,     0x4000000 },
+    [VIRT_PCIE_ECAM] =   { 0x30000000,    0x10000000 },
+    [VIRT_PCIE_MMIO] =   { 0x40000000,    0x40000000 },
+    [VIRT_DRAM] =        { 0x80000000,           0x0 },
+};
+```
+
+There are `load` and `store` public methods for the `Bus` struct. Arguments in
+each method are an address and the number of bytes. The number of bytes can be
+8, 16, 32, and 64 bytes.
+
+If the `addr` is larger than 0x80000000, we can access to the DRAM.
+
+<p class="filename">dram.rs</p>
+
+```rust
+impl Bus {
+    ...
+
+    pub fn load(&self, addr: u64, size: u64) -> Result<u64, ()> {
+        if MEMORY_BASE <= addr {
+            return self.dram.load(addr, size);
+        }
+        Err(())
+    }
+
+    pub fn store(&mut self, addr: u64, size: u64, value: u64) -> Result<(), ()> {
+        if MEMORY_BASE <= addr {
+            return self.dram.store(addr, size, value);
+        }
+        Err(())
+    }
+}
+```
 
 ## Update the CPU
 
+We're going to implement load and store instructions which are the part of base
+integer instruction set. There are 7 load instructions, `lb`, `lh`, `lw`, `lbu`, and `lhu` defined at RV32I and `lwu` and `ld` defined at RV64I. There are 4 store instructions, `sb`, `sh`, and `sw` defined at RV32I and `sd` defined at RV64I.
+
 ### Fetch-decode-execute Cycle
 
-The previous step already mentioned the fetch-decode-execute cycle and we're going to implement it in the `main.rs`. An emulator is ideally an infinite loop and executes the program infinitely unless something wrong happens or a user stops an emulator explicitly. However, we're going to stop an emulator implicitly when the program counter is 0 or over the length of memory, and an error happens during the execution.
+We update the fetch-decode-execute cycle introduced in the previous page. The
+emulator continues to execute the cycle until `fetch` or `execute` fail.
 
 <p class="filename">main.rs</p>
 
 ```rust
 fn main() -> io::Result<()> {
     ...
-    while cpu.pc < cpu.memory.len() as u64 {
-        // 1. Fetch
-        let inst = cpu.fetch();
+    loop {
+        // 1. Fetch.
+        let inst = match cpu.fetch() {
+            // Break the loop if an error occurs.
+            Ok(inst) => inst,
+            Err(_) => break,
+        };
 
         // 2. Add 4 to the program counter.
         cpu.pc += 4;
@@ -191,10 +299,10 @@ fn main() -> io::Result<()> {
         // 3. Decode.
         // 4. Execute.
         match cpu.execute(inst) {
-            // True if an error happens.
-            true => break,
-            false => {}
-        };
+            // Break the loop if an error occurs.
+            Ok(_) => {}
+            Err(_) => break,
+        }
 
         // This is a workaround for avoiding an infinite loop.
         if cpu.pc == 0 {
@@ -207,23 +315,19 @@ fn main() -> io::Result<()> {
 
 ### Fetch Stage
 
-The fetch stage is basically the same as the previous step, but I prefer to create a new function to read 32-bit data from a memory because there are other instructions to read and write memory.
+The next executable binary can be fetched from DRAM via the system bus we just
+created.
 
 <p class="filename">cpu.rs</p>
 
 ```rust
 impl Cpu {
     ...  
-    fn read32(&self, addr: u64) -> u64 {
-        let index = addr as usize;
-        return (self.memory[index] as u64)
-            | ((self.memory[index + 1] as u64) << 8)
-            | ((self.memory[index + 2] as u64) << 16)
-            | ((self.memory[index + 3] as u64) << 24);
-    }
-    ...    
-    pub fn fetch(&self) -> u32 {
-        return self.read32(self.pc) as u32;
+    pub fn fetch(&mut self) -> Result<u64, ()> {
+        match self.bus.load(self.pc, 32) {
+            Ok(inst) => Ok(inst),
+            Err(_e) => Err(()),
+        }
     }
     ...
 }
@@ -233,11 +337,23 @@ impl Cpu {
 
 The decode stage is almost the same as the previous step too and we'll add 2 new fields `funct3` and `funct7`. `funct3` is located from 12 to 14 bits and `funct7` is located from 25 to 31 bits as we can see in Fig 2.1 and 2.2. These fields and opcode select the type of operation.
 
+As we can see in Fig 2.1 and 2.2, there are 2 ways of decoding immediate values.
+
+![Fig 2.1 Load and store instructions in RV32I.](../img/1-2-1.png)
+
+Fig 2.1 Load and store instructions in RV32I.
+
+![Fig 2.2 Load and store instructions in RV64I.](../img/1-2-2.png)
+
+Fig 2.2 Load and store instructions in RV64I.
+
+
 <p class="filename">cpu.rs</p>
 
 ```rust
 impl Cpu {
     ... 
+    // Execute an instruction after decoding.
     fn execute(&mut self, inst: u32) {
         ...
         let funct3 = (inst & 0x00007000) >> 12;

@@ -6,5 +6,10 @@ src = "src"
 title = "Writing a RISC-V Emulator in Rust"
 description = "Writing a RISC-V emulator in Rust to aim to run xv6, a small Unix-like OS."
 
+[build]
+create-missing = false
+
 [output.html]
+default-theme = "light"
+preferred-dark-theme = "coal"
 additional-css = ["theme/custom.css"]

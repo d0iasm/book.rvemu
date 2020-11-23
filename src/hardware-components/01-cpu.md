@@ -172,8 +172,14 @@ self.regs[0] = 0;
 
 The main job of the CPU is composed of three main stages: fetch stage, decode
 stage, and execute stage. The fetch-decode-execute cycle is also known as the
-instruction cycle. A CPU follows the cycle from the computer boots up until it
-shuts down.
+instruction cycle.
+
+A CPU follows the cycle from the computer boots up until it shuts down.  An
+emulator is ideally an infinite loop and continues to perform the
+fetch-decode-execute cycle infinitely unless something wrong happens or a user
+stops an emulator explicitly.  However, we're going to stop an emulator
+implicitly when the program counter is 0 or over the length of memory, and an
+error happens during the execution.
 
 1. Fetch: Reads the next instruction to be executed from the memory where the
    program is stored.
@@ -189,7 +195,7 @@ counter in each cycle.
 ```rust
 fn main() -> io::Result<()> {
     ...
-    while cpu.pc < cpu.memory.len() as u64 {
+    while cpu.pc < cpu.dram.len() as u64 {
         // 1. Fetch.
         let inst = cpu.fetch();
 
@@ -241,20 +247,20 @@ fn main() -> io::Result<()> {
         panic!("Usage: rvemu-simple <filename>");
     }
     let mut file = File::open(&args[1])?;
-    let mut binary = Vec::new();
-    file.read_to_end(&mut binary)?;
+    let mut code = Vec::new();
+    file.read_to_end(&mut code)?;
 
-    let cpu = Cpu::new(binary);
+    let cpu = Cpu::new(code);
 
     ...
 }
 
 impl Cpu {
-    fn new(binary: Vec<u8>) -> Self {
+    fn new(code: Vec<u8>) -> Self {
         Self {
             regs: [0; 32],
             pc: 0,
-            memory: binary,
+            dram: code,
         }
     }
 
@@ -274,7 +280,7 @@ significant byte (LSB) at the lowest address and the most significant byte
 (MSB) places at the highest address in a 32-bit word. While a big-endian
 ordering does the opposite.
 
-![Fig 1.1 Little-endian and big-endian 2 instructions.](../img/1-1.jpg)
+![Fig 1.1 Little-endian and big-endian 2 instructions.](../img/1-1-1.jpg)
 
 Fig 1.1 Little-endian and big-endian 2 instructions.
 
@@ -292,10 +298,10 @@ impl Cpu {
     ...  
     fn fetch(&self) -> u32 {
         let index = self.pc as usize;
-        return (self.memory[index] as u32)
-            | ((self.memory[index + 1] as u32) << 8)
-            | ((self.memory[index + 2] as u32) << 16)
-            | ((self.memory[index + 3] as u32) << 24);
+        return (self.dram[index] as u32)
+            | ((self.dram[index + 1] as u32) << 8)
+            | ((self.dram[index + 2] as u32) << 16)
+            | ((self.dram[index + 3] as u32) << 24);
     }
     ...
 }
@@ -308,7 +314,7 @@ we can see in Fig 1.2. These formats keep all register specifiers at the same
 position in all formats since it makes it easier to decode.
 
 ![Fig 1.2 RISC-V base instruction formats. (Source: Figure 2.2 in Volume I:
-Unprivileged ISA)](../img/1-2.png)
+Unprivileged ISA)](../img/1-1-2.png)
 
 Fig 1.2 RISC-V base instruction formats. (Source: Figure 2.2 in Volume I:
 Unprivileged ISA)
@@ -339,13 +345,13 @@ according to Fig 1.3 and Fig 1.4. In the `addi` instruction, we need to decode
 12-bit immediate which is sign-extended.
 
 ![Fig 1.3 Add instruction (Source: RV32I Base Instruction Set table in Volume
-I: Unprivileged ISA)](../img/1-3.png)
+I: Unprivileged ISA)](../img/1-1-3.png)
 
 Fig 1.3 Add instruction (Source: RV32I Base Instruction Set table in Volume
 I: Unprivileged ISA)
 
 ![Fig 1.4 Addi instruction (Source: RV32I Base Instruction Set table in Volume
-I: Unprivileged ISA)](../img/1-4.png)
+I: Unprivileged ISA)](../img/1-1-4.png)
 
 Fig 1.4 Addi instruction (Source: RV32I Base Instruction Set table in Volume
 I: Unprivileged ISA)
