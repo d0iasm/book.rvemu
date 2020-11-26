@@ -168,7 +168,7 @@
                 <div id="content" class="content">
                     <main>
                         <h1><a class="header" href="#writing-a-risc-v-emulator-in-rust" id="writing-a-risc-v-emulator-in-rust">Writing a RISC-V Emulator in Rust</a></h1>
-<p><strong>NOTE: This project is actively ongoing. Pages are not perfect and they can change soon.</strong></p>
+<p><strong>NOTE: This project is actively ongoing. Pages are not perfect yet and it possible to change dramatically.</strong></p>
 <h2><a class="header" href="#introduction" id="introduction">Introduction</a></h2>
 <p>This is the book for writing a 64-bit RISC-V emulator from scratch in Rust. You can run <a href="https://github.com/mit-pdos/xv6-riscv">xv6</a>, a simple Unix-like OS, in your emulator once you finish the book.</p>
 <p>You'll learn the basic computer architecture such as ISA, previleged architecture, exceptions, interrupts, peripheral devices, and virtual memory system from making an emulator.</p>
@@ -725,17 +725,16 @@ defined at <code>dram.rs</code>.</p>
 </span>mod dram;
 <span class="boring">}
 </span></code></pre></pre>
-<p>From now on, we will add it as a module implicitly when a new file is added.</p>
+<p>From now on, we will add a new file as a module implicitly when it is added.</p>
 <h2><a class="header" href="#system-bus" id="system-bus">System Bus</a></h2>
-<p>A system bus is a component to carry data between the CPU and the memory. In
-actual hardware, a bus is a there are 3 types of a bus. The 3 buses together
-are called a system bus.</p>
+<p>A system bus is a component to carry data between the CPU and peripheral devices
+such as a DRAM. In actual hardware, there are 3 types of a bus. The 3 buses together are called a system bus.</p>
 <ul>
 <li>Address bus: carries memory addresses.</li>
 <li>Data bus: carries the data.</li>
 <li>Control bus: carries control signals.</li>
 </ul>
-<p>Our implementation doesn't care the differences betweeen them and a system bus
+<p>Our implementation doesn't care the differences between them and a system bus
 just connects the DRAM (and other peripheral devices) to the CPU and carries
 memory addresses and data stored in the memory and between them.</p>
 <p>The <code>Bus</code> struct has a <code>dram</code> member and other peripheral devices we will add
@@ -826,7 +825,7 @@ each method are an address and the number of bytes. The number of bytes can be
 integer instruction set. There are 7 load instructions, <code>lb</code>, <code>lh</code>, <code>lw</code>, <code>lbu</code>, and <code>lhu</code> defined at RV32I and <code>lwu</code> and <code>ld</code> defined at RV64I. There are 4 store instructions, <code>sb</code>, <code>sh</code>, and <code>sw</code> defined at RV32I and <code>sd</code> defined at RV64I.</p>
 <h3><a class="header" href="#fetch-decode-execute-cycle-1" id="fetch-decode-execute-cycle-1">Fetch-decode-execute Cycle</a></h3>
 <p>We update the fetch-decode-execute cycle introduced in the previous page. The
-emulator continues to execute the cycle until <code>fetch</code> or <code>execute</code> fail.</p>
+emulator continues to execute the cycle until <code>fetch</code> or <code>execute</code> methods fail.</p>
 <p class="filename">main.rs</p>
 <pre><pre class="playground"><code class="language-rust">fn main() -&gt; io::Result&lt;()&gt; {
     ...
@@ -859,7 +858,9 @@ emulator continues to execute the cycle until <code>fetch</code> or <code>execut
 </code></pre></pre>
 <h3><a class="header" href="#fetch-stage-1" id="fetch-stage-1">Fetch Stage</a></h3>
 <p>The next executable binary can be fetched from DRAM via the system bus we just
-created.</p>
+created. The size of bytes is 32 since the the length of one instruction in
+RISC-V is always 4 bytes. (Note: The length of one instruction can be 2 bytes in
+the compressed instruction set.)</p>
 <p class="filename">cpu.rs</p>
 <pre><pre class="playground"><code class="language-rust">
 <span class="boring">#![allow(unused)]
@@ -877,8 +878,12 @@ created.</p>
 <span class="boring">}
 </span></code></pre></pre>
 <h3><a class="header" href="#decode-stage" id="decode-stage">Decode Stage</a></h3>
-<p>The decode stage is almost the same as the previous step too and we'll add 2 new fields <code>funct3</code> and <code>funct7</code>. <code>funct3</code> is located from 12 to 14 bits and <code>funct7</code> is located from 25 to 31 bits as we can see in Fig 2.1 and 2.2. These fields and opcode select the type of operation.</p>
-<p>As we can see in Fig 2.1 and 2.2, there are 2 ways of decoding immediate values.</p>
+<p>Load instructions are I-type and store instrucrtions are S-type format as we can
+see them in Fig 2.1. and 2.2. The positions for <code>rs1</code>, <code>funct3</code> (the 3 bits
+between <code>rs1</code> and <code>rd</code>), and <code>opcode</code> are the same position in the both format.</p>
+<p>In RISC-V, there are many common positions in all formats, but decoding an
+immediate value is quite different depending on instructions, so we'll decode an
+immediate value in each operation.</p>
 <p><img src="hardware-components/../img/1-2-1.png" alt="Fig 2.1 Load and store instructions in RV32I." /></p>
 <p>Fig 2.1 Load and store instructions in RV32I.</p>
 <p><img src="hardware-components/../img/1-2-2.png" alt="Fig 2.2 Load and store instructions in RV64I." /></p>
@@ -889,38 +894,26 @@ created.</p>
 </span><span class="boring">fn main() {
 </span>impl Cpu {
     ... 
-    // Execute an instruction after decoding.
-    fn execute(&amp;mut self, inst: u32) {
-        ...
-        let funct3 = (inst &amp; 0x00007000) &gt;&gt; 12;
-        let funct7 = (inst &amp; 0xfe000000) &gt;&gt; 25;
-        ...
-<span class="boring">}
-</span></code></pre></pre>
-<p>In RISC-V, there are many common positions in all formats, but decoding an immediate value is quite different depending on instructions, so we'll decode an immediate value in each operation.</p>
-<p>For example, the immediate value in branch instructions is located in the place of <code>rd</code> and <code>funct7</code>. A branch instruction is a <code>if</code> statement in C to change the sequence of instruction execution depending on a condition, which includes <code>beq</code>, <code>bne</code>, <code>blt</code>, <code>bge</code>, <code>bltu</code>, and <code>bgeu</code>.</p>
-<p>Decoding is performed by bitwise ANDs and bit shifts. The point to be noted is that an immediate value should be sign-extended. It means we need to fill in the upper bits with 1 when the significant bit is 1. In this implementation, filling in bits with 1 is performed by casting from a signed integer to an unsigned integer.</p>
-<p>The way how to decode each instruction is listed in Fig 2.1 and Fig 2.2.</p>
-<p class="filename">cpu.rs</p>
-<pre><pre class="playground"><code class="language-rust">
-<span class="boring">#![allow(unused)]
-</span><span class="boring">fn main() {
-</span>impl Cpu {
-    ... 
     fn execute(&amp;mut self, inst: u32) {
         ...
         match opcode {
-            0x63 =&gt; {
-                // imm[12|10:5|4:1|11] = inst[31|30:25|11:8|7]
-                let imm = (((inst &amp; 0x80000000) as i32 as i64 &gt;&gt; 19) as u64)
-                    | ((inst &amp; 0x80) &lt;&lt; 4)   // imm[11]
-                    | ((inst &gt;&gt; 20) &amp; 0x7e0) // imm[10:5]
-                    | ((inst &gt;&gt; 7) &amp; 0x1e);  // imm[4:1]
-
-                match funct3 {
-                    ...
+            0x03 =&gt; { // Load instructions.
+                // imm[11:0] = inst[31:20]
+                let imm = ((inst as i32 as i64) &gt;&gt; 20) as u64;
+                let addr = self.regs[rs1].wrapping_add(imm);
+                ...
+            0x23 =&gt; { // Store instructions.
+                // imm[11:5|4:0] = inst[31:25|11:7]
+                let imm = (((inst &amp; 0xfe000000) as i32 as i64 &gt;&gt; 20) as u64) | ((inst &gt;&gt; 7) &amp; 0x1f);
+                let addr = self.regs[rs1].wrapping_add(imm);
+                ...
 <span class="boring">}
 </span></code></pre></pre>
+<p>Decoding is performed by bitwise ANDs and bit shifts. The point to be noted is
+that an immediate value should be sign-extended. It means we need to fill in the
+upper bits with 1 when the significant bit is 1. In this implementation, filling
+in bits with 1 is performed by casting from a signed integer to an unsigned
+integer.</p>
 <h3><a class="header" href="#execute-stage" id="execute-stage">Execute Stage</a></h3>
 <p>Each operation is performed in each <code>match</code> arm. For example, a branch instruction <code>beq</code>, which is one of the branch instructions, is executed when <code>opcode</code> is 0x63 and <code>funct3</code> is 0x0. <code>beq</code> sets the <code>pc</code> to the current <code>pc</code> plus the signed-extended offset if a value in <code>rs1</code> equals a value in <code>rs2</code>. The current <code>pc</code> means the position when CPU fetched an instruction from memory so we need to subtract 4 from <code>pc</code> because we added 4 after fetch.</p>
 <p class="filename">cpu.rs</p>
