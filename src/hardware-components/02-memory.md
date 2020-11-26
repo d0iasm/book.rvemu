@@ -165,19 +165,18 @@ defined at `dram.rs`.
 mod dram;
 ```
 
-From now on, we will add it as a module implicitly when a new file is added.
+From now on, we will add a new file as a module implicitly when it is added.
 
 ## System Bus
 
-A system bus is a component to carry data between the CPU and the memory. In
-actual hardware, a bus is a there are 3 types of a bus. The 3 buses together
-are called a system bus.
+A system bus is a component to carry data between the CPU and peripheral devices
+such as a DRAM. In actual hardware, there are 3 types of a bus. The 3 buses together are called a system bus.
 
 - Address bus: carries memory addresses.
 - Data bus: carries the data.
 - Control bus: carries control signals.
 
-Our implementation doesn't care the differences betweeen them and a system bus
+Our implementation doesn't care the differences between them and a system bus
 just connects the DRAM (and other peripheral devices) to the CPU and carries
 memory addresses and data stored in the memory and between them.
 
@@ -278,7 +277,7 @@ integer instruction set. There are 7 load instructions, `lb`, `lh`, `lw`, `lbu`,
 ### Fetch-decode-execute Cycle
 
 We update the fetch-decode-execute cycle introduced in the previous page. The
-emulator continues to execute the cycle until `fetch` or `execute` fail.
+emulator continues to execute the cycle until `fetch` or `execute` methods fail.
 
 <p class="filename">main.rs</p>
 
@@ -316,7 +315,9 @@ fn main() -> io::Result<()> {
 ### Fetch Stage
 
 The next executable binary can be fetched from DRAM via the system bus we just
-created.
+created. The size of bytes is 32 since the the length of one instruction in
+RISC-V is always 4 bytes. (Note: The length of one instruction can be 2 bytes in
+the compressed instruction set.)
 
 <p class="filename">cpu.rs</p>
 
@@ -335,9 +336,13 @@ impl Cpu {
 
 ### Decode Stage
 
-The decode stage is almost the same as the previous step too and we'll add 2 new fields `funct3` and `funct7`. `funct3` is located from 12 to 14 bits and `funct7` is located from 25 to 31 bits as we can see in Fig 2.1 and 2.2. These fields and opcode select the type of operation.
+Load instructions are I-type and store instrucrtions are S-type format as we can
+see them in Fig 2.1. and 2.2. The positions for `rs1`, `funct3` (the 3 bits
+between `rs1` and `rd`), and `opcode` are the same position in the both format.
 
-As we can see in Fig 2.1 and 2.2, there are 2 ways of decoding immediate values.
+In RISC-V, there are many common positions in all formats, but decoding an
+immediate value is quite different depending on instructions, so we'll decode an
+immediate value in each operation.
 
 ![Fig 2.1 Load and store instructions in RV32I.](../img/1-2-1.png)
 
@@ -347,28 +352,6 @@ Fig 2.1 Load and store instructions in RV32I.
 
 Fig 2.2 Load and store instructions in RV64I.
 
-
-<p class="filename">cpu.rs</p>
-
-```rust
-impl Cpu {
-    ... 
-    // Execute an instruction after decoding.
-    fn execute(&mut self, inst: u32) {
-        ...
-        let funct3 = (inst & 0x00007000) >> 12;
-        let funct7 = (inst & 0xfe000000) >> 25;
-        ...
-```
-
-In RISC-V, there are many common positions in all formats, but decoding an immediate value is quite different depending on instructions, so we'll decode an immediate value in each operation.
-
-For example, the immediate value in branch instructions is located in the place of `rd` and `funct7`. A branch instruction is a `if` statement in C to change the sequence of instruction execution depending on a condition, which includes `beq`, `bne`, `blt`, `bge`, `bltu`, and `bgeu`.
-
-Decoding is performed by bitwise ANDs and bit shifts. The point to be noted is that an immediate value should be sign-extended. It means we need to fill in the upper bits with 1 when the significant bit is 1. In this implementation, filling in bits with 1 is performed by casting from a signed integer to an unsigned integer.
-
-The way how to decode each instruction is listed in Fig 2.1 and Fig 2.2.
-
 <p class="filename">cpu.rs</p>
 
 ```rust
@@ -377,16 +360,23 @@ impl Cpu {
     fn execute(&mut self, inst: u32) {
         ...
         match opcode {
-            0x63 => {
-                // imm[12|10:5|4:1|11] = inst[31|30:25|11:8|7]
-                let imm = (((inst & 0x80000000) as i32 as i64 >> 19) as u64)
-                    | ((inst & 0x80) << 4)   // imm[11]
-                    | ((inst >> 20) & 0x7e0) // imm[10:5]
-                    | ((inst >> 7) & 0x1e);  // imm[4:1]
-
-                match funct3 {
-                    ...
+            0x03 => { // Load instructions.
+                // imm[11:0] = inst[31:20]
+                let imm = ((inst as i32 as i64) >> 20) as u64;
+                let addr = self.regs[rs1].wrapping_add(imm);
+                ...
+            0x23 => { // Store instructions.
+                // imm[11:5|4:0] = inst[31:25|11:7]
+                let imm = (((inst & 0xfe000000) as i32 as i64 >> 20) as u64) | ((inst >> 7) & 0x1f);
+                let addr = self.regs[rs1].wrapping_add(imm);
+                ...
 ```
+
+Decoding is performed by bitwise ANDs and bit shifts. The point to be noted is
+that an immediate value should be sign-extended. It means we need to fill in the
+upper bits with 1 when the significant bit is 1. In this implementation, filling
+in bits with 1 is performed by casting from a signed integer to an unsigned
+integer.
 
 ### Execute Stage
 

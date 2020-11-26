@@ -1,6 +1,6 @@
 # Writing a RISC-V Emulator in Rust
 
-**NOTE: This project is actively ongoing. Pages are not perfect and they can change soon.**
+**NOTE: This project is actively ongoing. Pages are not perfect yet and it possible to change dramatically.**
 
 ## Introduction
 
