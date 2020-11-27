@@ -170,7 +170,8 @@ From now on, we will add a new file as a module implicitly when it is added.
 ## System Bus
 
 A system bus is a component to carry data between the CPU and peripheral devices
-such as a DRAM. In actual hardware, there are 3 types of a bus. The 3 buses together are called a system bus.
+such as a DRAM. In actual hardware, there are 3 types of a bus. The 3 buses
+together are called a system bus.
 
 - Address bus: carries memory addresses.
 - Data bus: carries the data.
@@ -272,7 +273,10 @@ impl Bus {
 ## Update the CPU
 
 We're going to implement load and store instructions which are the part of base
-integer instruction set. There are 7 load instructions, `lb`, `lh`, `lw`, `lbu`, and `lhu` defined at RV32I and `lwu` and `ld` defined at RV64I. There are 4 store instructions, `sb`, `sh`, and `sw` defined at RV32I and `sd` defined at RV64I.
+integer instruction set. There are 7 load instructions, `lb`, `lh`, `lw`,
+`lbu`, and `lhu` defined at RV32I and `lwu` and `ld` defined at RV64I. There
+are 4 store instructions, `sb`, `sh`, and `sw` defined at RV32I and `sd`
+defined at RV64I.
 
 ### Fetch-decode-execute Cycle
 
@@ -323,7 +327,7 @@ the compressed instruction set.)
 
 ```rust
 impl Cpu {
-    ...  
+    ...
     pub fn fetch(&mut self) -> Result<u64, ()> {
         match self.bus.load(self.pc, 32) {
             Ok(inst) => Ok(inst),
@@ -356,7 +360,7 @@ Fig 2.2 Load and store instructions in RV64I.
 
 ```rust
 impl Cpu {
-    ... 
+    ...
     fn execute(&mut self, inst: u32) {
         ...
         match opcode {
@@ -380,25 +384,81 @@ integer.
 
 ### Execute Stage
 
-Each operation is performed in each `match` arm. For example, a branch instruction `beq`, which is one of the branch instructions, is executed when `opcode` is 0x63 and `funct3` is 0x0. `beq` sets the `pc` to the current `pc` plus the signed-extended offset if a value in `rs1` equals a value in `rs2`. The current `pc` means the position when CPU fetched an instruction from memory so we need to subtract 4 from `pc` because we added 4 after fetch.
+Each operation is performed in each `match` arm. For example, a load
+instruction `lb` is executed when `opcode` is 0x03 and `funct3` is 0x0. The
+`lb` instruction loads a byte from a DRAM with the specific `addr` position.
+
+The suffix in load and store instructions mean the size of bytes.
+
+- b: a byte (8 bits)
+- h: a half word (16 bits)
+- w: a word (32 bits)
+- d: a double word (64 bits)
+
+Also, `u` in load instructions means "unsigned".
 
 <p class="filename">cpu.rs</p>
 
 ```rust
 impl Cpu {
-    ... 
+    ...
     fn execute(&mut self, inst: u32) {
         ...
         match opcode {
-            0x63 => {
-                let imm = ...;
-
+            0x03 => {
+                // imm[11:0] = inst[31:20]
+                let imm = ((inst as i32 as i64) >> 20) as u64;
+                let addr = self.regs[rs1].wrapping_add(imm);
                 match funct3 {
-                    0x0 => {
-                        // beq
-                        if self.regs[rs1] == self.regs[rs2] {
-                            self.pc = self.pc.wrapping_add(imm).wrapping_sub(4);
-                        }
+                    0x0 => { // Load instructions.
+                        // lb
+                        let val = self.load(addr, 8)?;
+                        self.regs[rd] = val as i8 as i64 as u64;
                     }
-                ...
+                    0x1 => {
+                        // lh
+                        let val = self.load(addr, 16)?;
+                        self.regs[rd] = val as i16 as i64 as u64;
+                    }
+                    0x2 => {
+                        // lw
+                        let val = self.load(addr, 32)?;
+                        self.regs[rd] = val as i32 as i64 as u64;
+                    }
+                    0x3 => {
+                        // ld
+                        let val = self.load(addr, 64)?;
+                        self.regs[rd] = val;
+                    }
+                    0x4 => {
+                        // lbu
+                        let val = self.load(addr, 8)?;
+                        self.regs[rd] = val;
+                    }
+                    0x5 => {
+                        // lhu
+                        let val = self.load(addr, 16)?;
+                        self.regs[rd] = val;
+                    }
+                    0x6 => {
+                        // lwu
+                        let val = self.load(addr, 32)?;
+                        self.regs[rd] = val;
+                    }
+                    _ => {}
+                }
+            }
+            0x23 => { // Store instructions.
+                // imm[11:5|4:0] = inst[31:25|11:7]
+                let imm = (((inst & 0xfe000000) as i32 as i64 >> 20) as u64) | ((inst >> 7) & 0x1f);
+                let addr = self.regs[rs1].wrapping_add(imm);
+                match funct3 {
+                    0x0 => self.store(addr, 8, self.regs[rs2])?,  // sb
+                    0x1 => self.store(addr, 16, self.regs[rs2])?, // sh
+                    0x2 => self.store(addr, 32, self.regs[rs2])?, // sw
+                    0x3 => self.store(addr, 64, self.regs[rs2])?, // sd
+                    _ => {}
+                }
+            }
+            ...
 ```
