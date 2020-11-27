@@ -321,7 +321,8 @@ defined at <code>dram.rs</code>.</p>
 <p>From now on, we will add a new file as a module implicitly when it is added.</p>
 <h2><a class="header" href="#system-bus" id="system-bus">System Bus</a></h2>
 <p>A system bus is a component to carry data between the CPU and peripheral devices
-such as a DRAM. In actual hardware, there are 3 types of a bus. The 3 buses together are called a system bus.</p>
+such as a DRAM. In actual hardware, there are 3 types of a bus. The 3 buses
+together are called a system bus.</p>
 <ul>
 <li>Address bus: carries memory addresses.</li>
 <li>Data bus: carries the data.</li>
@@ -415,7 +416,10 @@ each method are an address and the number of bytes. The number of bytes can be
 </span></code></pre></pre>
 <h2><a class="header" href="#update-the-cpu" id="update-the-cpu">Update the CPU</a></h2>
 <p>We're going to implement load and store instructions which are the part of base
-integer instruction set. There are 7 load instructions, <code>lb</code>, <code>lh</code>, <code>lw</code>, <code>lbu</code>, and <code>lhu</code> defined at RV32I and <code>lwu</code> and <code>ld</code> defined at RV64I. There are 4 store instructions, <code>sb</code>, <code>sh</code>, and <code>sw</code> defined at RV32I and <code>sd</code> defined at RV64I.</p>
+integer instruction set. There are 7 load instructions, <code>lb</code>, <code>lh</code>, <code>lw</code>,
+<code>lbu</code>, and <code>lhu</code> defined at RV32I and <code>lwu</code> and <code>ld</code> defined at RV64I. There
+are 4 store instructions, <code>sb</code>, <code>sh</code>, and <code>sw</code> defined at RV32I and <code>sd</code>
+defined at RV64I.</p>
 <h3><a class="header" href="#fetch-decode-execute-cycle" id="fetch-decode-execute-cycle">Fetch-decode-execute Cycle</a></h3>
 <p>We update the fetch-decode-execute cycle introduced in the previous page. The
 emulator continues to execute the cycle until <code>fetch</code> or <code>execute</code> methods fail.</p>
@@ -459,7 +463,7 @@ the compressed instruction set.)</p>
 <span class="boring">#![allow(unused)]
 </span><span class="boring">fn main() {
 </span>impl Cpu {
-    ...  
+    ...
     pub fn fetch(&amp;mut self) -&gt; Result&lt;u64, ()&gt; {
         match self.bus.load(self.pc, 32) {
             Ok(inst) =&gt; Ok(inst),
@@ -486,7 +490,7 @@ immediate value in each operation.</p>
 <span class="boring">#![allow(unused)]
 </span><span class="boring">fn main() {
 </span>impl Cpu {
-    ... 
+    ...
     fn execute(&amp;mut self, inst: u32) {
         ...
         match opcode {
@@ -508,27 +512,82 @@ upper bits with 1 when the significant bit is 1. In this implementation, filling
 in bits with 1 is performed by casting from a signed integer to an unsigned
 integer.</p>
 <h3><a class="header" href="#execute-stage" id="execute-stage">Execute Stage</a></h3>
-<p>Each operation is performed in each <code>match</code> arm. For example, a branch instruction <code>beq</code>, which is one of the branch instructions, is executed when <code>opcode</code> is 0x63 and <code>funct3</code> is 0x0. <code>beq</code> sets the <code>pc</code> to the current <code>pc</code> plus the signed-extended offset if a value in <code>rs1</code> equals a value in <code>rs2</code>. The current <code>pc</code> means the position when CPU fetched an instruction from memory so we need to subtract 4 from <code>pc</code> because we added 4 after fetch.</p>
+<p>Each operation is performed in each <code>match</code> arm. For example, a load
+instruction <code>lb</code> is executed when <code>opcode</code> is 0x03 and <code>funct3</code> is 0x0. The
+<code>lb</code> instruction loads a byte from a DRAM with the specific <code>addr</code> position.</p>
+<p>The suffix in load and store instructions mean the size of bytes.</p>
+<ul>
+<li>b: a byte (8 bits)</li>
+<li>h: a half word (16 bits)</li>
+<li>w: a word (32 bits)</li>
+<li>d: a double word (64 bits)</li>
+</ul>
+<p>Also, <code>u</code> in load instructions means &quot;unsigned&quot;.</p>
 <p class="filename">cpu.rs</p>
 <pre><pre class="playground"><code class="language-rust">
 <span class="boring">#![allow(unused)]
 </span><span class="boring">fn main() {
 </span>impl Cpu {
-    ... 
+    ...
     fn execute(&amp;mut self, inst: u32) {
         ...
         match opcode {
-            0x63 =&gt; {
-                let imm = ...;
-
+            0x03 =&gt; {
+                // imm[11:0] = inst[31:20]
+                let imm = ((inst as i32 as i64) &gt;&gt; 20) as u64;
+                let addr = self.regs[rs1].wrapping_add(imm);
                 match funct3 {
-                    0x0 =&gt; {
-                        // beq
-                        if self.regs[rs1] == self.regs[rs2] {
-                            self.pc = self.pc.wrapping_add(imm).wrapping_sub(4);
-                        }
+                    0x0 =&gt; { // Load instructions.
+                        // lb
+                        let val = self.load(addr, 8)?;
+                        self.regs[rd] = val as i8 as i64 as u64;
                     }
-                ...
+                    0x1 =&gt; {
+                        // lh
+                        let val = self.load(addr, 16)?;
+                        self.regs[rd] = val as i16 as i64 as u64;
+                    }
+                    0x2 =&gt; {
+                        // lw
+                        let val = self.load(addr, 32)?;
+                        self.regs[rd] = val as i32 as i64 as u64;
+                    }
+                    0x3 =&gt; {
+                        // ld
+                        let val = self.load(addr, 64)?;
+                        self.regs[rd] = val;
+                    }
+                    0x4 =&gt; {
+                        // lbu
+                        let val = self.load(addr, 8)?;
+                        self.regs[rd] = val;
+                    }
+                    0x5 =&gt; {
+                        // lhu
+                        let val = self.load(addr, 16)?;
+                        self.regs[rd] = val;
+                    }
+                    0x6 =&gt; {
+                        // lwu
+                        let val = self.load(addr, 32)?;
+                        self.regs[rd] = val;
+                    }
+                    _ =&gt; {}
+                }
+            }
+            0x23 =&gt; { // Store instructions.
+                // imm[11:5|4:0] = inst[31:25|11:7]
+                let imm = (((inst &amp; 0xfe000000) as i32 as i64 &gt;&gt; 20) as u64) | ((inst &gt;&gt; 7) &amp; 0x1f);
+                let addr = self.regs[rs1].wrapping_add(imm);
+                match funct3 {
+                    0x0 =&gt; self.store(addr, 8, self.regs[rs2])?,  // sb
+                    0x1 =&gt; self.store(addr, 16, self.regs[rs2])?, // sh
+                    0x2 =&gt; self.store(addr, 32, self.regs[rs2])?, // sw
+                    0x3 =&gt; self.store(addr, 64, self.regs[rs2])?, // sd
+                    _ =&gt; {}
+                }
+            }
+            ...
 <span class="boring">}
 </span></code></pre></pre>
 
