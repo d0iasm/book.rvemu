@@ -2,7 +2,7 @@
 
 This is a part of [_Writing a RISC-V Emulator in Rust_](../). Our goal is
 running [xv6](https://github.com/mit-pdos/xv6-riscv), a small Unix-like OS, in
-your emulator in the final step.
+your emulator eventually.
 
 The source code used in this page is available at
 [d0iasm/rvemu-for-book/03/](https://github.com/d0iasm/rvemu-for-book/tree/master/03).
@@ -15,6 +15,22 @@ additional information of the result of instructions.
 
 We will add Zicsr instructions, `csrrw`, `csrrs`, `csrrc`, `csrrwi`, `csrrsi`,
 and `csrrci`.
+
+## Zicsr Standard Extension
+
+Fig 3.1 is the list for instructions to read-modify-write CSRs. RISC-V calls
+the 6 instructions **Zicsr standard extension**.
+
+A CSR specifier is encoded in the 12-bit `csr` field of the instruction placed
+at 31–20 bits. There are 12 bits for specifying which CSR is selected so that we
+have 4096 CSRs (=2\*\*12). The `uimm` field is unsigned immediate value, a 5-bit
+zero-extended.
+
+![Fig 3.1 RV64Zicsr Instruction Set (Source: RV32/RV64 Zicsr Standard Extension
+table. in Volume I: Unprivileged ISA)](../img/1-3-1.png)
+
+<p class="caption">Fig 3.1 RV64Zicsr Instruction Set (Source: RV32/RV64 Zicsr
+Standard Extension table in Volume I: Unprivileged ISA)</p>
 
 ## Control and Status Registers (CSRs)
 
@@ -41,41 +57,30 @@ pub struct Cpu {
 }
 ```
 
-## Zicsr Standard Extension
+### CSR List
 
-Fig 3.1 is the list for instructions to read-modify-write CSRs. RISC-V calls
-the 6 instructions **Zicsr standard extension**.
+Fig 3.2-3.4 list the CSRs that are currently allocated CSR addresses. You can
+add custom CSRs at the unallocated space if you want.
 
-A CSR specifier is encoded in the 12-bit `csr` field of the instruction placed
-at 31–20 bits. There are 12 bits for specifying which CSR is selected so that we
-have 4096 CSRs (=2\*\*12). The `uimm` field is unsigned immediate value, a 5-bit
-zero-extended.
+We will suport the following CSRs, a part of allocated CSRs:
 
-![Fig 3.1 RV64Zicsr Instruction Set (Source: RV32/RV64 Zicsr Standard Extension
-table in Volume I: Unprivileged ISA)](../img/1-3-1.png)
-
-<p class="caption">Fig 3.1 RV64Zicsr Instruction Set (Source: RV32/RV64 Zicsr
-Standard Extension</p>
-
-## CSR List
-
-Fig 3.2-3.4 list the CSRs that are currently allocated CSR addresses.
+- mstatus
 
 ![Fig 3.2 Machine-level CSRs 1 (Source: Table 2.5: Currently allocated RISC-V
 machine-level CSR addresses. in Volume II: Privileged
-Architecture](../img/1-3-2.png)
+Architecture)](../img/1-3-2.png)
 
 <p class="caption">Fig 3.2 Machine-level CSRs 1 (Source: Table 2.5: Currently
 allocated RISC-V machine-level CSR addresses. in Volume II: Privileged
-Architecture</p>
+Architecture)</p>
 
 ![Fig 3.3 Machine-level CSRs 2 (Source: Table 2.6: Currently allocated RISC-V
 machine-level CSR addresses. in Volume II: Privileged
-Architecture](../img/1-3-3.png)
+Architecture)](../img/1-3-3.png)
 
 <p class="caption">Fig 3.3 Machine-level CSRs 2 (Source: Table 2.6: Currently
 allocated RISC-V machine-level CSR addresses. in Volume II: Privileged
-Architecture</p>
+Architecture)</p>
 
 ![Fig 3.4 Supervisor-level CSRs (Source: Table 2.3: Currently allocated RISC-V
 supervisor-level CSR addresses. in Volume II: Privileged

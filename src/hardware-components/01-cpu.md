@@ -2,7 +2,7 @@
 
 This is a part of [_Writing a RISC-V Emulator in Rust_](../). Our goal is
 running [xv6](https://github.com/mit-pdos/xv6-riscv), a small Unix-like OS, in
-your emulator in the final step.
+your emulator eventually.
 
 The source code used in this page is available at
 [d0iasm/rvemu-for-book/01/](https://github.com/d0iasm/rvemu-for-book/tree/master/01).

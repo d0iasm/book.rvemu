@@ -2,7 +2,7 @@
 
 This is a part of [_Writing a RISC-V Emulator in Rust_](../). Our goal is
 running [xv6](https://github.com/mit-pdos/xv6-riscv), a small Unix-like OS, in
-your emulator in the final step.
+your emulator eventually.
 
 The source code used in this page is available at
 [d0iasm/rvemu-for-book/02/](https://github.com/d0iasm/rvemu-for-book/tree/master/02).
@@ -470,8 +470,8 @@ impl Cpu {
 
 ## Instruction Set
 
-We implemented `add` and `addi` in the previous page and load and store
-instructions in this page. These instructions are a part of base integer
+We've already implemented `add` and `addi` in the previous page and load and
+store instructions in this page. These instructions are a part of base integer
 instruction set (RV64I). To run xv6 in our emulator, we need to implement all
 instructions in RV64I and a part of instructions in RV64A and RV64M.
 
