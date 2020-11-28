@@ -649,8 +649,8 @@ impl Dram {
 </span></code></pre></pre>
 <h3><a class="header" href="#load-and-store-methods" id="load-and-store-methods">Load and Store Methods</a></h3>
 <p>There are <code>load</code> and <code>store</code> public methods for the <code>Dram</code> struct. Arguments in
-each method are an address and the number of bytes. The number of bytes can be
-8, 16, 32, and 64 bytes.</p>
+each method are an address and the number of bits. The number of bits can be
+8, 16, 32, and 64 bits.</p>
 <p class="filename">dram.rs</p>
 <pre><pre class="playground"><code class="language-rust">
 <span class="boring">#![allow(unused)]
@@ -681,7 +681,7 @@ each method are an address and the number of bytes. The number of bytes can be
 <span class="boring">}
 </span></code></pre></pre>
 <p><code>load8</code>, <code>load16</code>, <code>load32</code>, and <code>load64</code> (<code>store*</code> as well) are private
-methods to help us operate the DRAM with the specific size of bytes. The DRAM
+methods to help us operate the DRAM with the specific size of bits. The DRAM
 is a little-endian system as described in the previous section so we need to be
 careful the order of bytes.</p>
 <p>The following code is <code>load32</code> and <code>store32</code>. The byte of a smallest memory
@@ -795,8 +795,8 @@ only have a part of the peripheral devices the virt machine has.</p>
 };
 </code></pre>
 <p>There are <code>load</code> and <code>store</code> public methods for the <code>Bus</code> struct. Arguments in
-each method are an address and the number of bytes. The number of bytes can be
-8, 16, 32, and 64 bytes.</p>
+each method are an address and the number of bits. The number of bits can be
+8, 16, 32, and 64.</p>
 <p>If the <code>addr</code> is larger than 0x80000000, we can access to the DRAM.</p>
 <p class="filename">dram.rs</p>
 <pre><pre class="playground"><code class="language-rust">
@@ -862,7 +862,7 @@ emulator continues to execute the cycle until <code>fetch</code> or <code>execut
 </code></pre></pre>
 <h3><a class="header" href="#fetch-stage-1" id="fetch-stage-1">Fetch Stage</a></h3>
 <p>The next executable binary can be fetched from DRAM via the system bus we just
-created. The size of bytes is 32 since the the length of one instruction in
+created. The size of bits is 32 since the the length of one instruction in
 RISC-V is always 4 bytes. (Note: The length of one instruction can be 2 bytes in
 the compressed instruction set.)</p>
 <p class="filename">cpu.rs</p>
@@ -900,6 +900,8 @@ immediate value in each operation.</p>
     ...
     fn execute(&amp;mut self, inst: u32) {
         ...
+        let funct3 = ((inst &gt;&gt; 12) &amp; 0x7);
+        ...
         match opcode {
             0x03 =&gt; { // Load instructions.
                 // imm[11:0] = inst[31:20]
@@ -920,9 +922,9 @@ in bits with 1 is performed by casting from a signed integer to an unsigned
 integer.</p>
 <h3><a class="header" href="#execute-stage" id="execute-stage">Execute Stage</a></h3>
 <p>Each operation is performed in each <code>match</code> arm. For example, a load
-instruction <code>lb</code> is executed when <code>opcode</code> is 0x03 and <code>funct3</code> is 0x0. The
+instruction <code>lb</code> is executed when <code>opcode</code> is 0x3 and <code>funct3</code> is 0x0. The
 <code>lb</code> instruction loads a byte from a DRAM with the specific <code>addr</code> position.</p>
-<p>The suffix in load and store instructions mean the size of bytes.</p>
+<p>The suffix in load and store instructions mean the size of bits.</p>
 <ul>
 <li>b: a byte (8 bits)</li>
 <li>h: a half word (16 bits)</li>
@@ -939,12 +941,12 @@ instruction <code>lb</code> is executed when <code>opcode</code> is 0x03 and <co
     fn execute(&amp;mut self, inst: u32) {
         ...
         match opcode {
-            0x03 =&gt; {
+            0x03 =&gt; { // Load instructions.
                 // imm[11:0] = inst[31:20]
                 let imm = ((inst as i32 as i64) &gt;&gt; 20) as u64;
                 let addr = self.regs[rs1].wrapping_add(imm);
                 match funct3 {
-                    0x0 =&gt; { // Load instructions.
+                    0x0 =&gt; {
                         // lb
                         let val = self.load(addr, 8)?;
                         self.regs[rd] = val as i8 as i64 as u64;
