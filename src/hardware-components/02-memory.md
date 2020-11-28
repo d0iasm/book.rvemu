@@ -87,8 +87,8 @@ impl Dram {
 ### Load and Store Methods
 
 There are `load` and `store` public methods for the `Dram` struct. Arguments in
-each method are an address and the number of bytes. The number of bytes can be
-8, 16, 32, and 64 bytes.
+each method are an address and the number of bits. The number of bits can be
+8, 16, 32, and 64 bits.
 
 <p class="filename">dram.rs</p>
 
@@ -119,7 +119,7 @@ impl Dram {
 ```
 
 `load8`, `load16`, `load32`, and `load64` (`store*` as well) are private
-methods to help us operate the DRAM with the specific size of bytes. The DRAM
+methods to help us operate the DRAM with the specific size of bits. The DRAM
 is a little-endian system as described in the previous section so we need to be
 careful the order of bytes.
 
@@ -243,8 +243,8 @@ static const struct MemmapEntry {
 ```
 
 There are `load` and `store` public methods for the `Bus` struct. Arguments in
-each method are an address and the number of bytes. The number of bytes can be
-8, 16, 32, and 64 bytes.
+each method are an address and the number of bits. The number of bits can be
+8, 16, 32, and 64.
 
 If the `addr` is larger than 0x80000000, we can access to the DRAM.
 
@@ -319,7 +319,7 @@ fn main() -> io::Result<()> {
 ### Fetch Stage
 
 The next executable binary can be fetched from DRAM via the system bus we just
-created. The size of bytes is 32 since the the length of one instruction in
+created. The size of bits is 32 since the the length of one instruction in
 RISC-V is always 4 bytes. (Note: The length of one instruction can be 2 bytes in
 the compressed instruction set.)
 
@@ -363,6 +363,8 @@ impl Cpu {
     ...
     fn execute(&mut self, inst: u32) {
         ...
+        let funct3 = ((inst >> 12) & 0x7);
+        ...
         match opcode {
             0x03 => { // Load instructions.
                 // imm[11:0] = inst[31:20]
@@ -385,10 +387,10 @@ integer.
 ### Execute Stage
 
 Each operation is performed in each `match` arm. For example, a load
-instruction `lb` is executed when `opcode` is 0x03 and `funct3` is 0x0. The
+instruction `lb` is executed when `opcode` is 0x3 and `funct3` is 0x0. The
 `lb` instruction loads a byte from a DRAM with the specific `addr` position.
 
-The suffix in load and store instructions mean the size of bytes.
+The suffix in load and store instructions mean the size of bits.
 
 - b: a byte (8 bits)
 - h: a half word (16 bits)
@@ -405,12 +407,12 @@ impl Cpu {
     fn execute(&mut self, inst: u32) {
         ...
         match opcode {
-            0x03 => {
+            0x03 => { // Load instructions.
                 // imm[11:0] = inst[31:20]
                 let imm = ((inst as i32 as i64) >> 20) as u64;
                 let addr = self.regs[rs1].wrapping_add(imm);
                 match funct3 {
-                    0x0 => { // Load instructions.
+                    0x0 => {
                         // lb
                         let val = self.load(addr, 8)?;
                         self.regs[rd] = val as i8 as i64 as u64;
