@@ -97,7 +97,7 @@
 
         <nav id="sidebar" class="sidebar" aria-label="Table of contents">
             <div class="sidebar-scrollbox">
-                <ol class="chapter"><li class="chapter-item expanded affix "><a href="../index.html">Writing a RISC-V Emulator in Rust</a></li><li class="chapter-item expanded "><a href="../hardware-components/index.html"><strong aria-hidden="true">1.</strong> Hardware Components</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../hardware-components/01-cpu.html" class="active"><strong aria-hidden="true">1.1.</strong> CPU with Two Instructions</a></li><li class="chapter-item expanded "><a href="../hardware-components/02-memory.html"><strong aria-hidden="true">1.2.</strong> Memory and System Bus</a></li><li class="chapter-item expanded "><a href="../hardware-components/03-csrs.html"><strong aria-hidden="true">1.3.</strong> Control and Status Registers</a></li><li class="chapter-item expanded "><a href="../hardware-components/04-privileged-architecture.html"><strong aria-hidden="true">1.4.</strong> Privileged Architecture</a></li><li class="chapter-item expanded "><a href="../hardware-components/05-exceptions.html"><strong aria-hidden="true">1.5.</strong> Exceptions</a></li><li class="chapter-item expanded "><a href="../hardware-components/06-plic-and-clint.html"><strong aria-hidden="true">1.6.</strong> PLIC and CLINT</a></li><li class="chapter-item expanded "><a href="../hardware-components/07-uart.html"><strong aria-hidden="true">1.7.</strong> UART</a></li><li class="chapter-item expanded "><a href="../hardware-components/08-interrupts.html"><strong aria-hidden="true">1.8.</strong> Interrupts</a></li></ol></li><li class="chapter-item expanded "><a href="../instruction-set/index.html"><strong aria-hidden="true">2.</strong> Instruction Set</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../instruction-set/01-rv64i.html"><strong aria-hidden="true">2.1.</strong> RV64I Base Integer Instruction Set</a></li><li class="chapter-item expanded "><a href="../instruction-set/02-rv64m.html"><strong aria-hidden="true">2.2.</strong> &quot;M&quot; Standard Extension for Integer Multiplication and Division</a></li><li class="chapter-item expanded "><a href="../instruction-set/03-rv64a.html"><strong aria-hidden="true">2.3.</strong> &quot;A&quot; Standard Extension for AtomicInstructions</a></li></ol></li></ol>
+                <ol class="chapter"><li class="chapter-item expanded affix "><a href="../index.html">Writing a RISC-V Emulator in Rust</a></li><li class="chapter-item expanded "><a href="../hardware-components/index.html"><strong aria-hidden="true">1.</strong> Hardware Components</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../hardware-components/01-cpu.html" class="active"><strong aria-hidden="true">1.1.</strong> CPU with Two Instructions</a></li><li class="chapter-item expanded "><a href="../hardware-components/02-memory.html"><strong aria-hidden="true">1.2.</strong> Memory and System Bus</a></li><li class="chapter-item expanded "><a href="../hardware-components/03-csrs.html"><strong aria-hidden="true">1.3.</strong> Control and Status Registers</a></li></ol></li><li class="chapter-item expanded "><a href="../instruction-set/index.html"><strong aria-hidden="true">2.</strong> Instruction Set</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../instruction-set/01-rv64i.html"><strong aria-hidden="true">2.1.</strong> RV64I Base Integer Instruction Set</a></li></ol></li></ol>
             </div>
             <div id="sidebar-resize-handle" class="sidebar-resize-handle"></div>
         </nav>
@@ -404,7 +404,7 @@ significant byte (LSB) at the lowest address and the most significant byte
 (MSB) places at the highest address in a 32-bit word. While a big-endian
 ordering does the opposite.</p>
 <p><img src="../img/1-1-1.jpg" alt="Fig 1.1 Little-endian and big-endian 2 instructions." /></p>
-<p>Fig 1.1 Little-endian and big-endian 2 instructions.</p>
+<p class="caption">Fig 1.1 Little-endian and big-endian 2 instructions.</p>
 <p>RISC-V has either little-endian or big-endian byte order. Our emulator only
 supports a little-endian system because RISC-V originally chose little-endian
 byte ordering and it's currently dominant commercially like x86 systems.</p>
@@ -432,8 +432,8 @@ them in the little-endian ordering.</p>
 we can see in Fig 1.2. These formats keep all register specifiers at the same
 position in all formats since it makes it easier to decode.</p>
 <p><img src="../img/1-1-2.png" alt="Fig 1.2 RISC-V base instruction formats. (Source: Figure 2.2 in Volume I: Unprivileged ISA)" /></p>
-<p>Fig 1.2 RISC-V base instruction formats. (Source: Figure 2.2 in Volume I:
-Unprivileged ISA)</p>
+<p class="caption">Fig 1.2 RISC-V base instruction formats. (Source: Figure 2.2
+in Volume I: Unprivileged ISA)</p>
 <p>Decoding for common parts in all formats is performed by bitwise operations, bit
 shifts and bitwise ANDs.</p>
 <p class="filename">main.rs</p>
@@ -458,11 +458,10 @@ immediate value. We can dispatch an execution depending on the <code>opcode</cod
 according to Fig 1.3 and Fig 1.4. In the <code>addi</code> instruction, we need to decode
 12-bit immediate which is sign-extended.</p>
 <p><img src="../img/1-1-3.png" alt="Fig 1.3 Add instruction (Source: RV32I Base Instruction Set table in Volume I: Unprivileged ISA)" /></p>
-<p>Fig 1.3 Add instruction (Source: RV32I Base Instruction Set table in Volume
-I: Unprivileged ISA)</p>
+<p class="caption">Fig 1.3 Add instruction (Source: RV32I Base Instruction Set
+table in Volume I: Unprivileged ISA)</p>
 <p><img src="../img/1-1-4.png" alt="Fig 1.4 Addi instruction (Source: RV32I Base Instruction Set table in Volume I: Unprivileged ISA)" /></p>
-<p>Fig 1.4 Addi instruction (Source: RV32I Base Instruction Set table in Volume
-I: Unprivileged ISA)</p>
+<p class="caption">Fig 1.4 Addi instruction (Source: RV32I Base Instruction Set table in Volume I: Unprivileged ISA)</p>
 <p class="filename">main.rs</p>
 <pre><pre class="playground"><code class="language-rust">
 <span class="boring">#![allow(unused)]

@@ -97,7 +97,7 @@
 
         <nav id="sidebar" class="sidebar" aria-label="Table of contents">
             <div class="sidebar-scrollbox">
-                <ol class="chapter"><li class="chapter-item expanded affix "><a href="../index.html">Writing a RISC-V Emulator in Rust</a></li><li class="chapter-item expanded "><a href="../hardware-components/index.html"><strong aria-hidden="true">1.</strong> Hardware Components</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../hardware-components/01-cpu.html"><strong aria-hidden="true">1.1.</strong> CPU with Two Instructions</a></li><li class="chapter-item expanded "><a href="../hardware-components/02-memory.html"><strong aria-hidden="true">1.2.</strong> Memory and System Bus</a></li><li class="chapter-item expanded "><a href="../hardware-components/03-csrs.html" class="active"><strong aria-hidden="true">1.3.</strong> Control and Status Registers</a></li><li class="chapter-item expanded "><a href="../hardware-components/04-privileged-architecture.html"><strong aria-hidden="true">1.4.</strong> Privileged Architecture</a></li><li class="chapter-item expanded "><a href="../hardware-components/05-exceptions.html"><strong aria-hidden="true">1.5.</strong> Exceptions</a></li><li class="chapter-item expanded "><a href="../hardware-components/06-plic-and-clint.html"><strong aria-hidden="true">1.6.</strong> PLIC and CLINT</a></li><li class="chapter-item expanded "><a href="../hardware-components/07-uart.html"><strong aria-hidden="true">1.7.</strong> UART</a></li><li class="chapter-item expanded "><a href="../hardware-components/08-interrupts.html"><strong aria-hidden="true">1.8.</strong> Interrupts</a></li></ol></li><li class="chapter-item expanded "><a href="../instruction-set/index.html"><strong aria-hidden="true">2.</strong> Instruction Set</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../instruction-set/01-rv64i.html"><strong aria-hidden="true">2.1.</strong> RV64I Base Integer Instruction Set</a></li><li class="chapter-item expanded "><a href="../instruction-set/02-rv64m.html"><strong aria-hidden="true">2.2.</strong> &quot;M&quot; Standard Extension for Integer Multiplication and Division</a></li><li class="chapter-item expanded "><a href="../instruction-set/03-rv64a.html"><strong aria-hidden="true">2.3.</strong> &quot;A&quot; Standard Extension for AtomicInstructions</a></li></ol></li></ol>
+                <ol class="chapter"><li class="chapter-item expanded affix "><a href="../index.html">Writing a RISC-V Emulator in Rust</a></li><li class="chapter-item expanded "><a href="../hardware-components/index.html"><strong aria-hidden="true">1.</strong> Hardware Components</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../hardware-components/01-cpu.html"><strong aria-hidden="true">1.1.</strong> CPU with Two Instructions</a></li><li class="chapter-item expanded "><a href="../hardware-components/02-memory.html"><strong aria-hidden="true">1.2.</strong> Memory and System Bus</a></li><li class="chapter-item expanded "><a href="../hardware-components/03-csrs.html" class="active"><strong aria-hidden="true">1.3.</strong> Control and Status Registers</a></li></ol></li><li class="chapter-item expanded "><a href="../instruction-set/index.html"><strong aria-hidden="true">2.</strong> Instruction Set</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../instruction-set/01-rv64i.html"><strong aria-hidden="true">2.1.</strong> RV64I Base Integer Instruction Set</a></li></ol></li></ol>
             </div>
             <div id="sidebar-resize-handle" class="sidebar-resize-handle"></div>
         </nav>
@@ -204,15 +204,26 @@ including <code>regs</code>, <code>pc</code>, and <code>bus</code> in CPU.</p>
 <p>Fig 3.1 is the list for instructions to read-modify-write CSRs. RISC-V calls
 the 6 instructions <strong>Zicsr standard extension</strong>.</p>
 <p>A CSR specifier is encoded in the 12-bit <code>csr</code> field of the instruction placed
-at 31–20 bits. There are 12 bits for specifying which CSR is selected so that
-we have 4096 CSRs (=2**12). The <code>uimm</code> field is unsigned immediate value, a
-5-bit zero-extended.</p>
+at 31–20 bits. There are 12 bits for specifying which CSR is selected so that we
+have 4096 CSRs (=2**12). The <code>uimm</code> field is unsigned immediate value, a 5-bit
+zero-extended.</p>
 <p><img src="../img/1-3-1.png" alt="Fig 3.1 RV64Zicsr Instruction Set (Source: RV32/RV64 Zicsr Standard Extension table in Volume I: Unprivileged ISA)" /></p>
+<p class="caption">Fig 3.1 RV64Zicsr Instruction Set (Source: RV32/RV64 Zicsr
+Standard Extension</p>
 <h2><a class="header" href="#csr-list" id="csr-list">CSR List</a></h2>
 <p>Fig 3.2-3.4 list the CSRs that are currently allocated CSR addresses.</p>
 <p><img src="../img/1-3-2.png" alt="Fig 3.2 Machine-level CSRs 1 (Source: Table 2.5: Currently allocated RISC-V machine-level CSR addresses. in Volume II: Privileged Architecture" /></p>
+<p class="caption">Fig 3.2 Machine-level CSRs 1 (Source: Table 2.5: Currently
+allocated RISC-V machine-level CSR addresses. in Volume II: Privileged
+Architecture</p>
 <p><img src="../img/1-3-3.png" alt="Fig 3.3 Machine-level CSRs 2 (Source: Table 2.6: Currently allocated RISC-V machine-level CSR addresses. in Volume II: Privileged Architecture" /></p>
+<p class="caption">Fig 3.3 Machine-level CSRs 2 (Source: Table 2.6: Currently
+allocated RISC-V machine-level CSR addresses. in Volume II: Privileged
+Architecture</p>
 <p><img src="../img/1-3-4.png" alt="Fig 3.4 Supervisor-level CSRs (Source: Table 2.3: Currently allocated RISC-V supervisor-level CSR addresses. in Volume II: Privileged Architecture)" /></p>
+<p class="caption">Fig 3.4 Supervisor-level CSRs (Source: Table 2.3: Currently
+allocated RISC-V supervisor-level CSR addresses. in Volume II: Privileged
+Architecture)</p>
 
                     </main>
 
@@ -225,7 +236,7 @@ we have 4096 CSRs (=2**12). The <code>uimm</code> field is unsigned immediate va
                         
 
                         
-                            <a rel="next" href="../hardware-components/04-privileged-architecture.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                            <a rel="next" href="../instruction-set/index.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
                                 <i class="fa fa-angle-right"></i>
                             </a>
                         
@@ -243,7 +254,7 @@ we have 4096 CSRs (=2**12). The <code>uimm</code> field is unsigned immediate va
                 
 
                 
-                    <a rel="next" href="../hardware-components/04-privileged-architecture.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                    <a rel="next" href="../instruction-set/index.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
                         <i class="fa fa-angle-right"></i>
                     </a>
                 

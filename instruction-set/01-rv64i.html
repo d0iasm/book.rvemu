@@ -97,7 +97,7 @@
 
         <nav id="sidebar" class="sidebar" aria-label="Table of contents">
             <div class="sidebar-scrollbox">
-                <ol class="chapter"><li class="chapter-item expanded affix "><a href="../index.html">Writing a RISC-V Emulator in Rust</a></li><li class="chapter-item expanded "><a href="../hardware-components/index.html"><strong aria-hidden="true">1.</strong> Hardware Components</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../hardware-components/01-cpu.html"><strong aria-hidden="true">1.1.</strong> CPU with Two Instructions</a></li><li class="chapter-item expanded "><a href="../hardware-components/02-memory.html"><strong aria-hidden="true">1.2.</strong> Memory and System Bus</a></li><li class="chapter-item expanded "><a href="../hardware-components/03-csrs.html"><strong aria-hidden="true">1.3.</strong> Control and Status Registers</a></li><li class="chapter-item expanded "><a href="../hardware-components/04-privileged-architecture.html"><strong aria-hidden="true">1.4.</strong> Privileged Architecture</a></li><li class="chapter-item expanded "><a href="../hardware-components/05-exceptions.html"><strong aria-hidden="true">1.5.</strong> Exceptions</a></li><li class="chapter-item expanded "><a href="../hardware-components/06-plic-and-clint.html"><strong aria-hidden="true">1.6.</strong> PLIC and CLINT</a></li><li class="chapter-item expanded "><a href="../hardware-components/07-uart.html"><strong aria-hidden="true">1.7.</strong> UART</a></li><li class="chapter-item expanded "><a href="../hardware-components/08-interrupts.html"><strong aria-hidden="true">1.8.</strong> Interrupts</a></li></ol></li><li class="chapter-item expanded "><a href="../instruction-set/index.html"><strong aria-hidden="true">2.</strong> Instruction Set</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../instruction-set/01-rv64i.html" class="active"><strong aria-hidden="true">2.1.</strong> RV64I Base Integer Instruction Set</a></li><li class="chapter-item expanded "><a href="../instruction-set/02-rv64m.html"><strong aria-hidden="true">2.2.</strong> &quot;M&quot; Standard Extension for Integer Multiplication and Division</a></li><li class="chapter-item expanded "><a href="../instruction-set/03-rv64a.html"><strong aria-hidden="true">2.3.</strong> &quot;A&quot; Standard Extension for AtomicInstructions</a></li></ol></li></ol>
+                <ol class="chapter"><li class="chapter-item expanded affix "><a href="../index.html">Writing a RISC-V Emulator in Rust</a></li><li class="chapter-item expanded "><a href="../hardware-components/index.html"><strong aria-hidden="true">1.</strong> Hardware Components</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../hardware-components/01-cpu.html"><strong aria-hidden="true">1.1.</strong> CPU with Two Instructions</a></li><li class="chapter-item expanded "><a href="../hardware-components/02-memory.html"><strong aria-hidden="true">1.2.</strong> Memory and System Bus</a></li><li class="chapter-item expanded "><a href="../hardware-components/03-csrs.html"><strong aria-hidden="true">1.3.</strong> Control and Status Registers</a></li></ol></li><li class="chapter-item expanded "><a href="../instruction-set/index.html"><strong aria-hidden="true">2.</strong> Instruction Set</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../instruction-set/01-rv64i.html" class="active"><strong aria-hidden="true">2.1.</strong> RV64I Base Integer Instruction Set</a></li></ol></li></ol>
             </div>
             <div id="sidebar-resize-handle" class="sidebar-resize-handle"></div>
         </nav>
@@ -166,9 +166,20 @@
                 <div id="content" class="content">
                     <main>
                         <h1><a class="header" href="#rv64i-base-integer-instruction-set" id="rv64i-base-integer-instruction-set">RV64I Base Integer Instruction Set</a></h1>
-<h2><a class="header" href="#goal-of-this-page" id="goal-of-this-page">Goal of This Page</a></h2>
-<p>In the end of this page, we can execute <a href="https://github.com/d0iasm/rvemu-for-book/blob/master/step02/fib.c">the sample file</a> that calculates <a href="https://en.wikipedia.org/wiki/Fibonacci_number">a Fibonacci number</a> in our emulator. We will support RV64 ISAs, the base integer instruction set a 64-bit architecture, to calculate a Fibonacci number.</p>
-<p>Sample binary files are also available at <a href="https://github.com/d0iasm/rvemu-for-book/tree/master/step02">d0iasm/rvemu-for-book/step02/</a>. We successfully see the result of the 10th Fibonacci number when we execute the sample binary file <code>fib.bin</code>.</p>
+<p>This is a part of <a href="../"><em>Writing a RISC-V Emulator in Rust</em></a>. Our goal is
+running <a href="https://github.com/mit-pdos/xv6-riscv">xv6</a>, a small Unix-like OS, in
+your emulator eventually.</p>
+<h2><a class="header" href="#the-goal-of-this-page" id="the-goal-of-this-page">The Goal of This Page</a></h2>
+<p>This page will introduce the base integer instruction set for a 64-bit
+architecture (RV64I) all platforms must support. After implementing instructions
+in RV64I, We can execute <a href="https://github.com/d0iasm/rvemu-for-book/blob/master/02/fib.c">the sample
+file</a> that
+calculates <a href="https://en.wikipedia.org/wiki/Fibonacci_number">a Fibonacci number</a>
+in our emulator.</p>
+<p>Sample binary files are available at
+<a href="https://github.com/d0iasm/rvemu-for-book/tree/master/02">d0iasm/rvemu-for-book/02/</a>.
+We successfully see the result of the 10th Fibonacci number when we execute the
+sample binary file <code>fib.bin</code>.</p>
 <pre><code class="language-text">// fib.c contains the following C code and fib.bin is the build result of it:
 // int fib(int n);
 // int main() {
@@ -186,16 +197,34 @@ $ cargo run fib.bin
 x12=0x0 x13=0x0 x14=0x1 x15=0x37 // x15 should contain 55 (= 10th fibonacci number).
 </code></pre>
 <h2><a class="header" href="#rv64i-base-integer-instruction-set-1" id="rv64i-base-integer-instruction-set-1">RV64I: Base Integer Instruction Set</a></h2>
-<p>RV64I is a base integer instruction set for the 64-bit architecture, which builds upon the RV32I variant. RV64I shares most of the instructions with RV32I but the width of registers is different and there are a few additional instructions only in RV64I.</p>
-<p>In this step, we're going to implement 47 instructions (35 instructions from RV32I and 12 instructions from RV64I). We've already implemented <code>add</code> and <code>addi</code> so we'll skip them. Also, we'll skip implementing <code>fence</code>, <code>ecall</code>, and <code>ebreak</code> for now. I'll cover <code>ecall</code> and <code>ebreak</code> in the following step and won't explain <code>fence</code>. The <code>fence</code> instruction is a type of barrier instruction to apply an ordering constraint on memory operations issued before and after it. We don't need it since our emulator is a single core system and doesn't reorder memory operations (out-of-order execution).</p>
-<p>Fig 2.1 and Fig 2.2 are the lists for RV32I and RV64I, respectively. We're going to implement all instructions in the figures.</p>
-<p><img src="../.gitbook/assets/rvemubook-rv32i.png" alt="Fig 2.1 RV32I Base Instruction Set (Source: RV32I Base Instruction Set table in Volume I: Unprivileged ISA)" /></p>
-<p><img src="../.gitbook/assets/screen-shot-2020-04-19-at-20.20.35.png" alt="Fig 2.2 RV64I Base Instruction Set (Source: RV64I Base Instruction Set table in Volume I: Unprivileged ISA)" /></p>
+<p>RV64I is the base integer instruction set for the 64-bit architecture, which
+builds upon the RV32I variant. RV64I shares most of the instructions with RV32I
+but the width of registers is different and there are a few additional
+instructions only in RV64I.</p>
+<p>The base integer instruction set has 47 instructions (35 instructions from RV32I
+and 12 instructions from RV64I). We've already implemented <code>add</code> and <code>addi</code> at
+<a href="../hardware-components/01-cpu.html">1.1 CPU with Two Instructions</a>, load and
+store instructions at <a href="../hardware-components/02-memory.html">1.2 Memory and System
+Bus</a>, and <code>ecall</code> and <code>ebreak</code> at <a href="../hardware-components/04-privileged-architecture.html">1.4
+Privileged Architecture</a>.
+The remaining instructions are coverd by this page. </p>
+<p>Fig 2.1 and Fig 2.2 are the lists for RV32I and RV64I, respectively. We're going
+to implement all instructions in the figures.</p>
+<p><img src="../img/2-1-1.png" alt="Fig 1.1 RV32I Base Instruction Set (Source: RV32I Base Instruction Set table in Volume I: Unprivileged ISA)" /></p>
+<p class="caption">Fig 1.1 RV32I Base Instruction Set (Source: RV32I Base Instruction Set table in Volume I: Unprivileged ISA)</p>
+<p><img src="../img/2-1-2.png" alt="Fig 1.2 RV64I Base Instruction Set (Source: RV64I Base Instruction Set table in Volume I: Unprivileged ISA)" /></p>
+<p class="caption">Fig 1.2 RV64I Base Instruction Set (Source: RV64I Base Instruction Set table in Volume I: Unprivileged ISA)</p>
 <h2><a class="header" href="#instructions-list" id="instructions-list">Instructions List</a></h2>
-<p>The following table is a brief explanation for each instruction. The book won't describe the details of each instruction but will indicate points to be noted when you implement instructions. In addition, you can see the implementation in <a href="https://github.com/d0iasm/rvemu-for-book/blob/master/step02/src/cpu.rs">d0iasm/rvemu-for-book/step02/src/cpu.rs</a> and description in <em>Chapter 2 RV32I Base Integer Instruction Set</em> and <em>Chapter 5 RV64I Base Integer Instruction Set</em> in <a href="https://riscv.org/specifications/isa-spec-pdf/">the unprivileged specification</a>.</p>
-<p><strong>Points to be noted</strong>:</p>
+<p>The following table is a brief explanation for each instruction. The book won't
+describe the details of each instruction but will indicate points to be noted
+when you implement instructions. In addition, you can see the implementation in
+<a href="https://github.com/d0iasm/rvemu-for-book/blob/master/02/src/cpu.rs">d0iasm/rvemu-for-book/02/src/cpu.rs</a>
+and description in <em>Chapter 2 RV32I Base Integer Instruction Set</em> and <em>Chapter 5
+RV64I Base Integer Instruction Set</em> in <a href="https://riscv.org/specifications/isa-spec-pdf/">the unprivileged
+specification</a>.</p>
+<h4><a class="header" href="#points-to-be-noted" id="points-to-be-noted">Points to be noted</a></h4>
 <ul>
-<li>Arithmetic operations are done by wrapping_* functions to avoid an overflow.</li>
+<li>Arithmetic operations are done by wrapping functions to avoid an overflow.</li>
 <li>Sign-extended is done by casting from a smaller signed integer to a larger signed integer.</li>
 <li>The amount for 64-bit shift operations is encoded in the lower 6 bits in an immediate, and the amount for 32-bit shift operations is encoded in the lower 5 bits.</li>
 </ul>
@@ -222,7 +251,7 @@ x12=0x0 x13=0x0 x14=0x1 x15=0x37 // x15 should contain 55 (= 10th fibonacci numb
 <tr><td align="left"><strong>slti</strong> rd, rs1, imm</td><td align="left">x[rd] = x[rs1] &lt; x[rs2]</td><td align="left">Set if less than.</td></tr>
 <tr><td align="left"><strong>sltiu</strong> rd, rs1, imm</td><td align="left">x[rd] = x[rs1] &lt; x[rs2]</td><td align="left">Set if less than, unsigned.</td></tr>
 <tr><td align="left"><strong>xori</strong> rd, rs1, imm</td><td align="left">x[rd] = x[rs1] ^ sext(imm)</td><td align="left">Exclusive OR immediate.</td></tr>
-<tr><td align="left"><strong>ori</strong> rd, rs1, imm</td><td align="left">x[rd] = x[rs1] | sext(imm)</td><td align="left">OR immediate.</td></tr>
+<tr><td align="left"><strong>ori</strong> rd, rs1, imm</td><td align="left">x[rd] = x[rs1]</td><td align="left">sext(imm)</td></tr>
 <tr><td align="left"><strong>andi</strong> rd, rs1, imm</td><td align="left">x[rd] = x[rs1] &amp; sext(imm)</td><td align="left">AND immediate.</td></tr>
 <tr><td align="left"><strong>slli</strong> rd, rs1, shamt</td><td align="left">x[rd] = x[rs1] &lt;&lt; shamt</td><td align="left">Shift left logical immediate.</td></tr>
 <tr><td align="left"><strong>srli</strong> rd, rs1, shamt</td><td align="left">x[rd] = x[rs1] &gt;&gt; shamt</td><td align="left">Shift right logical immediate.</td></tr>
@@ -235,7 +264,7 @@ x12=0x0 x13=0x0 x14=0x1 x15=0x37 // x15 should contain 55 (= 10th fibonacci numb
 <tr><td align="left"><strong>xor</strong> rd, rs1, rs2</td><td align="left">x[rd] = x[rs1] ^ x[rs2]</td><td align="left">Exclusive OR.</td></tr>
 <tr><td align="left"><strong>srl</strong> rd, rs1, rs2</td><td align="left">x[rd] = x[rs1] &gt;&gt; x[rs2]</td><td align="left">Shift right logical.</td></tr>
 <tr><td align="left"><strong>sra</strong> rd, rs1, rs2</td><td align="left">x[rd] = x[rs1] &gt;&gt; x[rs2]</td><td align="left">Shift right arithmetic.</td></tr>
-<tr><td align="left"><strong>or</strong> rd, rs1, rs2</td><td align="left">x[rd] = x[rs1] | x[rs2]</td><td align="left">OR.</td></tr>
+<tr><td align="left"><strong>or</strong> rd, rs1, rs2</td><td align="left">x[rd] = x[rs1]</td><td align="left">x[rs2]</td></tr>
 <tr><td align="left"><strong>and</strong> rd, rs1, rs2</td><td align="left">x[rd] = x[rs1] &amp; x[rs2]</td><td align="left">AND.</td></tr>
 <tr><td align="left"><strong>lwu</strong> rd, offset(rs1)</td><td align="left">x[rd] = M[x[rs1] + sext(offset)][31:0]</td><td align="left">Load word, unsigned.</td></tr>
 <tr><td align="left"><strong>ld</strong> rd, offset(rs1)</td><td align="left">x[rd] = M[x[rs1] + sext(offset)][63:0]</td><td align="left">Load doubleword (64 bits), unsigned.</td></tr>
@@ -250,9 +279,27 @@ x12=0x0 x13=0x0 x14=0x1 x15=0x37 // x15 should contain 55 (= 10th fibonacci numb
 <tr><td align="left"><strong>srlw</strong> rd, rs1, rs2</td><td align="left">x[rd] = sext(x[rs1][31:0] &lt;&lt; x[rs2][4:0])</td><td align="left">Shift right logical word.</td></tr>
 <tr><td align="left"><strong>sraw</strong> rd, rs1, rs2</td><td align="left">x[rd] = sext(x[rs1][31:0] &lt;&lt; x[rs2][4:0])</td><td align="left">Shift right arithmetic word.</td></tr>
 </tbody></table>
+<h3><a class="header" href="#fence-instruction" id="fence-instruction">Fence Instruction</a></h3>
+<p>We won't explain <code>fence</code>. The <code>fence</code> instruction is a type of barrier
+instruction to apply an ordering constraint on memory operations issued before
+and after it.  We don't need it since our emulator is a single core system and
+doesn't reorder memory operations (out-of-order execution).</p>
 <h2><a class="header" href="#testing" id="testing">Testing</a></h2>
-<p>We're going to test instructions we implemented in this step by calculating <a href="https://en.wikipedia.org/wiki/Fibonacci_number">a Fibonacci number</a> and check if the registers are expected values. I prepared a sample binary file available at <a href="https://github.com/d0iasm/rvemu-for-book/tree/master/step02">d0iasm/rvemu-for-book/step02/</a>. Download the <a href="https://github.com/d0iasm/rvemu-for-book/blob/master/step02/fib.bin">fib.bin</a> file and execute it in your emulator.</p>
-<p>Calculating a Fibonacci number is actually not enough to test all RV64I instructions, so it perhaps be better to use <a href="https://github.com/riscv/riscv-tests">riscv/riscv-tests</a> to make sure if your implementation is correct. However, it's not obvious how to use riscv-tests so I'll skip to use the test in this book for the sake of simplicity. If you are interested in using riscv-tests, <a href="https://github.com/d0iasm/rvemu/blob/master/tests/rv64_user.rs">the test file in rvemu</a> may be helpful.</p>
+<p>We're going to test instructions we implemented in this step by calculating <a href="https://en.wikipedia.org/wiki/Fibonacci_number">a
+Fibonacci number</a> and check if
+the registers are expected values. I prepared a sample binary file available at
+<a href="https://github.com/d0iasm/rvemu-for-book/tree/master/02">d0iasm/rvemu-for-book/02/</a>.
+Download the
+<a href="https://github.com/d0iasm/rvemu-for-book/blob/master/02/fib.bin">fib.bin</a>
+file and execute it in your emulator.</p>
+<p>Calculating a Fibonacci number is actually not enough to test all RV64I
+instructions, so it perhaps be better to use
+<a href="https://github.com/riscv/riscv-tests">riscv/riscv-tests</a> to make sure if your
+implementation is correct. However, it's not obvious how to use riscv-tests so
+I'll skip to use the test in this book for the sake of simplicity. If you are
+interested in using riscv-tests, <a href="https://github.com/d0iasm/rvemu/blob/master/tests/rv64_user.rs">the test file in
+rvemu</a> may be
+helpful.</p>
 <pre><code class="language-text">// fib.c contains the following C code and fib.bin is the build result of it:
 // int fib(int n);
 // int main() {
@@ -270,7 +317,7 @@ $ cargo run fib.bin
 x12=0x0 x13=0x0 x14=0x1 x15=0x37 // x15 should contain 55 (= 10th fibonacci number).
 </code></pre>
 <h3><a class="header" href="#how-to-build-test-binary" id="how-to-build-test-binary">How to Build Test Binary</a></h3>
-<p>If you want to execute a bare-metal C program you write, you need to make an ELF binary without any headers because our emulator just starts to execute at the address <code>0x0</code> . The <a href="https://github.com/d0iasm/rvemu-for-book/blob/master/step02/Makefile">Makefile</a> helps you build a test binary.</p>
+<p>If you want to execute a bare-metal C program you write, you need to make an ELF binary without any headers because our emulator just starts to execute at the address <code>0x0</code> . The <a href="https://github.com/d0iasm/rvemu-for-book/blob/master/02/Makefile">Makefile</a> helps you build a test binary.</p>
 <pre><code class="language-bash">$ riscv64-unknown-elf-gcc -S fib.c
 $ riscv64-unknown-elf-gcc -Wl,-Ttext=0x0 -nostdlib -o fib fib.s
 $ riscv64-unknown-elf-objcopy -O binary fib fib.bin
@@ -287,10 +334,6 @@ $ riscv64-unknown-elf-objcopy -O binary fib fib.bin
                         
 
                         
-                            <a rel="next" href="../instruction-set/02-rv64m.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
-                                <i class="fa fa-angle-right"></i>
-                            </a>
-                        
 
                         <div style="clear: both"></div>
                     </nav>
@@ -304,10 +347,6 @@ $ riscv64-unknown-elf-objcopy -O binary fib fib.bin
                     </a>
                 
 
-                
-                    <a rel="next" href="../instruction-set/02-rv64m.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
-                        <i class="fa fa-angle-right"></i>
-                    </a>
                 
             </nav>
 
