@@ -200,12 +200,13 @@ including <code>regs</code>, <code>pc</code>, and <code>bus</code> in CPU.</p>
 }
 <span class="boring">}
 </span></code></pre></pre>
-<h2><a class="header" href="#zicsr-extension" id="zicsr-extension">Zicsr Extension</a></h2>
+<h2><a class="header" href="#zicsr-standard-extension" id="zicsr-standard-extension">Zicsr Standard Extension</a></h2>
 <p>Fig 3.1 is the list for instructions to read-modify-write CSRs. RISC-V calls
-the 6 instructions <em>Zicsr</em>. CSR specifier is encoded in the 12-bit <code>csr</code> field
-of the instruction held in bits 31–20. There are 12 bits for specifying which
-CSR is selected so it means we have 4096 CSRs (=2**12). The <code>uimm</code> field is
-unsigned immediate value, a 5-bit zero-extended.</p>
+the 6 instructions <strong>Zicsr standard extension</strong>.</p>
+<p>A CSR specifier is encoded in the 12-bit <code>csr</code> field of the instruction placed
+at 31–20 bits. There are 12 bits for specifying which CSR is selected so that
+we have 4096 CSRs (=2**12). The <code>uimm</code> field is unsigned immediate value, a
+5-bit zero-extended.</p>
 <p><img src="../img/1-3-1.png" alt="Fig 3.1 RV64Zicsr Instruction Set (Source: RV32/RV64 Zicsr Standard Extension table in Volume I: Unprivileged ISA)" /></p>
 <h2><a class="header" href="#csr-list" id="csr-list">CSR List</a></h2>
 <p>Fig 3.2-3.4 list the CSRs that are currently allocated CSR addresses.</p>
