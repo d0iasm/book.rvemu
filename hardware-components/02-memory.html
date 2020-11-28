@@ -168,7 +168,7 @@
                         <h1><a class="header" href="#memory-and-system-bus" id="memory-and-system-bus">Memory and System Bus</a></h1>
 <p>This is a part of <a href="../"><em>Writing a RISC-V Emulator in Rust</em></a>. Our goal is
 running <a href="https://github.com/mit-pdos/xv6-riscv">xv6</a>, a small Unix-like OS, in
-your emulator in the final step.</p>
+your emulator eventually.</p>
 <p>The source code used in this page is available at
 <a href="https://github.com/d0iasm/rvemu-for-book/tree/master/02">d0iasm/rvemu-for-book/02/</a>.</p>
 <h2><a class="header" href="#the-goal-of-this-page" id="the-goal-of-this-page">The Goal of This Page</a></h2>
@@ -596,8 +596,8 @@ instruction <code>lb</code> is executed when <code>opcode</code> is 0x3 and <cod
 <span class="boring">}
 </span></code></pre></pre>
 <h2><a class="header" href="#instruction-set" id="instruction-set">Instruction Set</a></h2>
-<p>We implemented <code>add</code> and <code>addi</code> in the previous page and load and store
-instructions in this page. These instructions are a part of base integer
+<p>We've already implemented <code>add</code> and <code>addi</code> in the previous page and load and
+store instructions in this page. These instructions are a part of base integer
 instruction set (RV64I). To run xv6 in our emulator, we need to implement all
 instructions in RV64I and a part of instructions in RV64A and RV64M.</p>
 <p>Here is the page for <a href="../instruction-set/index.html">all instruction set we need to implement for running

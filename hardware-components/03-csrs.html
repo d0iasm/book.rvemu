@@ -168,7 +168,7 @@
                         <h1><a class="header" href="#control-and-status-registers" id="control-and-status-registers">Control and Status Registers</a></h1>
 <p>This is a part of <a href="../"><em>Writing a RISC-V Emulator in Rust</em></a>. Our goal is
 running <a href="https://github.com/mit-pdos/xv6-riscv">xv6</a>, a small Unix-like OS, in
-your emulator in the final step.</p>
+your emulator eventually.</p>
 <p>The source code used in this page is available at
 <a href="https://github.com/d0iasm/rvemu-for-book/tree/master/03">d0iasm/rvemu-for-book/03/</a>.</p>
 <h2><a class="header" href="#the-goal-of-this-page" id="the-goal-of-this-page">The Goal of This Page</a></h2>
@@ -177,6 +177,16 @@ your emulator in the final step.</p>
 additional information of the result of instructions.</p>
 <p>We will add Zicsr instructions, <code>csrrw</code>, <code>csrrs</code>, <code>csrrc</code>, <code>csrrwi</code>, <code>csrrsi</code>,
 and <code>csrrci</code>.</p>
+<h2><a class="header" href="#zicsr-standard-extension" id="zicsr-standard-extension">Zicsr Standard Extension</a></h2>
+<p>Fig 3.1 is the list for instructions to read-modify-write CSRs. RISC-V calls
+the 6 instructions <strong>Zicsr standard extension</strong>.</p>
+<p>A CSR specifier is encoded in the 12-bit <code>csr</code> field of the instruction placed
+at 31–20 bits. There are 12 bits for specifying which CSR is selected so that we
+have 4096 CSRs (=2**12). The <code>uimm</code> field is unsigned immediate value, a 5-bit
+zero-extended.</p>
+<p><img src="../img/1-3-1.png" alt="Fig 3.1 RV64Zicsr Instruction Set (Source: RV32/RV64 Zicsr Standard Extension table. in Volume I: Unprivileged ISA)" /></p>
+<p class="caption">Fig 3.1 RV64Zicsr Instruction Set (Source: RV32/RV64 Zicsr
+Standard Extension table in Volume I: Unprivileged ISA)</p>
 <h2><a class="header" href="#control-and-status-registers-csrs" id="control-and-status-registers-csrs">Control and Status Registers (CSRs)</a></h2>
 <p>Control and status register (CSR) is a register that stores various information
 in CPU. RISC-V defines a separate address space of 4096 CSRs associated with
@@ -200,26 +210,21 @@ including <code>regs</code>, <code>pc</code>, and <code>bus</code> in CPU.</p>
 }
 <span class="boring">}
 </span></code></pre></pre>
-<h2><a class="header" href="#zicsr-standard-extension" id="zicsr-standard-extension">Zicsr Standard Extension</a></h2>
-<p>Fig 3.1 is the list for instructions to read-modify-write CSRs. RISC-V calls
-the 6 instructions <strong>Zicsr standard extension</strong>.</p>
-<p>A CSR specifier is encoded in the 12-bit <code>csr</code> field of the instruction placed
-at 31–20 bits. There are 12 bits for specifying which CSR is selected so that we
-have 4096 CSRs (=2**12). The <code>uimm</code> field is unsigned immediate value, a 5-bit
-zero-extended.</p>
-<p><img src="../img/1-3-1.png" alt="Fig 3.1 RV64Zicsr Instruction Set (Source: RV32/RV64 Zicsr Standard Extension table in Volume I: Unprivileged ISA)" /></p>
-<p class="caption">Fig 3.1 RV64Zicsr Instruction Set (Source: RV32/RV64 Zicsr
-Standard Extension</p>
-<h2><a class="header" href="#csr-list" id="csr-list">CSR List</a></h2>
-<p>Fig 3.2-3.4 list the CSRs that are currently allocated CSR addresses.</p>
-<p><img src="../img/1-3-2.png" alt="Fig 3.2 Machine-level CSRs 1 (Source: Table 2.5: Currently allocated RISC-V machine-level CSR addresses. in Volume II: Privileged Architecture" /></p>
+<h3><a class="header" href="#csr-list" id="csr-list">CSR List</a></h3>
+<p>Fig 3.2-3.4 list the CSRs that are currently allocated CSR addresses. You can
+add custom CSRs at the unallocated space if you want.</p>
+<p>We will suport the following CSRs, a part of allocated CSRs:</p>
+<ul>
+<li>mstatus</li>
+</ul>
+<p><img src="../img/1-3-2.png" alt="Fig 3.2 Machine-level CSRs 1 (Source: Table 2.5: Currently allocated RISC-V machine-level CSR addresses. in Volume II: Privileged Architecture)" /></p>
 <p class="caption">Fig 3.2 Machine-level CSRs 1 (Source: Table 2.5: Currently
 allocated RISC-V machine-level CSR addresses. in Volume II: Privileged
-Architecture</p>
-<p><img src="../img/1-3-3.png" alt="Fig 3.3 Machine-level CSRs 2 (Source: Table 2.6: Currently allocated RISC-V machine-level CSR addresses. in Volume II: Privileged Architecture" /></p>
+Architecture)</p>
+<p><img src="../img/1-3-3.png" alt="Fig 3.3 Machine-level CSRs 2 (Source: Table 2.6: Currently allocated RISC-V machine-level CSR addresses. in Volume II: Privileged Architecture)" /></p>
 <p class="caption">Fig 3.3 Machine-level CSRs 2 (Source: Table 2.6: Currently
 allocated RISC-V machine-level CSR addresses. in Volume II: Privileged
-Architecture</p>
+Architecture)</p>
 <p><img src="../img/1-3-4.png" alt="Fig 3.4 Supervisor-level CSRs (Source: Table 2.3: Currently allocated RISC-V supervisor-level CSR addresses. in Volume II: Privileged Architecture)" /></p>
 <p class="caption">Fig 3.4 Supervisor-level CSRs (Source: Table 2.3: Currently
 allocated RISC-V supervisor-level CSR addresses. in Volume II: Privileged
