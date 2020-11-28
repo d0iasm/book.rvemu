@@ -44,7 +44,7 @@ Privileged Architecture_. The _Unprivileged ISA_ defines instructions, the
 binary that the computer processor (CPU) can understand. Currently, RISC-V
 defines 32-bit and 64-bit architecture. The width of registers and the available
 memory size is different depending on the architecture. The 128-bit architecture
-also exists but it is currently in a draft state. 
+also exists but it is currently in a draft state.
 
 [Rust](https://www.rust-lang.org/) is an open-source systems programming
 language that focuses on performance and safety. It is popular especially in
