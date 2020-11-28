@@ -41,13 +41,15 @@ pub struct Cpu {
 }
 ```
 
-## Zicsr Extension 
+## Zicsr Standard Extension
 
 Fig 3.1 is the list for instructions to read-modify-write CSRs. RISC-V calls
-the 6 instructions _Zicsr_. CSR specifier is encoded in the 12-bit `csr` field
-of the instruction held in bits 31–20. There are 12 bits for specifying which
-CSR is selected so it means we have 4096 CSRs (=2\*\*12). The `uimm` field is
-unsigned immediate value, a 5-bit zero-extended.
+the 6 instructions **Zicsr standard extension**.
+
+A CSR specifier is encoded in the 12-bit `csr` field of the instruction placed
+at 31–20 bits. There are 12 bits for specifying which CSR is selected so that
+we have 4096 CSRs (=2\*\*12). The `uimm` field is unsigned immediate value, a
+5-bit zero-extended.
 
 ![Fig 3.1 RV64Zicsr Instruction Set (Source: RV32/RV64 Zicsr Standard Extension
 table in Volume I: Unprivileged ISA)](../img/1-3-1.png)

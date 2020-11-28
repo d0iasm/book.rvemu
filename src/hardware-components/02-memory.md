@@ -476,10 +476,11 @@ instruction set (RV64I). To run xv6 in our emulator, we need to implement all
 instructions in RV64I and a part of instructions in RV64A and RV64M.
 
 Here is the page for [all instruction set we need to implement for running
-xv6](instruction-set/index.md):
+xv6](../instruction-set/index.md):
 
-- [RV64I Base Integer Instruction Set](instruction-set/01-rv64i.md)
+- [RV64I Base Integer Instruction Set](../instruction-set/01-rv64i.md)
 - ["M" Standard Extension for Integer Multiplication and
-  Division](instruction-set/02-rv64m.md)
-- ["A" Standard Extension for AtomicInstructions](instruction-set/03-rv64a.md)
+  Division](../instruction-set/02-rv64m.md)
+- ["A" Standard Extension for
+  AtomicInstructions](../instruction-set/03-rv64a.md)
 
