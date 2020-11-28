@@ -68,7 +68,7 @@ containing executable binary when it's created by `Dram::new()`.
 <p class="filename">dram.rs</p>
 
 ```rust
-pub const MEMORY_SIZE: u64 = 1024 * 1024 * 128; // 128MiB
+pub const DRAM_SIZE: u64 = 1024 * 1024 * 128; // 128MiB
 
 pub struct Dram {
     pub dram: Vec<u8>,
@@ -76,7 +76,7 @@ pub struct Dram {
 
 impl Dram {
     pub fn new(code: Vec<u8>) -> Dram {
-        let mut dram = vec![0; MEMORY_SIZE as usize];
+        let mut dram = vec![0; DRAM_SIZE as usize];
         dram.splice(..code.len(), code.iter().cloned());
 
         Self { dram }
@@ -123,9 +123,9 @@ methods to help us operate the DRAM with the specific size of bits. The DRAM
 is a little-endian system as described in the previous section so we need to be
 careful the order of bytes.
 
-The following code is `load32` and `store32`. The byte of a smallest memory
-address (`index`) is stored at the least signigicant byte at the largest and
-the byte of a largest memory address (`index + 3`) is stored at the most
+The following code is `load32` and `store32` methods. The byte of a smallest
+memory address (`index`) is stored at the least signigicant byte at the largest
+and the byte of a largest memory address (`index + 3`) is stored at the most
 significant byte of a word.
 
 <p class="filename">dram.rs</p>
@@ -135,7 +135,7 @@ impl Dram {
     ...
 
     fn load32(&self, addr: u64) -> u64 {
-        let index = (addr - MEMORY_BASE) as usize;
+        let index = (addr - DRAM_BASE) as usize;
         return (self.dram[index] as u64)
             | ((self.dram[index + 1] as u64) << 8)
             | ((self.dram[index + 2] as u64) << 16)
@@ -143,7 +143,7 @@ impl Dram {
     }
 
     fn store32(&mut self, addr: u64, value: u64) {
-        let index = (addr - MEMORY_BASE) as usize;
+        let index = (addr - DRAM_BASE) as usize;
         self.dram[index] = (value & 0xff) as u8;
         self.dram[index + 1] = ((value >> 8) & 0xff) as u8;
         self.dram[index + 2] = ((value >> 16) & 0xff) as u8;
@@ -246,23 +246,26 @@ There are `load` and `store` public methods for the `Bus` struct. Arguments in
 each method are an address and the number of bits. The number of bits can be
 8, 16, 32, and 64.
 
-If the `addr` is larger than 0x80000000, we can access to the DRAM.
+If the `addr` is larger than 0x80000000 defined as `DRAM_BASE`, we can access to the DRAM.
 
 <p class="filename">dram.rs</p>
 
 ```rust
+/// The address which dram starts, same as QEMU virt machine.
+pub const DRAM_BASE: u64 = 0x8000_0000;
+
 impl Bus {
     ...
 
     pub fn load(&self, addr: u64, size: u64) -> Result<u64, ()> {
-        if MEMORY_BASE <= addr {
+        if DRAM_BASE <= addr {
             return self.dram.load(addr, size);
         }
         Err(())
     }
 
     pub fn store(&mut self, addr: u64, size: u64, value: u64) -> Result<(), ()> {
-        if MEMORY_BASE <= addr {
+        if DRAM_BASE <= addr {
             return self.dram.store(addr, size, value);
         }
         Err(())
@@ -464,3 +467,19 @@ impl Cpu {
             }
             ...
 ```
+
+## Instruction Set
+
+We implemented `add` and `addi` in the previous page and load and store
+instructions in this page. These instructions are a part of base integer
+instruction set (RV64I). To run xv6 in our emulator, we need to implement all
+instructions in RV64I and a part of instructions in RV64A and RV64M.
+
+Here is the page for [all instruction set we need to implement for running
+xv6](instruction-set/index.md):
+
+- [RV64I Base Integer Instruction Set](instruction-set/01-rv64i.md)
+- ["M" Standard Extension for Integer Multiplication and
+  Division](instruction-set/02-rv64m.md)
+- ["A" Standard Extension for AtomicInstructions](instruction-set/03-rv64a.md)
+
