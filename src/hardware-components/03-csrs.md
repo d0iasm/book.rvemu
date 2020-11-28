@@ -1,6 +1,6 @@
 # Control and Status Registers
 
-This is a part of the [_Writing a RISC-V Emulator in Rust_](../). Our goal is
+This is a part of [_Writing a RISC-V Emulator in Rust_](../). Our goal is
 running [xv6](https://github.com/mit-pdos/xv6-riscv), a small Unix-like OS, in
 your emulator in the final step.
 
