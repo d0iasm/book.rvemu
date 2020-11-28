@@ -166,31 +166,40 @@
                 <div id="content" class="content">
                     <main>
                         <h1><a class="header" href="#control-and-status-registers" id="control-and-status-registers">Control and Status Registers</a></h1>
-<p>This is step 3 of the book <a href="../"><em>Writing a RISC-V Emulator from Scratch in 10 Steps</em></a>, whose goal is running <a href="https://github.com/mit-pdos/xv6-riscv">xv6</a>, a small Unix-like OS, in your emulator in the final step.</p>
-<p>The source code is available at <a href="https://github.com/d0iasm/rvemu-for-book/tree/master/step03">d0iasm/rvemu-for-book/step03/</a>.</p>
-<h2><a class="header" href="#goal-of-this-page" id="goal-of-this-page">Goal of This Page</a></h2>
-<p>In the end of this page, we can execute the sample file containing CSR instructions, <code>csrrw</code>, <code>csrrs</code>, <code>csrrc</code>, <code>csrrwi</code>, <code>csrrsi</code>, and <code>csrrci</code>.</p>
+<p>This is a part of the <a href="../"><em>Writing a RISC-V Emulator in Rust</em></a>. Our goal is
+running <a href="https://github.com/mit-pdos/xv6-riscv">xv6</a>, a small Unix-like OS, in
+your emulator in the final step.</p>
+<p>The source code used in this page is available at
+<a href="https://github.com/d0iasm/rvemu-for-book/tree/master/03">d0iasm/rvemu-for-book/03/</a>.</p>
+<h2><a class="header" href="#the-goal-of-this-page" id="the-goal-of-this-page">The Goal of This Page</a></h2>
+<p>In this page, we will implement read-and-modify control and status registers
+(CSRs), which are defined at the Zicsr extension. CSRs are registers that store
+additional information of the result of instructions.</p>
+<p>We will add Zicsr instructions, <code>csrrw</code>, <code>csrrs</code>, <code>csrrc</code>, <code>csrrwi</code>, <code>csrrsi</code>,
+and <code>csrrci</code>.</p>
 <h2><a class="header" href="#control-and-status-registers-csrs" id="control-and-status-registers-csrs">Control and Status Registers (CSRs)</a></h2>
-<p>Control and status register (CSR) is a register that stores various information in CPU. RISC-V defines a separate address space of 4096 CSRs associated with each hardware thread so we can have at most 4096 CSRs. RISC-V only allocates a part of address space so we can add custom CSRs if we want. Also, not all CSRs are required on all implementations. In this book, I'll describe only CSRs used in <a href="https://github.com/mit-pdos/xv6-riscv">xv6-riscv</a>.</p>
-<p>First, we're going to add <code>csrs</code> field to <code>Cpu</code> structure. We already defined registers, a program counter, and memory and now we have 4 fields in CPU.</p>
-<p>{% code title=&quot;src/cpu.rs&quot; %}</p>
+<p>Control and status register (CSR) is a register that stores various information
+in CPU. RISC-V defines a separate address space of 4096 CSRs associated with
+each hardware thread so we can have at most 4096 CSRs. RISC-V only allocates a
+part of address space so we can add custom CSRs if we want. Also, not all CSRs
+are required on all implementations. In this book, I'll describe only CSRs used
+in <a href="https://github.com/mit-pdos/xv6-riscv">xv6-riscv</a>.</p>
+<p>First, we're going to add <code>csrs</code> field to <code>Cpu</code> structure. We now have 4 fields
+including <code>regs</code>, <code>pc</code>, and <code>bus</code> in CPU.</p>
+<p class="filename">csr.rs</p>
 <pre><pre class="playground"><code class="language-rust">
 <span class="boring">#![allow(unused)]
 </span><span class="boring">fn main() {
 </span>pub struct Cpu {
-    /// 32 64-bit integer registers.
     pub regs: [u64; 32],
-    /// Program counter to hold the the memory address of the next instruction that would be executed.
     pub pc: u64,
-    /// Control and status registers. RISC-V ISA sets aside a 12-bit encoding space (csr[11:0]) for
-    /// up to 4096 CSRs.
+    /// Control and status registers. RISC-V ISA sets aside a 12-bit encoding
+    /// space (csr[11:0]) for up to 4096 CSRs.
     pub csrs: [u64; 4096],
-    /// Computer memory to store executable instructions and the stack region.
-    pub memory: Vec&lt;u8&gt;,
+    pub bus: Bus,
 }
 <span class="boring">}
 </span></code></pre></pre>
-<p>{% endcode %}</p>
 <h2><a class="header" href="#csr-instructions" id="csr-instructions">CSR Instructions</a></h2>
 <p>Fig 3.4 is the list for instructions to read-modify-write CSRs. RISC-V calls the 6 instructions <em>Zicsr.</em> CSR specifier is encoded in the 12-bit <code>csr</code> field of the instruction held in bits 31–20. There are 12 bits for specifying which CSR is selected so it means we have 4096 CSRs (=2**12). The <code>uimm</code> field is unsigned immediate value, a 5-bit zero-extended.</p>
 <p><img src="../.gitbook/assets/rvemubook-csr-instructions.png" alt="Fig 3.4 RV64Zicsr Instruction Set (Source: RV32/RV64 Zicsr Standard Extension table in Volume I: Unprivileged ISA)" /></p>
