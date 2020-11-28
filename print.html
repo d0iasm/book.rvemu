@@ -1050,41 +1050,44 @@ including <code>regs</code>, <code>pc</code>, and <code>bus</code> in CPU.</p>
 }
 <span class="boring">}
 </span></code></pre></pre>
-<h2><a class="header" href="#csr-instructions" id="csr-instructions">CSR Instructions</a></h2>
-<p>Fig 3.4 is the list for instructions to read-modify-write CSRs. RISC-V calls the 6 instructions <em>Zicsr.</em> CSR specifier is encoded in the 12-bit <code>csr</code> field of the instruction held in bits 31–20. There are 12 bits for specifying which CSR is selected so it means we have 4096 CSRs (=2**12). The <code>uimm</code> field is unsigned immediate value, a 5-bit zero-extended.</p>
-<p><img src="hardware-components/../.gitbook/assets/rvemubook-csr-instructions.png" alt="Fig 3.4 RV64Zicsr Instruction Set (Source: RV32/RV64 Zicsr Standard Extension table in Volume I: Unprivileged ISA)" /></p>
+<h2><a class="header" href="#zicsr-extension" id="zicsr-extension">Zicsr Extension</a></h2>
+<p>Fig 3.1 is the list for instructions to read-modify-write CSRs. RISC-V calls
+the 6 instructions <em>Zicsr</em>. CSR specifier is encoded in the 12-bit <code>csr</code> field
+of the instruction held in bits 31–20. There are 12 bits for specifying which
+CSR is selected so it means we have 4096 CSRs (=2**12). The <code>uimm</code> field is
+unsigned immediate value, a 5-bit zero-extended.</p>
+<p><img src="hardware-components/../img/1-3-1.png" alt="Fig 3.1 RV64Zicsr Instruction Set (Source: RV32/RV64 Zicsr Standard Extension table in Volume I: Unprivileged ISA)" /></p>
 <h2><a class="header" href="#csr-list" id="csr-list">CSR List</a></h2>
-<p>Fig 3.1-3.3 list the CSRs that are currently allocated CSR addresses.</p>
-<p><img src="hardware-components/../.gitbook/assets/rvemubook-machine-csr-list.png" alt="Fig 3.1 Machine-level CSRs 1 (Source: Table 2.4: Currently allocated RISC-V machine-level CSR addresses. in Volume II: Privileged Architecture" /></p>
-<p><img src="hardware-components/../.gitbook/assets/rvemu-machine-csr-list-2.png" alt="Fig 3.2 Machine-level CSRs 2 (Source: Table 2.5: Currently allocated RISC-V machine-level CSR addresses. in Volume II: Privileged Architecture" /></p>
-<p><img src="hardware-components/../.gitbook/assets/rvemubook-supervisor-csr-list.png" alt="Fig 3.3 Supervisor-level CSRs (Source: Table 2.3: Currently allocated RISC-V supervisor-level CSR addresses. in Volume II: Privileged Architecture)" /></p>
-<h2><a class="header" href="#testing-1" id="testing-1">Testing</a></h2>
+<p>Fig 3.2-3.4 list the CSRs that are currently allocated CSR addresses.</p>
+<p><img src="hardware-components/../img/1-3-2.png" alt="Fig 3.2 Machine-level CSRs 1 (Source: Table 2.4: Currently allocated RISC-V machine-level CSR addresses. in Volume II: Privileged Architecture" /></p>
+<p><img src="hardware-components/../img/1-3-3.png" alt="Fig 3.3 Machine-level CSRs 2 (Source: Table 2.5: Currently allocated RISC-V machine-level CSR addresses. in Volume II: Privileged Architecture" /></p>
+<p><img src="hardware-components/../img/1-3-4.png" alt="Fig 3.4 Supervisor-level CSRs (Source: Table 2.3: Currently allocated RISC-V supervisor-level CSR addresses. in Volume II: Privileged Architecture)" /></p>
 <h1><a class="header" href="#privileged-architecture" id="privileged-architecture">Privileged Architecture</a></h1>
 <p>This is step 4 of the book <a href="hardware-components/../"><em>Writing a RISC-V Emulator from Scratch in 10 Steps</em></a>, whose goal is running <a href="https://github.com/mit-pdos/xv6-riscv">xv6</a>, a small Unix-like OS, in your emulator in the final step.</p>
 <p>The source code is available at <a href="https://github.com/d0iasm/rvemu-for-book/tree/master/step04">d0iasm/rvemu-for-book/step04/</a>.</p>
 <h2><a class="header" href="#goal-of-this-page" id="goal-of-this-page">Goal of This Page</a></h2>
 <p>In the end of this page, we can execute the part of supervisor ISA, <code>mret</code> and <code>sret</code>. These instructions are used to return from traps in M-mode, S-mode, or U-mode respectively. In addition, we'll add <code>sfence.vma</code> but we don't do anything for now.</p>
 <h2><a class="header" href="#privilege-levels" id="privilege-levels">Privilege Levels</a></h2>
-<h2><a class="header" href="#testing-2" id="testing-2">Testing</a></h2>
+<h2><a class="header" href="#testing-1" id="testing-1">Testing</a></h2>
 <h1><a class="header" href="#exceptions" id="exceptions">Exceptions</a></h1>
 <p>This is step 5 of the book <a href="hardware-components/../"><em>Writing a RISC-V Emulator from Scratch in 10 Steps</em></a>, whose goal is running <a href="https://github.com/mit-pdos/xv6-riscv">xv6</a>, a small Unix-like OS, in your emulator in the final step.</p>
 <p>The source code is available at <a href="https://github.com/d0iasm/rvemu-for-book/tree/master/step05">d0iasm/rvemu-for-book/step05/</a>.</p>
 <h2><a class="header" href="#goal-of-this-page-1" id="goal-of-this-page-1">Goal of This Page</a></h2>
 <p>In the end of this page, we support exceptions and can execute <code>ecall</code>, <code>ebreak</code> and <code>fence</code>, parts of the base integer instruction set (RV64I). The <code>ecall</code> and <code>ebreak</code> instructions raise an exception.</p>
 <h2><a class="header" href="#exceptions-1" id="exceptions-1">Exceptions</a></h2>
-<h2><a class="header" href="#testing-3" id="testing-3">Testing</a></h2>
+<h2><a class="header" href="#testing-2" id="testing-2">Testing</a></h2>
 <h1><a class="header" href="#plic-a-platform-level-interrupt-controller-and-clint-a-core-local-interrupter" id="plic-a-platform-level-interrupt-controller-and-clint-a-core-local-interrupter">PLIC (a platform-level interrupt controller) and CLINT (a core-local interrupter)</a></h1>
 <p>This is step 6 of the book <a href="hardware-components/../"><em>Writing a RISC-V Emulator from Scratch in 10 Steps</em></a>, whose goal is running <a href="https://github.com/mit-pdos/xv6-riscv">xv6</a>, a small Unix-like OS, in your emulator in the final step.</p>
 <p>The source code is available at <a href="https://github.com/d0iasm/rvemu-for-book/tree/master/step06">d0iasm/rvemu-for-book/step06/</a>.</p>
 <h2><a class="header" href="#goal-of-this-page-2" id="goal-of-this-page-2">Goal of This Page</a></h2>
 <p>In the end of this page, we can support a platform-level interrupt controller (PLIC) and a core-local interrupter (CLINT) as CPU's peripheral devices.</p>
-<h2><a class="header" href="#testing-4" id="testing-4">Testing</a></h2>
+<h2><a class="header" href="#testing-3" id="testing-3">Testing</a></h2>
 <h1><a class="header" href="#uart-a-universal-asynchronous-receiver-transmitter" id="uart-a-universal-asynchronous-receiver-transmitter">UART (a universal asynchronous receiver-transmitter)</a></h1>
 <p>This is step 7 of the book <a href="hardware-components/../"><em>Writing a RISC-V Emulator from Scratch in 10 Steps</em></a>, whose goal is running <a href="https://github.com/mit-pdos/xv6-riscv">xv6</a>, a small Unix-like OS, in your emulator in the final step.</p>
 <p>The source code is available at <a href="https://github.com/d0iasm/rvemu-for-book/tree/master/step07">d0iasm/rvemu-for-book/step07/</a>.</p>
 <h2><a class="header" href="#goal-of-this-page-3" id="goal-of-this-page-3">Goal of This Page</a></h2>
 <p>In the end of this page, we can support a universal asynchronous receiver-transmitter (UART) as one of CPU's peripheral devices.</p>
-<h2><a class="header" href="#testing-5" id="testing-5">Testing</a></h2>
+<h2><a class="header" href="#testing-4" id="testing-4">Testing</a></h2>
 <p>// TODO: print &quot;Hello, world!&quot; and echoback</p>
 <h1><a class="header" href="#interrupts" id="interrupts">Interrupts</a></h1>
 <p>This is step 8 of the book <a href="hardware-components/../"><em>Writing a RISC-V Emulator from Scratch in 10 Steps</em></a>, whose goal is running <a href="https://github.com/mit-pdos/xv6-riscv">xv6</a>, a small Unix-like OS, in your emulator in the final step.</p>
@@ -1183,7 +1186,7 @@ x12=0x0 x13=0x0 x14=0x1 x15=0x37 // x15 should contain 55 (= 10th fibonacci numb
 <tr><td align="left"><strong>srlw</strong> rd, rs1, rs2</td><td align="left">x[rd] = sext(x[rs1][31:0] &lt;&lt; x[rs2][4:0])</td><td align="left">Shift right logical word.</td></tr>
 <tr><td align="left"><strong>sraw</strong> rd, rs1, rs2</td><td align="left">x[rd] = sext(x[rs1][31:0] &lt;&lt; x[rs2][4:0])</td><td align="left">Shift right arithmetic word.</td></tr>
 </tbody></table>
-<h2><a class="header" href="#testing-6" id="testing-6">Testing</a></h2>
+<h2><a class="header" href="#testing-5" id="testing-5">Testing</a></h2>
 <p>We're going to test instructions we implemented in this step by calculating <a href="https://en.wikipedia.org/wiki/Fibonacci_number">a Fibonacci number</a> and check if the registers are expected values. I prepared a sample binary file available at <a href="https://github.com/d0iasm/rvemu-for-book/tree/master/step02">d0iasm/rvemu-for-book/step02/</a>. Download the <a href="https://github.com/d0iasm/rvemu-for-book/blob/master/step02/fib.bin">fib.bin</a> file and execute it in your emulator.</p>
 <p>Calculating a Fibonacci number is actually not enough to test all RV64I instructions, so it perhaps be better to use <a href="https://github.com/riscv/riscv-tests">riscv/riscv-tests</a> to make sure if your implementation is correct. However, it's not obvious how to use riscv-tests so I'll skip to use the test in this book for the sake of simplicity. If you are interested in using riscv-tests, <a href="https://github.com/d0iasm/rvemu/blob/master/tests/rv64_user.rs">the test file in rvemu</a> may be helpful.</p>
 <pre><code class="language-text">// fib.c contains the following C code and fib.bin is the build result of it:
