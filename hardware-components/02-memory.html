@@ -224,7 +224,7 @@ containing executable binary when it's created by <code>Dram::new()</code>.</p>
 <pre><pre class="playground"><code class="language-rust">
 <span class="boring">#![allow(unused)]
 </span><span class="boring">fn main() {
-</span>pub const MEMORY_SIZE: u64 = 1024 * 1024 * 128; // 128MiB
+</span>pub const DRAM_SIZE: u64 = 1024 * 1024 * 128; // 128MiB
 
 pub struct Dram {
     pub dram: Vec&lt;u8&gt;,
@@ -232,7 +232,7 @@ pub struct Dram {
 
 impl Dram {
     pub fn new(code: Vec&lt;u8&gt;) -&gt; Dram {
-        let mut dram = vec![0; MEMORY_SIZE as usize];
+        let mut dram = vec![0; DRAM_SIZE as usize];
         dram.splice(..code.len(), code.iter().cloned());
 
         Self { dram }
@@ -277,9 +277,9 @@ each method are an address and the number of bits. The number of bits can be
 methods to help us operate the DRAM with the specific size of bits. The DRAM
 is a little-endian system as described in the previous section so we need to be
 careful the order of bytes.</p>
-<p>The following code is <code>load32</code> and <code>store32</code>. The byte of a smallest memory
-address (<code>index</code>) is stored at the least signigicant byte at the largest and
-the byte of a largest memory address (<code>index + 3</code>) is stored at the most
+<p>The following code is <code>load32</code> and <code>store32</code> methods. The byte of a smallest
+memory address (<code>index</code>) is stored at the least signigicant byte at the largest
+and the byte of a largest memory address (<code>index + 3</code>) is stored at the most
 significant byte of a word.</p>
 <p class="filename">dram.rs</p>
 <pre><pre class="playground"><code class="language-rust">
@@ -289,7 +289,7 @@ significant byte of a word.</p>
     ...
 
     fn load32(&amp;self, addr: u64) -&gt; u64 {
-        let index = (addr - MEMORY_BASE) as usize;
+        let index = (addr - DRAM_BASE) as usize;
         return (self.dram[index] as u64)
             | ((self.dram[index + 1] as u64) &lt;&lt; 8)
             | ((self.dram[index + 2] as u64) &lt;&lt; 16)
@@ -297,7 +297,7 @@ significant byte of a word.</p>
     }
 
     fn store32(&amp;mut self, addr: u64, value: u64) {
-        let index = (addr - MEMORY_BASE) as usize;
+        let index = (addr - DRAM_BASE) as usize;
         self.dram[index] = (value &amp; 0xff) as u8;
         self.dram[index + 1] = ((value &gt;&gt; 8) &amp; 0xff) as u8;
         self.dram[index + 2] = ((value &gt;&gt; 16) &amp; 0xff) as u8;
@@ -390,23 +390,26 @@ only have a part of the peripheral devices the virt machine has.</p>
 <p>There are <code>load</code> and <code>store</code> public methods for the <code>Bus</code> struct. Arguments in
 each method are an address and the number of bits. The number of bits can be
 8, 16, 32, and 64.</p>
-<p>If the <code>addr</code> is larger than 0x80000000, we can access to the DRAM.</p>
+<p>If the <code>addr</code> is larger than 0x80000000 defined as <code>DRAM_BASE</code>, we can access to the DRAM.</p>
 <p class="filename">dram.rs</p>
 <pre><pre class="playground"><code class="language-rust">
 <span class="boring">#![allow(unused)]
 </span><span class="boring">fn main() {
-</span>impl Bus {
+</span>/// The address which dram starts, same as QEMU virt machine.
+pub const DRAM_BASE: u64 = 0x8000_0000;
+
+impl Bus {
     ...
 
     pub fn load(&amp;self, addr: u64, size: u64) -&gt; Result&lt;u64, ()&gt; {
-        if MEMORY_BASE &lt;= addr {
+        if DRAM_BASE &lt;= addr {
             return self.dram.load(addr, size);
         }
         Err(())
     }
 
     pub fn store(&amp;mut self, addr: u64, size: u64, value: u64) -&gt; Result&lt;(), ()&gt; {
-        if MEMORY_BASE &lt;= addr {
+        if DRAM_BASE &lt;= addr {
             return self.dram.store(addr, size, value);
         }
         Err(())
@@ -592,6 +595,19 @@ instruction <code>lb</code> is executed when <code>opcode</code> is 0x3 and <cod
             ...
 <span class="boring">}
 </span></code></pre></pre>
+<h2><a class="header" href="#instruction-set" id="instruction-set">Instruction Set</a></h2>
+<p>We implemented <code>add</code> and <code>addi</code> in the previous page and load and store
+instructions in this page. These instructions are a part of base integer
+instruction set (RV64I). To run xv6 in our emulator, we need to implement all
+instructions in RV64I and a part of instructions in RV64A and RV64M.</p>
+<p>Here is the page for <a href="instruction-set/index.html">all instruction set we need to implement for running
+xv6</a>:</p>
+<ul>
+<li><a href="instruction-set/01-rv64i.html">RV64I Base Integer Instruction Set</a></li>
+<li><a href="instruction-set/02-rv64m.html">&quot;M&quot; Standard Extension for Integer Multiplication and
+Division</a></li>
+<li><a href="instruction-set/03-rv64a.html">&quot;A&quot; Standard Extension for AtomicInstructions</a></li>
+</ul>
 
                     </main>
 
