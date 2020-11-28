@@ -41,21 +41,30 @@ pub struct Cpu {
 }
 ```
 
-## CSR Instructions
+## Zicsr Extension 
 
-Fig 3.4 is the list for instructions to read-modify-write CSRs. RISC-V calls the 6 instructions _Zicsr._ CSR specifier is encoded in the 12-bit `csr` field of the instruction held in bits 31–20. There are 12 bits for specifying which CSR is selected so it means we have 4096 CSRs \(=2\*\*12\). The `uimm` field is unsigned immediate value, a 5-bit zero-extended.
+Fig 3.1 is the list for instructions to read-modify-write CSRs. RISC-V calls
+the 6 instructions _Zicsr_. CSR specifier is encoded in the 12-bit `csr` field
+of the instruction held in bits 31–20. There are 12 bits for specifying which
+CSR is selected so it means we have 4096 CSRs (=2\*\*12). The `uimm` field is
+unsigned immediate value, a 5-bit zero-extended.
 
-![Fig 3.4 RV64Zicsr Instruction Set \(Source: RV32/RV64 Zicsr Standard Extension table in Volume I: Unprivileged ISA\)](../.gitbook/assets/rvemubook-csr-instructions.png)
+![Fig 3.1 RV64Zicsr Instruction Set (Source: RV32/RV64 Zicsr Standard Extension
+table in Volume I: Unprivileged ISA)](../img/1-3-1.png)
 
 ## CSR List
 
-Fig 3.1-3.3 list the CSRs that are currently allocated CSR addresses.
+Fig 3.2-3.4 list the CSRs that are currently allocated CSR addresses.
 
-![Fig 3.1 Machine-level CSRs 1 \(Source: Table 2.4: Currently allocated RISC-V machine-level CSR addresses. in Volume II: Privileged Architecture](../.gitbook/assets/rvemubook-machine-csr-list.png)
+![Fig 3.2 Machine-level CSRs 1 (Source: Table 2.4: Currently allocated RISC-V
+machine-level CSR addresses. in Volume II: Privileged
+Architecture](../img/1-3-2.png)
 
-![Fig 3.2 Machine-level CSRs 2 \(Source: Table 2.5: Currently allocated RISC-V machine-level CSR addresses. in Volume II: Privileged Architecture](../.gitbook/assets/rvemu-machine-csr-list-2.png)
+![Fig 3.3 Machine-level CSRs 2 (Source: Table 2.5: Currently allocated RISC-V
+machine-level CSR addresses. in Volume II: Privileged
+Architecture](../img/1-3-3.png)
 
-![Fig 3.3 Supervisor-level CSRs \(Source: Table 2.3: Currently allocated RISC-V supervisor-level CSR addresses. in Volume II: Privileged Architecture\)](../.gitbook/assets/rvemubook-supervisor-csr-list.png)
-
-## Testing
+![Fig 3.4 Supervisor-level CSRs (Source: Table 2.3: Currently allocated RISC-V
+supervisor-level CSR addresses. in Volume II: Privileged
+Architecture)](../img/1-3-4.png)
 
