@@ -58,11 +58,11 @@ table in Volume I: Unprivileged ISA)](../img/1-3-1.png)
 
 Fig 3.2-3.4 list the CSRs that are currently allocated CSR addresses.
 
-![Fig 3.2 Machine-level CSRs 1 (Source: Table 2.4: Currently allocated RISC-V
+![Fig 3.2 Machine-level CSRs 1 (Source: Table 2.5: Currently allocated RISC-V
 machine-level CSR addresses. in Volume II: Privileged
 Architecture](../img/1-3-2.png)
 
-![Fig 3.3 Machine-level CSRs 2 (Source: Table 2.5: Currently allocated RISC-V
+![Fig 3.3 Machine-level CSRs 2 (Source: Table 2.6: Currently allocated RISC-V
 machine-level CSR addresses. in Volume II: Privileged
 Architecture](../img/1-3-3.png)
 
