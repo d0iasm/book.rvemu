@@ -282,7 +282,7 @@ ordering does the opposite.
 
 ![Fig 1.1 Little-endian and big-endian 2 instructions.](../img/1-1-1.jpg)
 
-Fig 1.1 Little-endian and big-endian 2 instructions.
+<p class="caption">Fig 1.1 Little-endian and big-endian 2 instructions.</p>
 
 RISC-V has either little-endian or big-endian byte order. Our emulator only
 supports a little-endian system because RISC-V originally chose little-endian
@@ -316,8 +316,8 @@ position in all formats since it makes it easier to decode.
 ![Fig 1.2 RISC-V base instruction formats. (Source: Figure 2.2 in Volume I:
 Unprivileged ISA)](../img/1-1-2.png)
 
-Fig 1.2 RISC-V base instruction formats. (Source: Figure 2.2 in Volume I:
-Unprivileged ISA)
+<p class="caption">Fig 1.2 RISC-V base instruction formats. (Source: Figure 2.2
+in Volume I: Unprivileged ISA)</p>
 
 Decoding for common parts in all formats is performed by bitwise operations, bit
 shifts and bitwise ANDs.
@@ -344,17 +344,16 @@ immediate value. We can dispatch an execution depending on the `opcode` field
 according to Fig 1.3 and Fig 1.4. In the `addi` instruction, we need to decode
 12-bit immediate which is sign-extended.
 
-![Fig 1.3 Add instruction (Source: RV32I Base Instruction Set table in Volume
-I: Unprivileged ISA)](../img/1-1-3.png)
+![Fig 1.3 Add instruction (Source: RV32I Base Instruction Set table in Volume I:
+Unprivileged ISA)](../img/1-1-3.png)
 
-Fig 1.3 Add instruction (Source: RV32I Base Instruction Set table in Volume
-I: Unprivileged ISA)
+<p class="caption">Fig 1.3 Add instruction (Source: RV32I Base Instruction Set
+table in Volume I: Unprivileged ISA)</p>
 
 ![Fig 1.4 Addi instruction (Source: RV32I Base Instruction Set table in Volume
 I: Unprivileged ISA)](../img/1-1-4.png)
 
-Fig 1.4 Addi instruction (Source: RV32I Base Instruction Set table in Volume
-I: Unprivileged ISA)
+<p class="caption">Fig 1.4 Addi instruction (Source: RV32I Base Instruction Set table in Volume I: Unprivileged ISA)</p>
 
 
 <p class="filename">main.rs</p>

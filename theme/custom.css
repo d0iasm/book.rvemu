@@ -20,3 +20,7 @@ p.filename + pre > pre {
 .language-rust {
   padding-top: 0;
 }
+
+.caption {
+  text-align: center;
+}

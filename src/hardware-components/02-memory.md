@@ -353,11 +353,11 @@ immediate value in each operation.
 
 ![Fig 2.1 Load and store instructions in RV32I.](../img/1-2-1.png)
 
-Fig 2.1 Load and store instructions in RV32I.
+<p class="caption">Fig 2.1 Load and store instructions in RV32I.</p>
 
 ![Fig 2.2 Load and store instructions in RV64I.](../img/1-2-2.png)
 
-Fig 2.2 Load and store instructions in RV64I.
+<p class="caption">Fig 2.2 Load and store instructions in RV64I.</p>
 
 <p class="filename">cpu.rs</p>
 
