@@ -177,16 +177,6 @@ your emulator eventually.</p>
 additional information of the result of instructions.</p>
 <p>We will add Zicsr instructions, <code>csrrw</code>, <code>csrrs</code>, <code>csrrc</code>, <code>csrrwi</code>, <code>csrrsi</code>,
 and <code>csrrci</code>.</p>
-<h2><a class="header" href="#zicsr-standard-extension" id="zicsr-standard-extension">Zicsr Standard Extension</a></h2>
-<p>Fig 3.1 is the list for instructions to read-modify-write CSRs. RISC-V calls
-the 6 instructions <strong>Zicsr standard extension</strong>.</p>
-<p>A CSR specifier is encoded in the 12-bit <code>csr</code> field of the instruction placed
-at 31–20 bits. There are 12 bits for specifying which CSR is selected so that we
-have 4096 CSRs (=2**12). The <code>uimm</code> field is unsigned immediate value, a 5-bit
-zero-extended.</p>
-<p><img src="../img/1-3-1.png" alt="Fig 3.1 RV64Zicsr Instruction Set (Source: RV32/RV64 Zicsr Standard Extension table. in Volume I: Unprivileged ISA)" /></p>
-<p class="caption">Fig 3.1 RV64Zicsr Instruction Set (Source: RV32/RV64 Zicsr
-Standard Extension table in Volume I: Unprivileged ISA)</p>
 <h2><a class="header" href="#control-and-status-registers-csrs" id="control-and-status-registers-csrs">Control and Status Registers (CSRs)</a></h2>
 <p>Control and status register (CSR) is a register that stores various information
 in CPU. RISC-V defines a separate address space of 4096 CSRs associated with
@@ -194,9 +184,67 @@ each hardware thread so we can have at most 4096 CSRs. RISC-V only allocates a
 part of address space so we can add custom CSRs if we want. Also, not all CSRs
 are required on all implementations. In this book, I'll describe only CSRs used
 in <a href="https://github.com/mit-pdos/xv6-riscv">xv6-riscv</a>.</p>
+<p>Fig 3.2-3.4 list the machine-level and supervisor CSRs that are currently
+allocated CSR addresses. The next page will talk about what machine-level and
+supervisor-level are.</p>
+<p>We will support a part of the allocated CSRs. The book describes them in the
+following sections.</p>
+<p><img src="../img/1-3-2.png" alt="Fig 3.2 Machine-level CSRs 1 (Source: Table 2.5: Currently allocated RISC-V machine-level CSR addresses. in Volume II: Privileged Architecture)" /></p>
+<p class="caption">Fig 3.2 Machine-level CSRs 1 (Source: Table 2.5: Currently
+allocated RISC-V machine-level CSR addresses. in Volume II: Privileged
+Architecture)</p>
+<p><img src="../img/1-3-3.png" alt="Fig 3.3 Machine-level CSRs 2 (Source: Table 2.6: Currently allocated RISC-V machine-level CSR addresses. in Volume II: Privileged Architecture)" /></p>
+<p class="caption">Fig 3.3 Machine-level CSRs 2 (Source: Table 2.6: Currently
+allocated RISC-V machine-level CSR addresses. in Volume II: Privileged
+Architecture)</p>
+<p><img src="../img/1-3-4.png" alt="Fig 3.4 Supervisor-level CSRs (Source: Table 2.3: Currently allocated RISC-V supervisor-level CSR addresses. in Volume II: Privileged Architecture)" /></p>
+<p class="caption">Fig 3.4 Supervisor-level CSRs (Source: Table 2.3: Currently
+allocated RISC-V supervisor-level CSR addresses. in Volume II: Privileged
+Architecture)</p>
+<h3><a class="header" href="#status-registers-mstatussstatus" id="status-registers-mstatussstatus">Status Registers (mstatus/sstatus)</a></h3>
+<p>The status registers, <code>mstatus</code> as a machine-level CSR and <code>sstatus</code> as
+a supervisor-level CSR, keep track of and control the CPU's current operating
+status.</p>
+<p class="filename">cpu.rs</p>
+<pre><pre class="playground"><code class="language-rust">
+<span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>/// Machine status register.
+pub const MSTATUS: usize = 0x300;
+/// Supervisor status register.
+pub const SSTATUS: usize = 0x100;
+<span class="boring">}
+</span></code></pre></pre>
+<h3><a class="header" href="#trap-vector-base-address-registers-mtvecstvecc" id="trap-vector-base-address-registers-mtvecstvecc">Trap-vector Base-address Registers (mtvec/stvecc)</a></h3>
+<p>The trap-vector base address registers, <code>mtvec</code> as a machine-level CSR and
+<code>stvec</code> as a supervisor-level CSR, trap vector configuration.</p>
+<p class="filename">cpu.rs</p>
+<pre><pre class="playground"><code class="language-rust">
+<span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>/// Machine trap-handler base address.
+pub const MTVEC: usize = 0x305;
+/// Supervisor trap handler base address.
+pub const STVEC: usize = 0x105;
+<span class="boring">}
+</span></code></pre></pre>
+<h3><a class="header" href="#machine-trap-delegation-registers-medelegmideleg" id="machine-trap-delegation-registers-medelegmideleg">Machine Trap Delegation Registers (medeleg/mideleg)</a></h3>
+<p>The trap delegation registers, <code>medeleg</code> for machine-level exception delegation
+and <code>mideleg</code> for machine-level interrupt delegation, indicate the certain
+exceptions and interrupts should be directly by a lower privileged level.</p>
+<pre><pre class="playground"><code class="language-rust">
+<span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>/// Machine exception delefation register.
+pub const MEDELEG: usize = 0x302;
+/// Machine interrupt delefation register.
+pub const MIDELEG: usize = 0x303;
+<span class="boring">}
+</span></code></pre></pre>
+<h2><a class="header" href="#csrs-in-cpu" id="csrs-in-cpu">CSRs in CPU</a></h2>
 <p>First, we're going to add <code>csrs</code> field to <code>Cpu</code> structure. We now have 4 fields
 including <code>regs</code>, <code>pc</code>, and <code>bus</code> in CPU.</p>
-<p class="filename">csr.rs</p>
+<p class="filename">cpu.rs</p>
 <pre><pre class="playground"><code class="language-rust">
 <span class="boring">#![allow(unused)]
 </span><span class="boring">fn main() {
@@ -210,25 +258,16 @@ including <code>regs</code>, <code>pc</code>, and <code>bus</code> in CPU.</p>
 }
 <span class="boring">}
 </span></code></pre></pre>
-<h3><a class="header" href="#csr-list" id="csr-list">CSR List</a></h3>
-<p>Fig 3.2-3.4 list the CSRs that are currently allocated CSR addresses. You can
-add custom CSRs at the unallocated space if you want.</p>
-<p>We will suport the following CSRs, a part of allocated CSRs:</p>
-<ul>
-<li>mstatus</li>
-</ul>
-<p><img src="../img/1-3-2.png" alt="Fig 3.2 Machine-level CSRs 1 (Source: Table 2.5: Currently allocated RISC-V machine-level CSR addresses. in Volume II: Privileged Architecture)" /></p>
-<p class="caption">Fig 3.2 Machine-level CSRs 1 (Source: Table 2.5: Currently
-allocated RISC-V machine-level CSR addresses. in Volume II: Privileged
-Architecture)</p>
-<p><img src="../img/1-3-3.png" alt="Fig 3.3 Machine-level CSRs 2 (Source: Table 2.6: Currently allocated RISC-V machine-level CSR addresses. in Volume II: Privileged Architecture)" /></p>
-<p class="caption">Fig 3.3 Machine-level CSRs 2 (Source: Table 2.6: Currently
-allocated RISC-V machine-level CSR addresses. in Volume II: Privileged
-Architecture)</p>
-<p><img src="../img/1-3-4.png" alt="Fig 3.4 Supervisor-level CSRs (Source: Table 2.3: Currently allocated RISC-V supervisor-level CSR addresses. in Volume II: Privileged Architecture)" /></p>
-<p class="caption">Fig 3.4 Supervisor-level CSRs (Source: Table 2.3: Currently
-allocated RISC-V supervisor-level CSR addresses. in Volume II: Privileged
-Architecture)</p>
+<h2><a class="header" href="#zicsr-standard-extension" id="zicsr-standard-extension">Zicsr Standard Extension</a></h2>
+<p>Fig 3.1 is the list for instructions to read-modify-write CSRs. RISC-V calls
+the 6 instructions <strong>Zicsr standard extension</strong>.</p>
+<p>A CSR specifier is encoded in the 12-bit <code>csr</code> field of the instruction placed
+at 31–20 bits. There are 12 bits for specifying which CSR is selected so that we
+have 4096 CSRs (=2**12). The <code>uimm</code> field is unsigned immediate value, a 5-bit
+zero-extended.</p>
+<p><img src="../img/1-3-1.png" alt="Fig 3.1 RV64Zicsr Instruction Set (Source: RV32/RV64 Zicsr Standard Extension table. in Volume I: Unprivileged ISA)" /></p>
+<p class="caption">Fig 3.1 RV64Zicsr Instruction Set (Source: RV32/RV64 Zicsr
+Standard Extension table in Volume I: Unprivileged ISA)</p>
 
                     </main>
 
