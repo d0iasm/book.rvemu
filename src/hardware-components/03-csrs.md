@@ -98,7 +98,17 @@ pub const MEDELEG: usize = 0x302;
 pub const MIDELEG: usize = 0x303;
 ```
 
-## CSRs in CPU
+### Interrupt Registers (mip/mie/sip/sie)
+
+### Exception Program Counters (mepc/sepc)
+
+### Trap Cause Registers (mcause/scause)
+
+### Trap Value Registers (mtval/stval)
+
+### Supervisor Address Translation and Protection Register (satp)
+
+## Add CSRs to CPU
 
 First, we're going to add `csrs` field to `Cpu` structure. We now have 4 fields
 including `regs`, `pc`, and `bus` in CPU.
