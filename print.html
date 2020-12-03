@@ -1091,7 +1091,12 @@ pub const MEDELEG: usize = 0x302;
 pub const MIDELEG: usize = 0x303;
 <span class="boring">}
 </span></code></pre></pre>
-<h2><a class="header" href="#csrs-in-cpu" id="csrs-in-cpu">CSRs in CPU</a></h2>
+<h3><a class="header" href="#interrupt-registers-mipmiesipsie" id="interrupt-registers-mipmiesipsie">Interrupt Registers (mip/mie/sip/sie)</a></h3>
+<h3><a class="header" href="#exception-program-counters-mepcsepc" id="exception-program-counters-mepcsepc">Exception Program Counters (mepc/sepc)</a></h3>
+<h3><a class="header" href="#trap-cause-registers-mcausescause" id="trap-cause-registers-mcausescause">Trap Cause Registers (mcause/scause)</a></h3>
+<h3><a class="header" href="#trap-value-registers-mtvalstval" id="trap-value-registers-mtvalstval">Trap Value Registers (mtval/stval)</a></h3>
+<h3><a class="header" href="#supervisor-address-translation-and-protection-register-satp" id="supervisor-address-translation-and-protection-register-satp">Supervisor Address Translation and Protection Register (satp)</a></h3>
+<h2><a class="header" href="#add-csrs-to-cpu" id="add-csrs-to-cpu">Add CSRs to CPU</a></h2>
 <p>First, we're going to add <code>csrs</code> field to <code>Cpu</code> structure. We now have 4 fields
 including <code>regs</code>, <code>pc</code>, and <code>bus</code> in CPU.</p>
 <p class="filename">cpu.rs</p>
