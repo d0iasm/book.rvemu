@@ -73,8 +73,15 @@ A restricted view of `mstatus` appears as the `sstatusw register.
 ![Fig 3.4 mstatus register (Source: Figure 3.6: Machine-mode status register
 (mstatus) for RV64. in Volume II: Privileged Architecture)](../img/1-3-4.png)
 
+<p class="caption">Fig 3.4 mstatus register (Source: Figure 3.6: Machine-mode
+status register (mstatus) for RV64. in Volume II: Privileged Architecture)</p>
+
 ![Fig 3.5 sstatus register (Source: Figure 4.2: Supervisor-mode status register
 (mstatus) for RV64. in Volume II: Privileged Architecture)](../img/1-3-5.png)
+
+<p class="caption">Fig 3.5 sstatus register (Source: Figure 4.2:
+Supervisor-mode status register (mstatus) for RV64. in Volume II: Privileged
+Architecture)</p>
 
 `MIE` and `SIE` are global insterrupt bits, `M` for M-mode and `S` for S-mode.
 When these bits are set, interrupts are globally enabled.
@@ -87,6 +94,10 @@ is allocated at `0x105`.
 
 ![Fig 3.6 mtvec register (Source: Figure 3.9: Machine trap-vector base-address
 register (mtvec). in Volume II: Privileged Architecture)](../img/1-3-6.png)
+
+<p class="caption">Fig 3.6 mtvec register (Source: Figure 3.9: Machine
+trap-vector base-address register (mtvec). in Volume II: Privileged
+Architecture)</p>
 
 `BASE` contains the destination address when trap (an exception or an
 interrupt) occurs.
@@ -107,13 +118,21 @@ exceptions and interrupts should be directly by a lower privileged level.
 ![Fig 3.7 medeleg register (Source: Figure 3.10: Machine Exception Delegation
 Register medeleg. in Volume II: Privileged Architecture)](../img/1-3-7.png)
 
+<p class="caption">Fig 3.7 medeleg register (Source: Figure 3.10: Machine Exception Delegation
+Register medeleg. in Volume II: Privileged Architecture)</p>
+
 ![Fig 3.8 mideleg register (Source: Figure 3.11: Machine Interrupt Delegation
 Register mideleg. in Volume II: Privileged Architecture)](../img/1-3-8.png)
+
+<p class="caption">Fig 3.8 mideleg register (Source: Figure 3.11: Machine Interrupt Delegation
+Register mideleg. in Volume II: Privileged Architecture)</p>
 
 By default, all trap should be handled in M-mode (highest privileged mode).
 These registers can delegate a corresponding trap to lower-level privileged mode.
 
 ### Interrupt Registers (mip/mie/sip/sie)
+
+
 
 ### Exception Program Counters (mepc/sepc)
 
