@@ -16,12 +16,12 @@ The source code used in this book is available at [d0iasm/rvemu-for-book](https:
 
 1. [CPU with Two Instructions](hardware-components/01-cpu.md)
 2. [Memory and System Bus](hardware-components/02-memory.md)
-3. [Control and Status Registers](hardware-components/03-csrs.md)
-4. [Privileged Architecture](hardware-components/04-privileged-architecture.md)
-5. [Exceptions](hardware-components/05-exceptions.md)
-6. [PLIC \(a platform-level interrupt controller\) and CLINT \(a core-local interrupter\)](hardware-components/06-plic-and-clint.md)
-7. [UART \(a universal asynchronous receiver-transmitter\)](hardware-components/07-uart.md)
-8. [Interrupts](hardware-components/08-interrupts.md)
+4. [Control and Status Registers](hardware-components/03-csrs.md)
+3. [Privileged Architecture](hardware-components/04-privileged-architecture.md)
+5. Exceptions
+6. PLIC (a platform-level interrupt controller) and CLINT (a core-local interrupter)
+7. UART (a universal asynchronous receiver-transmitter)
+8. Interrupts
 9. Virtio
 10. Virtual Memory System
 
@@ -30,8 +30,8 @@ The source code used in this book is available at [d0iasm/rvemu-for-book](https:
 [Chapter 2](instruction-set/index.md) shows all ISAs we need to implement for running `xv6`.
 
 - [RV64I Base Integer Instruction Set](instruction-set/01-rv64i.md)
-- ["M" Standard Extension for Integer Multiplication and Division](instruction-set/02-rv64m.md)
-- ["A" Standard Extension for AtomicInstructions](instruction-set/03-rv64a.md)
+- "M" Standard Extension for Integer Multiplication and Division
+- "A" Standard Extension for AtomicInstructions
 
 ## Outcome
 

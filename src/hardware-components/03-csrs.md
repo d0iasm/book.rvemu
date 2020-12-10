@@ -14,89 +14,104 @@ In this page, we will implement read-and-modify control and status registers
 additional information of the result of instructions.
 
 We will add Zicsr instructions, `csrrw`, `csrrs`, `csrrc`, `csrrwi`, `csrrsi`,
-and `csrrci`.
+and `csrrci`, to read and write CSRs.
 
 ## Control and Status Registers (CSRs)
 
 Control and status register (CSR) is a register that stores various information
-in CPU. RISC-V defines a separate address space of 4096 CSRs associated with
-each hardware thread so we can have at most 4096 CSRs. RISC-V only allocates a
-part of address space so we can add custom CSRs if we want. Also, not all CSRs
-are required on all implementations. In this book, I'll describe only CSRs used
-in [xv6-riscv](https://github.com/mit-pdos/xv6-riscv).
+in CPU. RISC-V defines a separate address space of 4096 CSRs so we can have at
+most 4096 CSRs. RISC-V only allocates a part of address space so we can add
+custom CSRs in unused addresses. Also, not all CSRs are required on all
+implementations.
 
-Fig 3.2-3.4 list the machine-level and supervisor CSRs that are currently
-allocated CSR addresses. The next page will talk about what machine-level and
-supervisor-level are.
+Fig 3.1-3.3 list the machine-level and supervisor CSRs that are currently
+allocated CSR addresses. The next page will talk about what machine-level
+(M-mode) and supervisor-level (S-mode) are.
 
-We will support a part of the allocated CSRs. The book describes them in the
-following sections.
+We will support a part of the allocated CSRs used in
+[xv6-riscv](https://github.com/mit-pdos/xv6-riscv). The book only describes
+them in the following sections.
 
-![Fig 3.2 Machine-level CSRs 1 (Source: Table 2.5: Currently allocated RISC-V
+![Fig 3.1 Machine-level CSRs 1 (Source: Table 2.5: Currently allocated RISC-V
+machine-level CSR addresses. in Volume II: Privileged
+Architecture)](../img/1-3-1.png)
+
+<p class="caption">Fig 3.1 Machine-level CSRs 1 (Source: Table 2.5: Currently
+allocated RISC-V machine-level CSR addresses. in Volume II: Privileged
+Architecture)</p>
+
+![Fig 3.2 Machine-level CSRs 2 (Source: Table 2.6: Currently allocated RISC-V
 machine-level CSR addresses. in Volume II: Privileged
 Architecture)](../img/1-3-2.png)
 
-<p class="caption">Fig 3.2 Machine-level CSRs 1 (Source: Table 2.5: Currently
+<p class="caption">Fig 3.2 Machine-level CSRs 2 (Source: Table 2.6: Currently
 allocated RISC-V machine-level CSR addresses. in Volume II: Privileged
 Architecture)</p>
 
-![Fig 3.3 Machine-level CSRs 2 (Source: Table 2.6: Currently allocated RISC-V
-machine-level CSR addresses. in Volume II: Privileged
+![Fig 3.3 Supervisor-level CSRs (Source: Table 2.3: Currently allocated RISC-V
+supervisor-level CSR addresses. in Volume II: Privileged
 Architecture)](../img/1-3-3.png)
 
-<p class="caption">Fig 3.3 Machine-level CSRs 2 (Source: Table 2.6: Currently
-allocated RISC-V machine-level CSR addresses. in Volume II: Privileged
-Architecture)</p>
-
-![Fig 3.4 Supervisor-level CSRs (Source: Table 2.3: Currently allocated RISC-V
-supervisor-level CSR addresses. in Volume II: Privileged
-Architecture)](../img/1-3-4.png)
-
-<p class="caption">Fig 3.4 Supervisor-level CSRs (Source: Table 2.3: Currently
+<p class="caption">Fig 3.3 Supervisor-level CSRs (Source: Table 2.3: Currently
 allocated RISC-V supervisor-level CSR addresses. in Volume II: Privileged
 Architecture)</p>
 
 ### Status Registers (mstatus/sstatus)
 
-The status registers, `mstatus` as a machine-level CSR and `sstatus` as
-a supervisor-level CSR, keep track of and control the CPU's current operating
-status.
+The status registers, `mstatus` for M-mode and `sstatus` for S-mode, keep track
+of and control the CPU's current operating status.
 
-<p class="filename">cpu.rs</p>
+`mstatus` is allocated at `0x300` and `sstatus` is allocated at `0x100`. It
+means we can access status registers by `0x300` and `0x100`.
 
-```rust
-/// Machine status register.
-pub const MSTATUS: usize = 0x300;
-/// Supervisor status register.
-pub const SSTATUS: usize = 0x100;
-```
+Fig 3.4 and Fig 3.5 represent the format of `mstatus` and `sstatus`. The length
+of these regsiters is 64. Each bit is allocated to a different meaning and we
+can tell the status to the CPU by setting/unsetting bits.
+
+A restricted view of `mstatus` appears as the `sstatusw register.
+
+![Fig 3.4 mstatus register (Source: Figure 3.6: Machine-mode status register
+(mstatus) for RV64. in Volume II: Privileged Architecture)](../img/1-3-4.png)
+
+![Fig 3.5 sstatus register (Source: Figure 4.2: Supervisor-mode status register
+(mstatus) for RV64. in Volume II: Privileged Architecture)](../img/1-3-5.png)
+
+`MIE` and `SIE` are global insterrupt bits, `M` for M-mode and `S` for S-mode.
+When these bits are set, interrupts are globally enabled.
 
 ### Trap-vector Base-address Registers (mtvec/stvecc)
 
-The trap-vector base address registers, `mtvec` as a machine-level CSR and
-`stvec` as a supervisor-level CSR, trap vector configuration.
+The trap-vector base address registers, `mtvec` for M-mode and `stvec` for
+S-mode, trap vector configuration. `mtvec` is allocated at `0x303` and `stvec`
+is allocated at `0x105`.
 
-<p class="filename">cpu.rs</p>
+![Fig 3.6 mtvec register (Source: Figure 3.9: Machine trap-vector base-address
+register (mtvec). in Volume II: Privileged Architecture)](../img/1-3-6.png)
 
-```rust
-/// Machine trap-handler base address.
-pub const MTVEC: usize = 0x305;
-/// Supervisor trap handler base address.
-pub const STVEC: usize = 0x105;
-```
+`BASE` contains the destination address when trap (an exception or an
+interrupt) occurs.
+
+`MODE` can add alignment constraints on the value in `BASE`. When `MODE` is 0,
+the next program counter is set to the value in `BASE` is used as it is.  When
+`MODE` is 1, the next program counter is set to the value of `BASE` + 4 ×
+`cause`.  The value of `cause` can be gotten in trap cause registers in the
+following section.
 
 ### Machine Trap Delegation Registers (medeleg/mideleg)
 
 The trap delegation registers, `medeleg` for machine-level exception delegation
 and `mideleg` for machine-level interrupt delegation, indicate the certain
 exceptions and interrupts should be directly by a lower privileged level.
+`medeleg` is allocated at `0x302` and `mideleg` is allocated at `0x303`.
 
-```rust
-/// Machine exception delefation register.
-pub const MEDELEG: usize = 0x302;
-/// Machine interrupt delefation register.
-pub const MIDELEG: usize = 0x303;
-```
+![Fig 3.7 medeleg register (Source: Figure 3.10: Machine Exception Delegation
+Register medeleg. in Volume II: Privileged Architecture)](../img/1-3-7.png)
+
+![Fig 3.8 mideleg register (Source: Figure 3.11: Machine Interrupt Delegation
+Register mideleg. in Volume II: Privileged Architecture)](../img/1-3-8.png)
+
+By default, all trap should be handled in M-mode (highest privileged mode).
+These registers can delegate a corresponding trap to lower-level privileged mode.
 
 ### Interrupt Registers (mip/mie/sip/sie)
 
