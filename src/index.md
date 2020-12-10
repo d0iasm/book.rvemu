@@ -17,7 +17,7 @@ The source code used in this book is available at [d0iasm/rvemu-for-book](https:
 1. [CPU with Two Instructions](hardware-components/01-cpu.md)
 2. [Memory and System Bus](hardware-components/02-memory.md)
 4. [Control and Status Registers](hardware-components/03-csrs.md)
-3. [Privileged Architecture](hardware-components/04-privileged-architecture.md)
+3. Privileged Architecture
 5. Exceptions
 6. PLIC (a platform-level interrupt controller) and CLINT (a core-local interrupter)
 7. UART (a universal asynchronous receiver-transmitter)

@@ -105,8 +105,7 @@ interrupt) occurs.
 `MODE` can add alignment constraints on the value in `BASE`. When `MODE` is 0,
 the next program counter is set to the value in `BASE` is used as it is.  When
 `MODE` is 1, the next program counter is set to the value of `BASE` + 4 ×
-`cause`.  The value of `cause` can be gotten in trap cause registers in the
-following section.
+`cause`.  The value of `cause` can be gotten in trap cause registers.
 
 ### Machine Trap Delegation Registers (medeleg/mideleg)
 
@@ -132,7 +131,36 @@ These registers can delegate a corresponding trap to lower-level privileged mode
 
 ### Interrupt Registers (mip/mie/sip/sie)
 
+The interrupt registers, `mip` and `mie` for M-mode and `sip` and `sie` for
+S-mode, contain the information about interrupts. "ip" is the abbreviation of
+"Interrupt Pending" and "ie" is "Interrupt Enable".
 
+`mip` is allocated at `0x344`, `mie` is `0x304`, `sip` is `0x144`, and `sie` is
+`0x104`.
+
+![Fig 3.9 mip register (Source: Figure 3.12: Machine Interrupt-Pending Register
+(mip). in Volume II: Privileged Architecture)](../img/1-3-9.png)
+
+<p class="caption">Fig 3.9 mip register (Source: Figure 3.12: Machine Interrupt-Pending Register
+(mip). in Volume II: Privileged Architecture)</p>
+
+![Fig 3.10 mie register (Source: Figure 3.13: Machine Interrupt-Enable Register
+(mie). in Volume II: Privileged Architecture)](../img/1-3-10.png)
+
+<p class="caption">Fig 3.10 mie register (Source: Figure 3.13: Machine Interrupt-Enable Register
+(mie). in Volume II: Privileged Architecture)</p>
+
+![Fig 3.11 sip register (Source: Figure 4.4: Supervisor interrupt-pending
+register (sip). in Volume II: Privileged Architecture)](../img/1-3-11.png)
+
+<p class="caption">Fig 3.11 sip register (Source: Figure 4.4: Supervisor interrupt-pending
+register (sip). in Volume II: Privileged Architecture)</p>
+
+![Fig 3.12 sie register (Source: Figure 4.5: Supervisor interrupt-enable
+register (sie). in Volume II: Privileged Architecture)](../img/1-3-12.png)
+
+<p class="caption">Fig 3.12 sie register (Source: Figure 4.5: Supervisor interrupt-enable
+register (sie). in Volume II: Privileged Architecture)</p>
 
 ### Exception Program Counters (mepc/sepc)
 
@@ -162,7 +190,7 @@ pub struct Cpu {
 
 ## Zicsr Standard Extension
 
-Fig 3.1 is the list for instructions to read-modify-write CSRs. RISC-V calls
+Fig 3.99 is the list for instructions to read-modify-write CSRs. RISC-V calls
 the 6 instructions **Zicsr standard extension**.
 
 A CSR specifier is encoded in the 12-bit `csr` field of the instruction placed
@@ -170,9 +198,9 @@ at 31–20 bits. There are 12 bits for specifying which CSR is selected so that 
 have 4096 CSRs (=2\*\*12). The `uimm` field is unsigned immediate value, a 5-bit
 zero-extended.
 
-![Fig 3.1 RV64Zicsr Instruction Set (Source: RV32/RV64 Zicsr Standard Extension
-table. in Volume I: Unprivileged ISA)](../img/1-3-1.png)
+![Fig 3.99 RV64Zicsr Instruction Set (Source: RV32/RV64 Zicsr Standard Extension
+table. in Volume I: Unprivileged ISA)](../img/1-3-99.png)
 
-<p class="caption">Fig 3.1 RV64Zicsr Instruction Set (Source: RV32/RV64 Zicsr
+<p class="caption">Fig 3.99 RV64Zicsr Instruction Set (Source: RV32/RV64 Zicsr
 Standard Extension table in Volume I: Unprivileged ISA)</p>
 
