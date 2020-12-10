@@ -1061,7 +1061,12 @@ of these regsiters is 64. Each bit is allocated to a different meaning and we
 can tell the status to the CPU by setting/unsetting bits.</p>
 <p>A restricted view of <code>mstatus</code> appears as the `sstatusw register.</p>
 <p><img src="hardware-components/../img/1-3-4.png" alt="Fig 3.4 mstatus register (Source: Figure 3.6: Machine-mode status register (mstatus) for RV64. in Volume II: Privileged Architecture)" /></p>
+<p class="caption">Fig 3.4 mstatus register (Source: Figure 3.6: Machine-mode
+status register (mstatus) for RV64. in Volume II: Privileged Architecture)</p>
 <p><img src="hardware-components/../img/1-3-5.png" alt="Fig 3.5 sstatus register (Source: Figure 4.2: Supervisor-mode status register (mstatus) for RV64. in Volume II: Privileged Architecture)" /></p>
+<p class="caption">Fig 3.5 sstatus register (Source: Figure 4.2:
+Supervisor-mode status register (mstatus) for RV64. in Volume II: Privileged
+Architecture)</p>
 <p><code>MIE</code> and <code>SIE</code> are global insterrupt bits, <code>M</code> for M-mode and <code>S</code> for S-mode.
 When these bits are set, interrupts are globally enabled.</p>
 <h3><a class="header" href="#trap-vector-base-address-registers-mtvecstvecc" id="trap-vector-base-address-registers-mtvecstvecc">Trap-vector Base-address Registers (mtvec/stvecc)</a></h3>
@@ -1069,6 +1074,9 @@ When these bits are set, interrupts are globally enabled.</p>
 S-mode, trap vector configuration. <code>mtvec</code> is allocated at <code>0x303</code> and <code>stvec</code>
 is allocated at <code>0x105</code>.</p>
 <p><img src="hardware-components/../img/1-3-6.png" alt="Fig 3.6 mtvec register (Source: Figure 3.9: Machine trap-vector base-address register (mtvec). in Volume II: Privileged Architecture)" /></p>
+<p class="caption">Fig 3.6 mtvec register (Source: Figure 3.9: Machine
+trap-vector base-address register (mtvec). in Volume II: Privileged
+Architecture)</p>
 <p><code>BASE</code> contains the destination address when trap (an exception or an
 interrupt) occurs.</p>
 <p><code>MODE</code> can add alignment constraints on the value in <code>BASE</code>. When <code>MODE</code> is 0,
@@ -1082,7 +1090,11 @@ and <code>mideleg</code> for machine-level interrupt delegation, indicate the ce
 exceptions and interrupts should be directly by a lower privileged level.
 <code>medeleg</code> is allocated at <code>0x302</code> and <code>mideleg</code> is allocated at <code>0x303</code>.</p>
 <p><img src="hardware-components/../img/1-3-7.png" alt="Fig 3.7 medeleg register (Source: Figure 3.10: Machine Exception Delegation Register medeleg. in Volume II: Privileged Architecture)" /></p>
+<p class="caption">Fig 3.7 medeleg register (Source: Figure 3.10: Machine Exception Delegation
+Register medeleg. in Volume II: Privileged Architecture)</p>
 <p><img src="hardware-components/../img/1-3-8.png" alt="Fig 3.8 mideleg register (Source: Figure 3.11: Machine Interrupt Delegation Register mideleg. in Volume II: Privileged Architecture)" /></p>
+<p class="caption">Fig 3.8 mideleg register (Source: Figure 3.11: Machine Interrupt Delegation
+Register mideleg. in Volume II: Privileged Architecture)</p>
 <p>By default, all trap should be handled in M-mode (highest privileged mode).
 These registers can delegate a corresponding trap to lower-level privileged mode.</p>
 <h3><a class="header" href="#interrupt-registers-mipmiesipsie" id="interrupt-registers-mipmiesipsie">Interrupt Registers (mip/mie/sip/sie)</a></h3>
