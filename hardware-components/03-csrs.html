@@ -232,8 +232,7 @@ interrupt) occurs.</p>
 <p><code>MODE</code> can add alignment constraints on the value in <code>BASE</code>. When <code>MODE</code> is 0,
 the next program counter is set to the value in <code>BASE</code> is used as it is.  When
 <code>MODE</code> is 1, the next program counter is set to the value of <code>BASE</code> + 4 ×
-<code>cause</code>.  The value of <code>cause</code> can be gotten in trap cause registers in the
-following section.</p>
+<code>cause</code>.  The value of <code>cause</code> can be gotten in trap cause registers.</p>
 <h3><a class="header" href="#machine-trap-delegation-registers-medelegmideleg" id="machine-trap-delegation-registers-medelegmideleg">Machine Trap Delegation Registers (medeleg/mideleg)</a></h3>
 <p>The trap delegation registers, <code>medeleg</code> for machine-level exception delegation
 and <code>mideleg</code> for machine-level interrupt delegation, indicate the certain
@@ -248,6 +247,23 @@ Register mideleg. in Volume II: Privileged Architecture)</p>
 <p>By default, all trap should be handled in M-mode (highest privileged mode).
 These registers can delegate a corresponding trap to lower-level privileged mode.</p>
 <h3><a class="header" href="#interrupt-registers-mipmiesipsie" id="interrupt-registers-mipmiesipsie">Interrupt Registers (mip/mie/sip/sie)</a></h3>
+<p>The interrupt registers, <code>mip</code> and <code>mie</code> for M-mode and <code>sip</code> and <code>sie</code> for
+S-mode, contain the information about interrupts. &quot;ip&quot; is the abbreviation of
+&quot;Interrupt Pending&quot; and &quot;ie&quot; is &quot;Interrupt Enable&quot;.</p>
+<p><code>mip</code> is allocated at <code>0x344</code>, <code>mie</code> is <code>0x304</code>, <code>sip</code> is <code>0x144</code>, and <code>sie</code> is
+<code>0x104</code>.</p>
+<p><img src="../img/1-3-9.png" alt="Fig 3.9 mip register (Source: Figure 3.12: Machine Interrupt-Pending Register (mip). in Volume II: Privileged Architecture)" /></p>
+<p class="caption">Fig 3.9 mip register (Source: Figure 3.12: Machine Interrupt-Pending Register
+(mip). in Volume II: Privileged Architecture)</p>
+<p><img src="../img/1-3-10.png" alt="Fig 3.10 mie register (Source: Figure 3.13: Machine Interrupt-Enable Register (mie). in Volume II: Privileged Architecture)" /></p>
+<p class="caption">Fig 3.10 mie register (Source: Figure 3.13: Machine Interrupt-Enable Register
+(mie). in Volume II: Privileged Architecture)</p>
+<p><img src="../img/1-3-11.png" alt="Fig 3.11 sip register (Source: Figure 4.4: Supervisor interrupt-pending register (sip). in Volume II: Privileged Architecture)" /></p>
+<p class="caption">Fig 3.11 sip register (Source: Figure 4.4: Supervisor interrupt-pending
+register (sip). in Volume II: Privileged Architecture)</p>
+<p><img src="../img/1-3-12.png" alt="Fig 3.12 sie register (Source: Figure 4.5: Supervisor interrupt-enable register (sie). in Volume II: Privileged Architecture)" /></p>
+<p class="caption">Fig 3.12 sie register (Source: Figure 4.5: Supervisor interrupt-enable
+register (sie). in Volume II: Privileged Architecture)</p>
 <h3><a class="header" href="#exception-program-counters-mepcsepc" id="exception-program-counters-mepcsepc">Exception Program Counters (mepc/sepc)</a></h3>
 <h3><a class="header" href="#trap-cause-registers-mcausescause" id="trap-cause-registers-mcausescause">Trap Cause Registers (mcause/scause)</a></h3>
 <h3><a class="header" href="#trap-value-registers-mtvalstval" id="trap-value-registers-mtvalstval">Trap Value Registers (mtval/stval)</a></h3>
@@ -270,14 +286,14 @@ including <code>regs</code>, <code>pc</code>, and <code>bus</code> in CPU.</p>
 <span class="boring">}
 </span></code></pre></pre>
 <h2><a class="header" href="#zicsr-standard-extension" id="zicsr-standard-extension">Zicsr Standard Extension</a></h2>
-<p>Fig 3.1 is the list for instructions to read-modify-write CSRs. RISC-V calls
+<p>Fig 3.99 is the list for instructions to read-modify-write CSRs. RISC-V calls
 the 6 instructions <strong>Zicsr standard extension</strong>.</p>
 <p>A CSR specifier is encoded in the 12-bit <code>csr</code> field of the instruction placed
 at 31–20 bits. There are 12 bits for specifying which CSR is selected so that we
 have 4096 CSRs (=2**12). The <code>uimm</code> field is unsigned immediate value, a 5-bit
 zero-extended.</p>
-<p><img src="../img/1-3-1.png" alt="Fig 3.1 RV64Zicsr Instruction Set (Source: RV32/RV64 Zicsr Standard Extension table. in Volume I: Unprivileged ISA)" /></p>
-<p class="caption">Fig 3.1 RV64Zicsr Instruction Set (Source: RV32/RV64 Zicsr
+<p><img src="../img/1-3-99.png" alt="Fig 3.99 RV64Zicsr Instruction Set (Source: RV32/RV64 Zicsr Standard Extension table. in Volume I: Unprivileged ISA)" /></p>
+<p class="caption">Fig 3.99 RV64Zicsr Instruction Set (Source: RV32/RV64 Zicsr
 Standard Extension table in Volume I: Unprivileged ISA)</p>
 
                     </main>
