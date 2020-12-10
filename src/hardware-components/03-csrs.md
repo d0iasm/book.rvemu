@@ -16,22 +16,6 @@ additional information of the result of instructions.
 We will add Zicsr instructions, `csrrw`, `csrrs`, `csrrc`, `csrrwi`, `csrrsi`,
 and `csrrci`.
 
-## Zicsr Standard Extension
-
-Fig 3.1 is the list for instructions to read-modify-write CSRs. RISC-V calls
-the 6 instructions **Zicsr standard extension**.
-
-A CSR specifier is encoded in the 12-bit `csr` field of the instruction placed
-at 31–20 bits. There are 12 bits for specifying which CSR is selected so that we
-have 4096 CSRs (=2\*\*12). The `uimm` field is unsigned immediate value, a 5-bit
-zero-extended.
-
-![Fig 3.1 RV64Zicsr Instruction Set (Source: RV32/RV64 Zicsr Standard Extension
-table. in Volume I: Unprivileged ISA)](../img/1-3-1.png)
-
-<p class="caption">Fig 3.1 RV64Zicsr Instruction Set (Source: RV32/RV64 Zicsr
-Standard Extension table in Volume I: Unprivileged ISA)</p>
-
 ## Control and Status Registers (CSRs)
 
 Control and status register (CSR) is a register that stores various information
@@ -41,30 +25,12 @@ part of address space so we can add custom CSRs if we want. Also, not all CSRs
 are required on all implementations. In this book, I'll describe only CSRs used
 in [xv6-riscv](https://github.com/mit-pdos/xv6-riscv).
 
-First, we're going to add `csrs` field to `Cpu` structure. We now have 4 fields
-including `regs`, `pc`, and `bus` in CPU.
+Fig 3.2-3.4 list the machine-level and supervisor CSRs that are currently
+allocated CSR addresses. The next page will talk about what machine-level and
+supervisor-level are.
 
-<p class="filename">csr.rs</p>
-
-```rust
-pub struct Cpu {
-    pub regs: [u64; 32],
-    pub pc: u64,
-    /// Control and status registers. RISC-V ISA sets aside a 12-bit encoding
-    /// space (csr[11:0]) for up to 4096 CSRs.
-    pub csrs: [u64; 4096],
-    pub bus: Bus,
-}
-```
-
-### CSR List
-
-Fig 3.2-3.4 list the CSRs that are currently allocated CSR addresses. You can
-add custom CSRs at the unallocated space if you want.
-
-We will suport the following CSRs, a part of allocated CSRs:
-
-- mstatus
+We will support a part of the allocated CSRs. The book describes them in the
+following sections.
 
 ![Fig 3.2 Machine-level CSRs 1 (Source: Table 2.5: Currently allocated RISC-V
 machine-level CSR addresses. in Volume II: Privileged
@@ -89,4 +55,90 @@ Architecture)](../img/1-3-4.png)
 <p class="caption">Fig 3.4 Supervisor-level CSRs (Source: Table 2.3: Currently
 allocated RISC-V supervisor-level CSR addresses. in Volume II: Privileged
 Architecture)</p>
+
+### Status Registers (mstatus/sstatus)
+
+The status registers, `mstatus` as a machine-level CSR and `sstatus` as
+a supervisor-level CSR, keep track of and control the CPU's current operating
+status.
+
+<p class="filename">cpu.rs</p>
+
+```rust
+/// Machine status register.
+pub const MSTATUS: usize = 0x300;
+/// Supervisor status register.
+pub const SSTATUS: usize = 0x100;
+```
+
+### Trap-vector Base-address Registers (mtvec/stvecc)
+
+The trap-vector base address registers, `mtvec` as a machine-level CSR and
+`stvec` as a supervisor-level CSR, trap vector configuration.
+
+<p class="filename">cpu.rs</p>
+
+```rust
+/// Machine trap-handler base address.
+pub const MTVEC: usize = 0x305;
+/// Supervisor trap handler base address.
+pub const STVEC: usize = 0x105;
+```
+
+### Machine Trap Delegation Registers (medeleg/mideleg)
+
+The trap delegation registers, `medeleg` for machine-level exception delegation
+and `mideleg` for machine-level interrupt delegation, indicate the certain
+exceptions and interrupts should be directly by a lower privileged level.
+
+```rust
+/// Machine exception delefation register.
+pub const MEDELEG: usize = 0x302;
+/// Machine interrupt delefation register.
+pub const MIDELEG: usize = 0x303;
+```
+
+### Interrupt Registers (mip/mie/sip/sie)
+
+### Exception Program Counters (mepc/sepc)
+
+### Trap Cause Registers (mcause/scause)
+
+### Trap Value Registers (mtval/stval)
+
+### Supervisor Address Translation and Protection Register (satp)
+
+## Add CSRs to CPU
+
+First, we're going to add `csrs` field to `Cpu` structure. We now have 4 fields
+including `regs`, `pc`, and `bus` in CPU.
+
+<p class="filename">cpu.rs</p>
+
+```rust
+pub struct Cpu {
+    pub regs: [u64; 32],
+    pub pc: u64,
+    /// Control and status registers. RISC-V ISA sets aside a 12-bit encoding
+    /// space (csr[11:0]) for up to 4096 CSRs.
+    pub csrs: [u64; 4096],
+    pub bus: Bus,
+}
+```
+
+## Zicsr Standard Extension
+
+Fig 3.1 is the list for instructions to read-modify-write CSRs. RISC-V calls
+the 6 instructions **Zicsr standard extension**.
+
+A CSR specifier is encoded in the 12-bit `csr` field of the instruction placed
+at 31–20 bits. There are 12 bits for specifying which CSR is selected so that we
+have 4096 CSRs (=2\*\*12). The `uimm` field is unsigned immediate value, a 5-bit
+zero-extended.
+
+![Fig 3.1 RV64Zicsr Instruction Set (Source: RV32/RV64 Zicsr Standard Extension
+table. in Volume I: Unprivileged ISA)](../img/1-3-1.png)
+
+<p class="caption">Fig 3.1 RV64Zicsr Instruction Set (Source: RV32/RV64 Zicsr
+Standard Extension table in Volume I: Unprivileged ISA)</p>
 
