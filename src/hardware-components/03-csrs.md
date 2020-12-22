@@ -223,6 +223,11 @@ Trap Value register. in Volume II: Privileged Architecture)</p>
 
 ### Supervisor Address Translation and Protection Register (satp)
 
+The supervisor address translation and protection register, `satp` for
+S-mode, controls supervisor-mode address translation and protection.
+
+`satp` is allocated at `0x180`.
+
 ![Fig 3.19 satp register (Source: Figure 4.14: RV64 Supervisor address
 translation and protection register satp, for MODE values Bare, Sv39, and
 Sv48. in Volume II: Privileged Architecture)](../img/1-3-19.png)
@@ -249,9 +254,36 @@ pub struct Cpu {
 }
 ```
 
+## Load/store CSR methods
+
+Second, we're going to add wrapper methods for load/store CSRs because
+restricted views of CSRs for M-mode appear as CSRs for S-mode. Wrapper
+methods can mimic this restricted views.
+
+```rust
+fn load_csr(&self, addr: usize) -> u64 {
+    match addr {
+        SIE => self.csrs[MIE] & self.csrs[MIDELEG],
+        _ => self.csrs[addr],
+    }
+}
+```
+
+```rust
+fn store_csr(&mut self, addr: usize, value: u64) {
+    match addr {
+        SIE => {
+            self.csrs[MIE] =
+                (self.csrs[MIE] & !self.csrs[MIDELEG]) | (value & self.csrs[MIDELEG]);
+        }
+        _ => self.csrs[addr] = value,
+    }
+}
+```
+
 ## Zicsr Standard Extension
 
-Fig 3.99 is the list for instructions to read-modify-write CSRs. RISC-V calls
+Fig 3.20 is the list for instructions to read-modify-write CSRs. RISC-V calls
 the 6 instructions **Zicsr standard extension**.
 
 A CSR specifier is encoded in the 12-bit `csr` field of the instruction placed
@@ -259,9 +291,9 @@ at 31–20 bits. There are 12 bits for specifying which CSR is selected so that 
 have 4096 CSRs (=2\*\*12). The `uimm` field is unsigned immediate value, a 5-bit
 zero-extended.
 
-![Fig 3.99 RV64Zicsr Instruction Set (Source: RV32/RV64 Zicsr Standard Extension
-table. in Volume I: Unprivileged ISA)](../img/1-3-99.png)
+![Fig 3.20 RV64Zicsr Instruction Set (Source: RV32/RV64 Zicsr Standard Extension
+table. in Volume I: Unprivileged ISA)](../img/1-3-20.png)
 
-<p class="caption">Fig 3.99 RV64Zicsr Instruction Set (Source: RV32/RV64 Zicsr
+<p class="caption">Fig 3.20 RV64Zicsr Instruction Set (Source: RV32/RV64 Zicsr
 Standard Extension table in Volume I: Unprivileged ISA)</p>
 
