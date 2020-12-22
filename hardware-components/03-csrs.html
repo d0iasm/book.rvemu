@@ -173,8 +173,8 @@ your emulator eventually.</p>
 <a href="https://github.com/d0iasm/rvemu-for-book/tree/master/03">d0iasm/rvemu-for-book/03/</a>.</p>
 <h2><a class="header" href="#the-goal-of-this-page" id="the-goal-of-this-page">The Goal of This Page</a></h2>
 <p>In this page, we will implement read-and-modify control and status registers
-(CSRs), which are defined at the Zicsr extension. CSRs are registers that store
-additional information of the result of instructions.</p>
+(CSRs) instructions, which are defined at the Zicsr extension. CSRs are
+registers that store additional information of the result of instructions.</p>
 <p>We will add Zicsr instructions, <code>csrrw</code>, <code>csrrs</code>, <code>csrrc</code>, <code>csrrwi</code>, <code>csrrsi</code>,
 and <code>csrrci</code>, to read and write CSRs.</p>
 <h2><a class="header" href="#control-and-status-registers-csrs" id="control-and-status-registers-csrs">Control and Status Registers (CSRs)</a></h2>
@@ -265,10 +265,43 @@ register (sip). in Volume II: Privileged Architecture)</p>
 <p class="caption">Fig 3.12 sie register (Source: Figure 4.5: Supervisor interrupt-enable
 register (sie). in Volume II: Privileged Architecture)</p>
 <h3><a class="header" href="#exception-program-counters-mepcsepc" id="exception-program-counters-mepcsepc">Exception Program Counters (mepc/sepc)</a></h3>
+<p>The exception program counters, <code>mepc</code> for M-mode and <code>sepc</code> for S-mode,
+contain the information about the program counter when an exception happens.</p>
+<p><code>mepc</code> is allocated at <code>0x341</code> and <code>sepc</code> is <code>0x141</code>.</p>
+<p><img src="../img/1-3-13.png" alt="Fig 3.13 mepc register (Source: Figure 3.24: Machine exception program counter register. in Volume II: Privileged Architecture)" /></p>
+<p class="caption">Fig 3.13 mepc register (Source: Figure 3.24: Machine
+exception program counter register. in Volume II: Privileged
+Architecture)</p>
+<p><img src="../img/1-3-14.png" alt="Fig 3.14 sepc register (Source: Figure 4.10: Supervisor exception program counter register. in Volume II: Privileged Architecture)" /></p>
+<p class="caption">Fig 3.14 sepc register (Source: Figure 4.10: Supervisor
+exception program counter register. in Volume II: Privileged
+Architecture)</p>
 <h3><a class="header" href="#trap-cause-registers-mcausescause" id="trap-cause-registers-mcausescause">Trap Cause Registers (mcause/scause)</a></h3>
+<p>The trap cause registers, <code>mcause</code> for M-mode and <code>scause</code> for S-Mode,
+contain a code indicating the event that caused the trap.</p>
+<p><code>mcause</code> is allocated at <code>0x342</code> and <code>scause</code> is <code>0x142</code>.</p>
+<p><img src="../img/1-3-15.png" alt="Fig 3.15 mcause register (Source: Figure 3.25: Machine Cause register mcause. in Volume II: Privileged Architecture)" /></p>
+<p class="caption">Fig 3.15 mcause register (Source: Figure 3.25: Machine
+Cause register mcause. in Volume II: Privileged Architecture)</p>
+<p><img src="../img/1-3-16.png" alt="Fig 3.16 scause register (Source: Figure 4.11: Supervisor Cause register scause. in Volume II: Privileged Architecture)" /></p>
+<p class="caption">Fig 3.16 scause register (Source: Figure 4.11: Supervisor
+Cause register scause. in Volume II: Privileged Architecture)</p>
 <h3><a class="header" href="#trap-value-registers-mtvalstval" id="trap-value-registers-mtvalstval">Trap Value Registers (mtval/stval)</a></h3>
+<p>The trap value registers, <code>mtval</code> for M-mode and <code>stval</code> for S-mode, contain
+the information about a trap.</p>
+<p><code>mtval</code> is allocated at <code>0x343</code> and <code>stval</code> is <code>0x143</code>.</p>
+<p><img src="../img/1-3-17.png" alt="Fig 3.17 mtval register (Source: Figure 3.26: Machine Trap Value register. in Volume II: Privileged Architecture)" /></p>
+<p class="caption">Fig 3.17 mtval register (Source: Figure 3.26: Machine Trap
+Value register. in Volume II: Privileged Architecture)</p>
+<p><img src="../img/1-3-18.png" alt="Fig 3.18 stval register (Source: Figure 4.12: Supervisor Trap Value register. in Volume II: Privileged Architecture)" /></p>
+<p class="caption">Fig 3.18 stval register (Source: Figure 4.12: Supervisor
+Trap Value register. in Volume II: Privileged Architecture)</p>
 <h3><a class="header" href="#supervisor-address-translation-and-protection-register-satp" id="supervisor-address-translation-and-protection-register-satp">Supervisor Address Translation and Protection Register (satp)</a></h3>
-<h2><a class="header" href="#add-csrs-to-cpu" id="add-csrs-to-cpu">Add CSRs to CPU</a></h2>
+<p><img src="../img/1-3-19.png" alt="Fig 3.19 satp register (Source: Figure 4.14: RV64 Supervisor address translation and protection register satp, for MODE values Bare, Sv39, and Sv48. in Volume II: Privileged Architecture)" /></p>
+<p class="caption">Fig 3.19 satp register (Source: Figure 4.14: RV64
+Supervisor address translation and protection register satp, for MODE values
+Bare, Sv39, and Sv48. in Volume II: Privileged Architecture)</p>
+<h2><a class="header" href="#add-csrs-array-to-cpu" id="add-csrs-array-to-cpu">Add CSRs array to CPU</a></h2>
 <p>First, we're going to add <code>csrs</code> field to <code>Cpu</code> structure. We now have 4 fields
 including <code>regs</code>, <code>pc</code>, and <code>bus</code> in CPU.</p>
 <p class="filename">cpu.rs</p>
