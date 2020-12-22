@@ -10,8 +10,8 @@ The source code used in this page is available at
 ## The Goal of This Page
 
 In this page, we will implement read-and-modify control and status registers
-(CSRs), which are defined at the Zicsr extension. CSRs are registers that store
-additional information of the result of instructions.
+(CSRs) instructions, which are defined at the Zicsr extension. CSRs are
+registers that store additional information of the result of instructions.
 
 We will add Zicsr instructions, `csrrw`, `csrrs`, `csrrc`, `csrrwi`, `csrrsi`,
 and `csrrci`, to read and write CSRs.
@@ -164,13 +164,79 @@ register (sie). in Volume II: Privileged Architecture)</p>
 
 ### Exception Program Counters (mepc/sepc)
 
+The exception program counters, `mepc` for M-mode and `sepc` for S-mode,
+contain the information about the program counter when an exception happens.
+
+`mepc` is allocated at `0x341` and `sepc` is `0x141`.
+
+![Fig 3.13 mepc register (Source: Figure 3.24: Machine exception program
+counter register. in Volume II: Privileged Architecture)](../img/1-3-13.png)
+
+<p class="caption">Fig 3.13 mepc register (Source: Figure 3.24: Machine
+exception program counter register. in Volume II: Privileged
+Architecture)</p>
+
+![Fig 3.14 sepc register (Source: Figure 4.10: Supervisor exception program
+counter register. in Volume II: Privileged Architecture)](../img/1-3-14.png)
+
+<p class="caption">Fig 3.14 sepc register (Source: Figure 4.10: Supervisor
+exception program counter register. in Volume II: Privileged
+Architecture)</p>
+
 ### Trap Cause Registers (mcause/scause)
+
+The trap cause registers, `mcause` for M-mode and `scause` for S-Mode,
+contain a code indicating the event that caused the trap.
+
+`mcause` is allocated at `0x342` and `scause` is `0x142`.
+
+![Fig 3.15 mcause register (Source: Figure 3.25: Machine Cause register
+mcause. in Volume II: Privileged Architecture)](../img/1-3-15.png)
+
+<p class="caption">Fig 3.15 mcause register (Source: Figure 3.25: Machine
+Cause register mcause. in Volume II: Privileged Architecture)</p>
+
+![Fig 3.16 scause register (Source: Figure 4.11: Supervisor Cause register
+scause. in Volume II: Privileged Architecture)](../img/1-3-16.png)
+
+<p class="caption">Fig 3.16 scause register (Source: Figure 4.11: Supervisor
+Cause register scause. in Volume II: Privileged Architecture)</p>
 
 ### Trap Value Registers (mtval/stval)
 
+The trap value registers, `mtval` for M-mode and `stval` for S-mode, contain
+the information about a trap.
+
+`mtval` is allocated at `0x343` and `stval` is `0x143`.
+
+![Fig 3.17 mtval register (Source: Figure 3.26: Machine Trap Value register.
+in Volume II: Privileged Architecture)](../img/1-3-17.png)
+
+<p class="caption">Fig 3.17 mtval register (Source: Figure 3.26: Machine Trap
+Value register. in Volume II: Privileged Architecture)</p>
+
+![Fig 3.18 stval register (Source: Figure 4.12: Supervisor Trap Value
+register. in Volume II: Privileged Architecture)](../img/1-3-18.png)
+
+<p class="caption">Fig 3.18 stval register (Source: Figure 4.12: Supervisor
+Trap Value register. in Volume II: Privileged Architecture)</p>
+
 ### Supervisor Address Translation and Protection Register (satp)
 
-## Add CSRs to CPU
+The supervisor address translation and protection register, `satp` for
+S-mode, controls supervisor-mode address translation and protection.
+
+`satp` is allocated at `0x180`.
+
+![Fig 3.19 satp register (Source: Figure 4.14: RV64 Supervisor address
+translation and protection register satp, for MODE values Bare, Sv39, and
+Sv48. in Volume II: Privileged Architecture)](../img/1-3-19.png)
+
+<p class="caption">Fig 3.19 satp register (Source: Figure 4.14: RV64
+Supervisor address translation and protection register satp, for MODE values
+Bare, Sv39, and Sv48. in Volume II: Privileged Architecture)</p>
+
+## Add CSRs array to CPU
 
 First, we're going to add `csrs` field to `Cpu` structure. We now have 4 fields
 including `regs`, `pc`, and `bus` in CPU.
@@ -188,9 +254,36 @@ pub struct Cpu {
 }
 ```
 
+## Load/store CSR methods
+
+Second, we're going to add wrapper methods for load/store CSRs because
+restricted views of CSRs for M-mode appear as CSRs for S-mode. Wrapper
+methods can mimic this restricted views.
+
+```rust
+fn load_csr(&self, addr: usize) -> u64 {
+    match addr {
+        SIE => self.csrs[MIE] & self.csrs[MIDELEG],
+        _ => self.csrs[addr],
+    }
+}
+```
+
+```rust
+fn store_csr(&mut self, addr: usize, value: u64) {
+    match addr {
+        SIE => {
+            self.csrs[MIE] =
+                (self.csrs[MIE] & !self.csrs[MIDELEG]) | (value & self.csrs[MIDELEG]);
+        }
+        _ => self.csrs[addr] = value,
+    }
+}
+```
+
 ## Zicsr Standard Extension
 
-Fig 3.99 is the list for instructions to read-modify-write CSRs. RISC-V calls
+Fig 3.20 is the list for instructions to read-modify-write CSRs. RISC-V calls
 the 6 instructions **Zicsr standard extension**.
 
 A CSR specifier is encoded in the 12-bit `csr` field of the instruction placed
@@ -198,9 +291,9 @@ at 31–20 bits. There are 12 bits for specifying which CSR is selected so that 
 have 4096 CSRs (=2\*\*12). The `uimm` field is unsigned immediate value, a 5-bit
 zero-extended.
 
-![Fig 3.99 RV64Zicsr Instruction Set (Source: RV32/RV64 Zicsr Standard Extension
-table. in Volume I: Unprivileged ISA)](../img/1-3-99.png)
+![Fig 3.20 RV64Zicsr Instruction Set (Source: RV32/RV64 Zicsr Standard Extension
+table. in Volume I: Unprivileged ISA)](../img/1-3-20.png)
 
-<p class="caption">Fig 3.99 RV64Zicsr Instruction Set (Source: RV32/RV64 Zicsr
+<p class="caption">Fig 3.20 RV64Zicsr Instruction Set (Source: RV32/RV64 Zicsr
 Standard Extension table in Volume I: Unprivileged ISA)</p>
 
