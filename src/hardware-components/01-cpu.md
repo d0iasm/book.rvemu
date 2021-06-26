@@ -99,6 +99,7 @@ $ git clone --recursive https://github.com/riscv/riscv-gnu-toolchain
 $ cd riscv-gnu-toolchain
 $ ./configure --prefix=<path-to-riscv-toolchain> --with-arch=rv64g
 $ make && make linux
+$ export PATH="<path-to-riscv-toolchain>:$PATH"
 // Now we can use riscv64-unknown-elf-* commands!
 ```
 
