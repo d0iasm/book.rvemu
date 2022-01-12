@@ -284,9 +284,22 @@ ordering does the opposite.
 
 <p class="caption">Fig 1.1 Little-endian and big-endian 2 instructions.</p>
 
-RISC-V has either little-endian or big-endian byte order. Our emulator only
+RISC-V has either little-endian or big-endian byte order,
+but instructions are stored in little-endian regardless; as the unprivileged ISA spec (version 20191213) puts it:
+
+> RISC-V base ISAs have either little-endian or big-endian memory systems, with the privileged
+> architecture further defining bi-endian operation. Instructions are stored in memory as a sequence
+> of 16-bit little-endian parcels, regardless of memory system endianness. Parcels forming one in￾struction are stored at increasing halfword addresses, with the lowest-addressed parcel holding the
+> lowest-numbered bits in the instruction specification.
+
+(The parcels make no difference in practice: everything ends up in the same order even if we don't chop instructions up into 16-bit pieces.)
+
+Our emulator only
 supports a little-endian system because RISC-V originally chose little-endian
 byte ordering and it's currently dominant commercially like x86 systems.
+However, since instructions are always little-endian,
+that limitation doesn't crop up until the `load32`, `store32`,
+etc. methods in the *next* section.
 
 Our memory is the vector of `u8` , so read 4 elements from the memory and shift
 them in the little-endian ordering.
