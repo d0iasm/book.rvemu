@@ -289,7 +289,7 @@ but instructions are stored in little-endian regardless; as the unprivileged ISA
 
 > RISC-V base ISAs have either little-endian or big-endian memory systems, with the privileged
 > architecture further defining bi-endian operation. Instructions are stored in memory as a sequence
-> of 16-bit little-endian parcels, regardless of memory system endianness. Parcels forming one in￾struction are stored at increasing halfword addresses, with the lowest-addressed parcel holding the
+> of 16-bit little-endian parcels, regardless of memory system endianness. Parcels forming one instruction are stored at increasing halfword addresses, with the lowest-addressed parcel holding the
 > lowest-numbered bits in the instruction specification.
 
 (The parcels make no difference in practice: everything ends up in the same order even if we don't chop instructions up into 16-bit pieces.)
