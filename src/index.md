@@ -12,7 +12,7 @@ The source code used in this book is available at [d0iasm/rvemu-for-book](https:
 
 ## Chapter 1
 
-[Chapter 1](hardware-components/index.md) shows all hardward components we need to implement for running `xv6`.
+[Chapter 1](hardware-components/index.md) shows all hardware components we need to implement for running `xv6`.
 
 1. [CPU with Two Instructions](hardware-components/01-cpu.md)
 2. [Memory and System Bus](hardware-components/02-memory.md)
